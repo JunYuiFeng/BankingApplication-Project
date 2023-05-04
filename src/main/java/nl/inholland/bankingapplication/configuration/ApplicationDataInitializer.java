@@ -24,6 +24,12 @@ public class ApplicationDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        loadBackAccounts();
+
+        loadUserAccounts();
+    }
+
+    private void loadBackAccounts() {
         List.of(
                 new BankAccountDTO("NL58RABO4228435912", "current", "active", 1000.00),
                 new BankAccountDTO("NL58RABO4228435913", "saving", "active", 1000.00),
@@ -33,8 +39,6 @@ public class ApplicationDataInitializer implements ApplicationRunner {
         );
 
         bankAccountService.getAllBankAccounts().forEach(System.out::println);
-
-        loadUserAccounts();
     }
 
     public void loadUserAccounts(){
