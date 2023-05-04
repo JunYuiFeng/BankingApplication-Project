@@ -2,7 +2,9 @@ package nl.inholland.bankingapplication.configuration;
 
 import jakarta.transaction.Transactional;
 import nl.inholland.bankingapplication.models.dto.BankAccountDTO;
+import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
 import nl.inholland.bankingapplication.services.BankAccountService;
+import nl.inholland.bankingapplication.services.UserAccountService;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
@@ -13,9 +15,11 @@ import java.util.List;
 @Transactional
 public class ApplicationDataInitializer implements ApplicationRunner {
     private BankAccountService bankAccountService;
+    private UserAccountService userAccountService;
 
-    public ApplicationDataInitializer(BankAccountService bankAccountService) {
+    public ApplicationDataInitializer(BankAccountService bankAccountService, UserAccountService userAccountService) {
         this.bankAccountService = bankAccountService;
+        this.userAccountService = userAccountService;
     }
 
     @Override
@@ -29,5 +33,19 @@ public class ApplicationDataInitializer implements ApplicationRunner {
         );
 
         bankAccountService.getAllBankAccounts().forEach(System.out::println);
+
+        loadUserAccounts();
+    }
+
+    public void loadUserAccounts(){
+        List.of(
+                new UserAccountDTO("John", "Doe", "JohnDoe@gmail.com", "JohnDoe", "secret123"),
+                new UserAccountDTO("Karen", "Winter", "KarenWinter@gmail.com", "KarenWinter", "secret123"),
+                new UserAccountDTO("Steve", "Woo", "SteveWoo@gmail.com", "SteveWoo", "secret123")
+        ).forEach(
+                dto -> userAccountService.addUserAccount(dto)
+        );
+
+        userAccountService.getAllUserAccounts().forEach(System.out::println);
     }
 }
