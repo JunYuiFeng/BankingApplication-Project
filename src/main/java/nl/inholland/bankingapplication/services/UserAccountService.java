@@ -57,6 +57,7 @@ public class UserAccountService {
         newUserAccount.setEmail(dto.getEmail());
         newUserAccount.setUsername(dto.getUsername());
         newUserAccount.setPassword(dto.getPassword());
+        newUserAccount.setType(dto.getType());
 
         return newUserAccount;
     }
