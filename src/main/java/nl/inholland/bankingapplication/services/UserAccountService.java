@@ -60,4 +60,14 @@ public class UserAccountService {
 
         return newUserAccount;
     }
+    public UserAccount login(String username, String password){
+        //TODO change user account to USER please
+        UserAccount user = userAccountRepository.findUserAccountByUsername(username);
+        //once it is hashed, this will be changed
+        if(password.equals(user.getPassword())){
+            return user;
+        }else {
+            return null;
+        }
+    }
 }
