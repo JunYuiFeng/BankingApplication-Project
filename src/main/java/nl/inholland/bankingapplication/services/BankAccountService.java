@@ -4,6 +4,8 @@ import jakarta.persistence.EntityNotFoundException;
 import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.dto.BankAccountDTO;
 import nl.inholland.bankingapplication.repositories.BankAccountRepository;
+import org.iban4j.CountryCode;
+import org.iban4j.Iban;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -47,5 +49,15 @@ public class BankAccountService {
         newBankAccount.setIBAN(dto.getIBAN());
 
         return newBankAccount;
+    }
+
+    public Iban GenerateIBAN(){
+        Iban iban = Iban.random(CountryCode.NL);
+        iban = Iban.random();
+        iban = new Iban.Builder()
+                .countryCode(CountryCode.NL)
+                .bankCode("INHO")
+                .buildRandom();
+        return iban;
     }
 }

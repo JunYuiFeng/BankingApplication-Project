@@ -24,24 +24,29 @@ public class ApplicationDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        loadBackAccounts();
+
+        loadUserAccounts();
+    }
+
+    //TODO: Need to somehow save the generated IBANs to the database -Jason
+    private void loadBackAccounts() {
         List.of(
-                new BankAccountDTO("NL58RABO4228435912", "current", "active", 1000.00),
-                new BankAccountDTO("NL58RABO4228435913", "saving", "active", 1000.00),
-                new BankAccountDTO("NL58RABO4228435914", "saving", "active", 1000.00)
+                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "current", "active", 1000.00),
+                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "saving", "active", 1000.00),
+                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "saving", "active", 1000.00)
         ).forEach(
                 dto -> bankAccountService.addBankAccount(dto)
         );
 
         bankAccountService.getAllBankAccounts().forEach(System.out::println);
-
-        loadUserAccounts();
     }
 
     public void loadUserAccounts(){
         List.of(
-                new UserAccountDTO("John", "Doe", "JohnDoe@gmail.com", "JohnDoe", "secret123"),
-                new UserAccountDTO("Karen", "Winter", "KarenWinter@gmail.com", "KarenWinter", "secret123"),
-                new UserAccountDTO("Steve", "Woo", "SteveWoo@gmail.com", "SteveWoo", "secret123")
+                new UserAccountDTO("John", "Doe", "JohnDoe@gmail.com", "JohnDoe", "secret123", "customer"),
+                new UserAccountDTO("Karen", "Winter", "KarenWinter@gmail.com", "KarenWinter", "secret123", "employee"),
+                new UserAccountDTO("Steve", "Woo", "SteveWoo@gmail.com", "SteveWoo", "secret123", "registeredUser")
         ).forEach(
                 dto -> userAccountService.addUserAccount(dto)
         );
