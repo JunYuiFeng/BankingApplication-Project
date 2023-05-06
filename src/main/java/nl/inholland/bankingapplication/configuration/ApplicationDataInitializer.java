@@ -1,6 +1,7 @@
 package nl.inholland.bankingapplication.configuration;
 
 import jakarta.transaction.Transactional;
+import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.dto.BankAccountDTO;
 import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
 import nl.inholland.bankingapplication.services.BankAccountService;
@@ -38,6 +39,7 @@ public class ApplicationDataInitializer implements ApplicationRunner {
         ).forEach(
                 dto -> bankAccountService.addBankAccount(dto)
         );
+
 
         bankAccountService.getAllBankAccounts().forEach(System.out::println);
     }

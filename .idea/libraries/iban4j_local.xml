@@ -1,8 +1,8 @@
 <component name="libraryTable">
-  <library name="iban4j" type="repository">
+  <library name="iban4j-local" type="repository">
     <properties maven-id="org.iban4j:iban4j:3.2.5-RELEASE" />
     <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/iban4j/iban4j/3.2.5-RELEASE/iban4j-3.2.5-RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/iban4j-3.2.5-RELEASE.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
