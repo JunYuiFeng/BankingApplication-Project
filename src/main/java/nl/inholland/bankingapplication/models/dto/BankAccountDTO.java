@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class BankAccountDTO {
     private String IBAN;
-    //private int userId;
     private String type;
     private String status;
     private double balance;
+    private String username;
 }

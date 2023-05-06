@@ -25,21 +25,20 @@ public class ApplicationDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        loadBackAccounts();
-
         loadUserAccounts();
+
+        loadBackAccounts();
     }
 
     //TODO: Need to somehow save the generated IBANs to the database -Jason
     private void loadBackAccounts() {
         List.of(
-                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "current", "active", 1000.00),
-                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "saving", "active", 1000.00),
-                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "saving", "active", 1000.00)
+                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "current", "active", 1000.00, "JohnDoe"),
+                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "saving", "active", 1000.00, "KarenWinter"),
+                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "saving", "active", 1000.00, "SteveWoo")
         ).forEach(
                 dto -> bankAccountService.addBankAccount(dto)
         );
-
 
         bankAccountService.getAllBankAccounts().forEach(System.out::println);
     }

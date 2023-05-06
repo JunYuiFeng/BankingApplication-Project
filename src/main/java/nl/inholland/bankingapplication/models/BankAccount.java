@@ -3,6 +3,7 @@ package nl.inholland.bankingapplication.models;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,14 +16,17 @@ public class BankAccount {
     @GeneratedValue
     private Long id;
     private String IBAN;
-    //private int userId;
     private String type;
     private String status;
     private double balance;
+    //private double limit;
 
-    public BankAccount(String IBAN, String type, String status, double balance) {
+    @OneToOne
+    private UserAccount userAccount;
+
+    public BankAccount(String IBAN, String type, String status, double balance, UserAccount userAccount) {
         this.IBAN = IBAN;
-        //this.userId = userId;
+        this.userAccount = userAccount;
         this.status = status;
         this.type = type;
         this.balance = balance;
