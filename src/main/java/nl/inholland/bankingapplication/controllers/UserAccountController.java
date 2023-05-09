@@ -43,7 +43,7 @@ public class UserAccountController {
     }
 
     @DeleteMapping("delete/{id}")
-    public ResponseEntity deleteUserAccount(@PathVariable Long id) {
+    public ResponseEntity wdeleteUserAccount(@PathVariable Long id) {
         try {
             userAccountService.deleteUserAccount(id);
             return ResponseEntity.status(204).build();
