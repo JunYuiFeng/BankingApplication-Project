@@ -9,12 +9,10 @@ import nl.inholland.bankingapplication.models.dto.TransactionDTO;
 import nl.inholland.bankingapplication.repositories.TransactionRepository;
 import org.springframework.stereotype.Service;
 
-import java.sql.Time;
+
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TransactionService {
@@ -75,13 +73,12 @@ public class TransactionService {
     }
 
     private Transaction mapTransactionDtoToTransaction(TransactionDTO dto) {
-        Transaction transaction = new Transaction(dto.getAmount(), dto.getMadeBy(), dto.getAccountFrom(),dto.getAccountTo(), dto.getDescription(), dto.getOccuredAt());
-        return transaction;
+        return new Transaction(dto.getAmount(), dto.getMadeBy(), dto.getAccountFrom(),dto.getAccountTo(), dto.getDescription(), dto.getOccuredAt());
     }
     private Transaction mapMakeTransactionDtoToTransaction(MakeTransactionDTO dto){
         // TODO: For this to work I would need to know the bearer token in which is in the header which isn't implemented at the moment so this isn't able to be feature complete - Cody
         Date date = new Date();
-        Transaction transaction = new Transaction(dto.getAmount(), null, bankAccountService.getBankAccountByIBAN(dto.getAccountFrom()), bankAccountService.getBankAccountByIBAN(dto.getAccountTo()), dto.getDescription(), new Timestamp(date.getTime()));
-        return transaction;
+       return new Transaction(dto.getAmount(), null, bankAccountService.getBankAccountByIBAN(dto.getAccountFrom()), bankAccountService.getBankAccountByIBAN(dto.getAccountTo()), dto.getDescription(), new Timestamp(date.getTime()));
+
     }
 }
