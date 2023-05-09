@@ -3,6 +3,7 @@ package nl.inholland.bankingapplication.models.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import nl.inholland.bankingapplication.models.BankAccount;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,4 +14,5 @@ public class UserAccountDTO {
     private String email;
     private String username;
     private String password;
+    private String type;
 }

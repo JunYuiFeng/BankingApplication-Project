@@ -8,7 +8,8 @@ import nl.inholland.bankingapplication.services.BankAccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController //an annotation provided by Spring MVC that combines @Controller and @ResponseBody.
+// It is used to create a RESTful web service endpoint that directly returns data, rather than rendering a web page like traditional MVC controllers.
 @RequestMapping("BankAccounts")
 public class BankAccountController {
     private BankAccountService bankAccountService;
@@ -26,6 +27,15 @@ public class BankAccountController {
     public ResponseEntity getBankAccountById(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(bankAccountService.getBankAccountById(id));
+        } catch (EntityNotFoundException enfe) {
+            return this.handleException(404, enfe);
+        }
+    }
+
+    @GetMapping(params = "firstname")
+    public ResponseEntity<BankAccount> getBankAccountByFirstname(@RequestParam String firstname) {
+        try {
+            return ResponseEntity.ok(bankAccountService.getBankAccountByFirstname(firstname));
         } catch (EntityNotFoundException enfe) {
             return this.handleException(404, enfe);
         }

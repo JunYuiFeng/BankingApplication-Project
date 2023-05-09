@@ -1,8 +1,6 @@
 package nl.inholland.bankingapplication.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,11 +22,15 @@ public class UserAccount {
 
     private String password;
 
-    public UserAccount(String firstName, String lastName, String email, String username, String password) {
+    //TODO: maybe change to enum later -Jason
+    private String type;
+
+    public UserAccount(String firstName, String lastName, String email, String username, String password, String type) {
             this.firstName = firstName;
             this.lastName = lastName;
             this.email = email;
             this.username = username;
             this.password = password;
+            this.type = type;
     }
 }
