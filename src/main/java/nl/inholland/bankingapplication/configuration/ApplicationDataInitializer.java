@@ -45,9 +45,12 @@ public class ApplicationDataInitializer implements ApplicationRunner {
 
     public void loadUserAccounts(){
         List.of(
+
                 new UserAccountDTO("John", "Doe", "JohnDoe@gmail.com", "JohnDoe", "secret123", "customer"),
                 new UserAccountDTO("Karen", "Winter", "KarenWinter@gmail.com", "KarenWinter", "secret123", "employee"),
                 new UserAccountDTO("Steve", "Woo", "SteveWoo@gmail.com", "SteveWoo", "secret123", "registeredUser")
+				new UserAccountDTO("Alessandra", "Ribeiro", "ale@gmail.com", "ale", "123")
+
         ).forEach(
                 dto -> userAccountService.addUserAccount(dto)
         );
