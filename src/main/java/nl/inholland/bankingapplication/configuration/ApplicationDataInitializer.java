@@ -35,7 +35,8 @@ public class ApplicationDataInitializer implements ApplicationRunner {
         List.of(
                 new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "current", "active", 1000.00, "JohnDoe"),
                 new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "saving", "active", 1000.00, "KarenWinter"),
-                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "saving", "active", 1000.00, "SteveWoo")
+                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "saving", "active", 1000.00, "SteveWoo"),
+        new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "saving", "active", 1000.00, "ale")
         ).forEach(
                 dto -> bankAccountService.addBankAccount(dto)
         );
@@ -48,8 +49,8 @@ public class ApplicationDataInitializer implements ApplicationRunner {
 
                 new UserAccountDTO("John", "Doe", "JohnDoe@gmail.com", "JohnDoe", "secret123", "customer"),
                 new UserAccountDTO("Karen", "Winter", "KarenWinter@gmail.com", "KarenWinter", "secret123", "employee"),
-                new UserAccountDTO("Steve", "Woo", "SteveWoo@gmail.com", "SteveWoo", "secret123", "registeredUser")
-				new UserAccountDTO("Alessandra", "Ribeiro", "ale@gmail.com", "ale", "123")
+                new UserAccountDTO("Steve", "Woo", "SteveWoo@gmail.com", "SteveWoo", "secret123", "registeredUser"),
+				new UserAccountDTO("Alessandra", "Ribeiro", "ale@gmail.com", "ale", "123", "customer")
 
         ).forEach(
                 dto -> userAccountService.addUserAccount(dto)
