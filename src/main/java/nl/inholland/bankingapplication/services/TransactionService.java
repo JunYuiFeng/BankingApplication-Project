@@ -33,22 +33,26 @@ public class TransactionService {
     public List<Transaction> getTransactionsByUserId(Long id){
         UserAccount userAccount = userAccountService.getUserAccountById(id);
         return transactionRepository.findTransactionsByMadeBy(userAccount).orElseThrow(
-                () -> new EntityNotFoundException("no transactions have been made on this account" + id)
+                () -> new EntityNotFoundException("no transactions have been made on this account " + id)
         );
     }
 
     public List<Transaction> getTransactionsByIBANFrom(String IBAN){
-        BankAccount bankAccount = bankAccountService.getBankAccountByIBAN(IBAN);
-        return transactionRepository.findTransactionsByAccountFrom(bankAccount).orElseThrow(
-                () -> new EntityNotFoundException("no transactions have been made from this IBAN" + IBAN)
-        );
+        //TODO: which cant be done rn because there are no methods to access bank accounts by their IBAN - CODY
+        //BankAccount bankAccount = bankAccountService.getBankAccountByIBAN(IBAN);
+        //return transactionRepository.findTransactionsByAccountFrom(bankAccount).orElseThrow(
+         //       () -> new EntityNotFoundException("no transactions have been made from this IBAN " + IBAN)
+        //);
+        return null;
     }
 
     public List<Transaction> getTransactionsByIBANTo(String IBAN){
-        BankAccount bankAccount = bankAccountService.getBankAccountByIBAN(IBAN);
-        return transactionRepository.findTransactionsByAccountTo(bankAccount).orElseThrow(
-                () -> new EntityNotFoundException("no transactions have been send to this IBAN" + IBAN)
-        );
+      //  //TODO: which cant be done rn because there are no methods to access bank accounts by their IBAN - CODY
+        //BankAccount bankAccount = bankAccountService.getBankAccountByIBAN(IBAN);
+        //return transactionRepository.findTransactionsByAccountTo(bankAccount).orElseThrow(
+          //      () -> new EntityNotFoundException("no transactions have been send to this IBAN " + IBAN)
+        //);
+    return null;
     }
 
     public List<Transaction> getTransactionsByDateFrom(Timestamp dateFrom){
@@ -58,7 +62,7 @@ public class TransactionService {
     }
 
     public List<Transaction> getTransactionsByDateTo(Timestamp dateTo){
-        return transactionRepository.findTransactionsByOccuredAtAfter(dateTo).orElseThrow(
+        return transactionRepository.findTransactionsByOccuredAtBefore(dateTo).orElseThrow(
                 () -> new EntityNotFoundException("something went wrong")
         );
     }
@@ -68,17 +72,16 @@ public class TransactionService {
         );
     }
     public Transaction makeTransaction(MakeTransactionDTO makeTransactionDTO){
-        Transaction t = mapMakeTransactionDtoToTransaction(makeTransactionDTO);
-        return transactionRepository.save(t);
+        //Transaction t = mapMakeTransactionDtoToTransaction(makeTransactionDTO);
+      //  return transactionRepository.save(t);
+        return null;
     }
-
     private Transaction mapTransactionDtoToTransaction(TransactionDTO dto) {
         return new Transaction(dto.getAmount(), dto.getMadeBy(), dto.getAccountFrom(),dto.getAccountTo(), dto.getDescription(), dto.getOccuredAt());
     }
-    private Transaction mapMakeTransactionDtoToTransaction(MakeTransactionDTO dto){
+    //private Transaction mapMakeTransactionDtoToTransaction(MakeTransactionDTO dto){
         // TODO: For this to work I would need to know the bearer token in which is in the header which isn't implemented at the moment so this isn't able to be feature complete - Cody
-        Date date = new Date();
-       return new Transaction(dto.getAmount(), null, bankAccountService.getBankAccountByIBAN(dto.getAccountFrom()), bankAccountService.getBankAccountByIBAN(dto.getAccountTo()), dto.getDescription(), new Timestamp(date.getTime()));
-
-    }
+        //Date date = new Date();
+      //  return new Transaction(dto.getAmount(), null, bankAccountService.getBankAccountByIBAN(dto.getAccountFrom()), bankAccountService.getBankAccountByIBAN(dto.getAccountTo()), dto.getDescription(), new Timestamp(date.getTime()));
+    //}
 }

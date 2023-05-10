@@ -1,4 +1,5 @@
 package nl.inholland.bankingapplication.models;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
@@ -20,6 +21,7 @@ public class Transaction {
     public BankAccount accountFrom;
     @OneToOne
     public BankAccount accountTo;
+    @Nullable
     public String description;
     public Timestamp occuredAt;
 

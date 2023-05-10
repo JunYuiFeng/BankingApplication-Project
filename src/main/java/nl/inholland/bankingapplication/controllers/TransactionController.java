@@ -34,14 +34,12 @@ public class TransactionController {
     }
     @GetMapping
     public ResponseEntity GetTransactionsByIBANFrom(@RequestParam(required = false) String IBAN){
-        //TODO add these parameters which cant be done rn because there are no methods to access bank accounts by their IBAN - CODY
         try{
             return ResponseEntity.ok(transactionService.getTransactionsByIBANFrom(IBAN));
         } catch (EntityNotFoundException e) {return this.handleException(404, e);}
     }
     @GetMapping
     public ResponseEntity GetTransactionsByIBANTo(@RequestParam(required = false) String IBAN){
-        //TODO add these parameters which cant be done rn because there are no methods to access bank accounts by their IBAN - CODY
         try{
             return ResponseEntity.ok(transactionService.getTransactionsByIBANTo(IBAN));
         } catch (EntityNotFoundException e) {return this.handleException(404, e);}
