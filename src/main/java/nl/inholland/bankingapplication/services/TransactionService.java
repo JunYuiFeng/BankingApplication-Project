@@ -57,18 +57,18 @@ public class TransactionService {
 
     public List<Transaction> getTransactionsByDateFrom(Timestamp dateFrom){
         return transactionRepository.findTransactionsByOccuredAtAfter(dateFrom).orElseThrow(
-                () -> new EntityNotFoundException("something went wrong")
+                () -> new EntityNotFoundException("could not find transactions after timstamp "+ dateFrom)
         );
     }
 
     public List<Transaction> getTransactionsByDateTo(Timestamp dateTo){
         return transactionRepository.findTransactionsByOccuredAtBefore(dateTo).orElseThrow(
-                () -> new EntityNotFoundException("something went wrong")
+                () -> new EntityNotFoundException("could not find transactions before timestamp "+dateTo)
         );
     }
     public List<Transaction> getTransactionsByDateBetween(Timestamp dateFrom, Timestamp dateTo){
         return transactionRepository.findTransactionsByOccuredAtBetween(dateFrom, dateTo).orElseThrow(
-                () -> new EntityNotFoundException("something went wrong")
+                () -> new EntityNotFoundException("could not find transactions between timestamps "+ dateFrom+" "+dateTo)
         );
     }
     public Transaction makeTransaction(MakeTransactionDTO makeTransactionDTO){

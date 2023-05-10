@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -26,40 +27,40 @@ public class TransactionController {
     public ResponseEntity GetAllTransactions(){
         return ResponseEntity.ok(transactionService.getAllTransactions());
     }
-    @GetMapping
-    public ResponseEntity GetTransactionByUserId(@RequestParam(required = false) Long userId){
+    @GetMapping(path = "/Transactions/UserId")
+    public ResponseEntity GetTransactionByUserId(@RequestParam Long userId){
         try{
             return ResponseEntity.ok(transactionService.getTransactionsByUserId(userId));
         } catch (EntityNotFoundException e) {return this.handleException(404, e);}
     }
-    @GetMapping
-    public ResponseEntity GetTransactionsByIBANFrom(@RequestParam(required = false) String IBAN){
+    @GetMapping(path = "/Transactions/IBANFrom")
+    public ResponseEntity GetTransactionsByIBANFrom(@RequestParam String IBAN){
         try{
             return ResponseEntity.ok(transactionService.getTransactionsByIBANFrom(IBAN));
         } catch (EntityNotFoundException e) {return this.handleException(404, e);}
     }
-    @GetMapping
-    public ResponseEntity GetTransactionsByIBANTo(@RequestParam(required = false) String IBAN){
+    @GetMapping(path = "/Transactions/IBANTo")
+    public ResponseEntity GetTransactionsByIBANTo(@RequestParam String IBAN){
         try{
             return ResponseEntity.ok(transactionService.getTransactionsByIBANTo(IBAN));
         } catch (EntityNotFoundException e) {return this.handleException(404, e);}
     }
-    @GetMapping
-    public ResponseEntity GetTransactionsByDateFrom(@RequestParam(required = false) Timestamp dateFrom){
+    @GetMapping(path = "/Transactions/DateFrom")
+    public ResponseEntity GetTransactionsByDateFrom(@RequestParam Timestamp dateFrom){
         try{
             return ResponseEntity.ok(transactionService.getTransactionsByDateFrom(dateFrom));
         } catch (EntityNotFoundException e) {return this.handleException(404, e);}
     }
-    @GetMapping
-    public ResponseEntity GetTransactionsByDateTo(@RequestParam(required = false) Timestamp dateTo){
+    @GetMapping(path = "/Transactions/DateTo")
+    public ResponseEntity GetTransactionsByDateTo(@RequestParam Timestamp dateTo){
         try{
             return ResponseEntity.ok(transactionService.getTransactionsByDateTo(dateTo));
         } catch (EntityNotFoundException e) {return this.handleException(404, e);}
     }
-    @GetMapping
-    public ResponseEntity GetTransactionsByDateFromAndDateTo(@RequestParam(required = false) Timestamp dateFrom, @RequestParam(required = false) Timestamp dateTo){
+    @GetMapping(path = "/Transactions/DateBetween")
+    public ResponseEntity GetTransactionsByDateFromAndDateTo(@RequestParam List<Timestamp> timestamps){
         try{
-            return ResponseEntity.ok(transactionService.getTransactionsByDateBetween(dateFrom, dateTo));
+            return ResponseEntity.ok(transactionService.getTransactionsByDateBetween(timestamps.get(0), timestamps.get(1)));
         } catch (EntityNotFoundException e) {return this.handleException(404, e);}
     }
 
