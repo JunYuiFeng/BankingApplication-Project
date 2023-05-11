@@ -30,13 +30,14 @@ public class ApplicationDataInitializer implements ApplicationRunner {
         loadBackAccounts();
     }
 
-    //TODO: Need to somehow save the generated IBANs to the database -Jason
     private void loadBackAccounts() {
         List.of(
+                new BankAccountDTO("NL77ABNA5602795901", "current", "active", 1000.00, "Bank"),
+                new BankAccountDTO("NL71RABO3667086008", "current", "active", 1000.00, "JunFeng"),
                 new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "current", "active", 1000.00, "JohnDoe"),
                 new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "saving", "active", 1000.00, "KarenWinter"),
                 new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "saving", "active", 1000.00, "SteveWoo"),
-        new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "saving", "active", 1000.00, "ale")
+                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "saving", "active", 1000.00, "ale")
         ).forEach(
                 dto -> bankAccountService.addBankAccount(dto)
         );
@@ -46,7 +47,8 @@ public class ApplicationDataInitializer implements ApplicationRunner {
 
     public void loadUserAccounts(){
         List.of(
-
+                new UserAccountDTO("Bank", "Bank", "Bank@gmail.com", "Bank", "secret123", "customer"),
+                new UserAccountDTO("Jun", "Feng", "junfeng@gmail.com", "JunFeng", "secret123", "customer"),
                 new UserAccountDTO("John", "Doe", "JohnDoe@gmail.com", "JohnDoe", "secret123", "customer"),
                 new UserAccountDTO("Karen", "Winter", "KarenWinter@gmail.com", "KarenWinter", "secret123", "employee"),
                 new UserAccountDTO("Steve", "Woo", "SteveWoo@gmail.com", "SteveWoo", "secret123", "registeredUser"),

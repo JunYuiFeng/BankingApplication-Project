@@ -13,8 +13,6 @@ import lombok.NoArgsConstructor;
 public class BankAccount {
 
     @Id
-    @GeneratedValue
-    private Long id;
     private String IBAN;
     private String type;
     private String status;

@@ -24,8 +24,8 @@ public class BankAccountService {
         return (List<BankAccount>) bankAccountRepository.findAll();
     }
 
-    public BankAccount getBankAccountById(Long id) {
-        return bankAccountRepository.findById(id).orElseThrow(
+    public BankAccount getBankAccountByIBAN(String IBAN) {
+        return bankAccountRepository.findBankAccountByIBAN(IBAN).orElseThrow(
                 () -> new EntityNotFoundException("Bank account not found")
         );
     }

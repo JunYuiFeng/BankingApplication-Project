@@ -23,10 +23,10 @@ public class BankAccountController {
         return ResponseEntity.ok(bankAccountService.getAllBankAccounts());
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity getBankAccountById(@PathVariable Long id) {
+    @GetMapping("{IBAN}")
+    public ResponseEntity getBankAccountByIBAN(@PathVariable String IBAN) {
         try {
-            return ResponseEntity.ok(bankAccountService.getBankAccountById(id));
+            return ResponseEntity.ok(bankAccountService.getBankAccountByIBAN(IBAN));
         } catch (EntityNotFoundException enfe) {
             return this.handleException(404, enfe);
         }

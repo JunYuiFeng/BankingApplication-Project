@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface BankAccountRepository extends CrudRepository<BankAccount, Long>{
     Optional<BankAccount> findBankAccountByUserAccountFirstName(String firstname);
+    Optional<BankAccount> findBankAccountByIBAN(String IBAN);
 }
