@@ -3,6 +3,7 @@ package nl.inholland.bankingapplication.services;
 import jakarta.persistence.EntityNotFoundException;
 import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.dto.BankAccountDTO;
+import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.repositories.BankAccountRepository;
 import org.iban4j.CountryCode;
 import org.iban4j.Iban;
@@ -44,7 +45,7 @@ public class BankAccountService {
         BankAccount bankAccountToUpdate = bankAccountRepository
                 .findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Bank Account not found"));
-        bankAccountToUpdate.setStatus("inactive");
+        bankAccountToUpdate.setStatus(BankAccountStatus.ACTIVE);
 
         return bankAccountRepository.save(bankAccountToUpdate);
     }

@@ -4,6 +4,8 @@ import jakarta.transaction.Transactional;
 import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.dto.BankAccountDTO;
 import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
+import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
+import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import nl.inholland.bankingapplication.services.BankAccountService;
 import nl.inholland.bankingapplication.services.UserAccountService;
 import org.springframework.boot.ApplicationArguments;
@@ -32,12 +34,12 @@ public class ApplicationDataInitializer implements ApplicationRunner {
 
     private void loadBackAccounts() {
         List.of(
-                new BankAccountDTO("NL77ABNA5602795901", "current", "active", 1000.00, "Bank"),
-                new BankAccountDTO("NL71RABO3667086008", "current", "active", 1000.00, "JunFeng"),
-                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "current", "active", 1000.00, "JohnDoe"),
-                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "saving", "active", 1000.00, "KarenWinter"),
-                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "saving", "active", 1000.00, "SteveWoo"),
-                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), "saving", "active", 1000.00, "ale")
+                new BankAccountDTO("NL77ABNA5602795901", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, "Bank"),
+                new BankAccountDTO("NL71RABO3667086008", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, "JunFeng"),
+                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, "JohnDoe"),
+                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), BankAccountType.SAVINGS, BankAccountStatus.ACTIVE, 1000.00, 0, "KarenWinter"),
+                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), BankAccountType.SAVINGS, BankAccountStatus.ACTIVE, 1000.00, 0, "SteveWoo"),
+                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), BankAccountType.SAVINGS, BankAccountStatus.ACTIVE, 1000.00, 0, "ale")
         ).forEach(
                 dto -> bankAccountService.addBankAccount(dto)
         );
