@@ -15,5 +15,5 @@ public class BankAccountDTO {
     private BankAccountStatus status;
     private double balance;
     private double absoluteLimit;
-    private String username;
+    private Long id;
 }
