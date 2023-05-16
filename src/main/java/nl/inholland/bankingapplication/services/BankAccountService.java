@@ -53,21 +53,22 @@ public class BankAccountService {
     private BankAccount mapDtoToBankAccount(BankAccountDTO dto) {
         BankAccount bankAccount = new BankAccount();
         bankAccount.setType(dto.getType());
-        bankAccount.setStatus(dto.getStatus());
-        bankAccount.setBalance(dto.getBalance());
-        bankAccount.setIBAN(dto.getIBAN());
-        bankAccount.setUserAccount(userAccountService.getUserAccountByUsername(dto.getUsername()));
+        bankAccount.setStatus(BankAccountStatus.ACTIVE);
+        bankAccount.setBalance(0);
+        bankAccount.setAbsoluteLimit(0);
+        bankAccount.setIBAN(this.GenerateIBAN());
+        bankAccount.setUserAccount(userAccountService.getUserAccountById(dto.getId()));
 
         return bankAccount;
     }
 
-    public Iban GenerateIBAN(){
+    public String GenerateIBAN(){
         Iban iban = Iban.random(CountryCode.NL);
         iban = Iban.random();
         iban = new Iban.Builder()
                 .countryCode(CountryCode.NL)
                 .bankCode("INHO")
                 .buildRandom();
-        return iban;
+        return iban.toString();
     }
 }

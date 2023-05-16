@@ -34,12 +34,12 @@ public class ApplicationDataInitializer implements ApplicationRunner {
 
     private void loadBackAccounts() {
         List.of(
-                new BankAccountDTO("NL77ABNA5602795901", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, "Bank"),
-                new BankAccountDTO("NL71RABO3667086008", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, "JunFeng"),
-                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, "JohnDoe"),
-                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), BankAccountType.SAVINGS, BankAccountStatus.ACTIVE, 1000.00, 0, "KarenWinter"),
-                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), BankAccountType.SAVINGS, BankAccountStatus.ACTIVE, 1000.00, 0, "SteveWoo"),
-                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), BankAccountType.SAVINGS, BankAccountStatus.ACTIVE, 1000.00, 0, "ale")
+                new BankAccountDTO("NL77ABNA5602795901", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, 1L),
+                new BankAccountDTO("NL71RABO3667086008", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, 2L),
+                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, 3L),
+                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), BankAccountType.SAVINGS, BankAccountStatus.ACTIVE, 1000.00, 0, 4L),
+                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), BankAccountType.SAVINGS, BankAccountStatus.ACTIVE, 1000.00, 0, 5L),
+                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), BankAccountType.SAVINGS, BankAccountStatus.ACTIVE, 1000.00, 0, 6L)
         ).forEach(
                 dto -> bankAccountService.addBankAccount(dto)
         );
