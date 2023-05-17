@@ -1,0 +1,9 @@
+
+e
+java:S11924"JDefine a constant instead of duplicating this literal "secret123" 5 times.(ŞØ¿±şÿÿÿÿ
+k
+java:S11924"IDefine a constant instead of duplicating this literal "customer" 4 times.(ŞØ¿±şÿÿÿÿ8Í¦à€1
+S	java:S106/"9Replace this use of System.out or System.err by a logger.(„ØµÀûÿÿÿÿ
+S	java:S106?"9Replace this use of System.out or System.err by a logger.(Ø ßüÿÿÿÿ
+j
+java:S1128"ORemove this unused import 'nl.inholland.bankingapplication.models.BankAccount'.(¿†÷ùÿÿÿÿ
