@@ -1,9 +1,7 @@
 package nl.inholland.bankingapplication.services;
 
 import jakarta.persistence.EntityNotFoundException;
-import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.UserAccount;
-import nl.inholland.bankingapplication.models.dto.BankAccountDTO;
 import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
 import nl.inholland.bankingapplication.repositories.UserAccountRepository;
 import org.springframework.stereotype.Service;

@@ -9,11 +9,11 @@ import nl.inholland.bankingapplication.models.enums.BankAccountType;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class BankAccountDTO {
+public class BankAccounResponseDTO {
     private String IBAN;
     private BankAccountType type;
     private BankAccountStatus status;
     private double balance;
     private double absoluteLimit;
-    private Long id;
+    private Long userId;
 }

@@ -2,7 +2,8 @@ package nl.inholland.bankingapplication.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
 import nl.inholland.bankingapplication.models.BankAccount;
-import nl.inholland.bankingapplication.models.dto.BankAccountDTO;
+import nl.inholland.bankingapplication.models.dto.BankAccounResponseDTO;
+import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
 import nl.inholland.bankingapplication.models.dto.ExceptionDTO;
 import nl.inholland.bankingapplication.services.BankAccountService;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,7 @@ public class BankAccountController {
     }
 
     @PostMapping
-    public ResponseEntity<BankAccount> addBankAccount(@RequestBody BankAccountDTO bankAccountDTO) {
+    public ResponseEntity<BankAccounResponseDTO> addBankAccount(@RequestBody BankAccountRegisterDTO bankAccountDTO) {
         try {
             return ResponseEntity.status(201).body(bankAccountService.addBankAccount(bankAccountDTO));
         } catch (Exception e) {
@@ -50,7 +51,7 @@ public class BankAccountController {
         }
     }
 
-    @PutMapping("{id}")
+    @PatchMapping("/{id}/deactivate")
     public ResponseEntity<BankAccount> deactivateBankAccount(@PathVariable Long id) {
         try {
             return ResponseEntity.status(200).body(bankAccountService.deactivateBankAccount(id));
@@ -58,6 +59,7 @@ public class BankAccountController {
             return this.handleException(400, e);
         }
     }
+
 
     private ResponseEntity handleException(int status, Exception e) {
         ExceptionDTO dto = new ExceptionDTO(e.getClass().getName(), e.getMessage());

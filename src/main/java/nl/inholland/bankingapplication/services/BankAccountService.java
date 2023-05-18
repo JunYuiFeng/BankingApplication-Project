@@ -2,7 +2,8 @@ package nl.inholland.bankingapplication.services;
 
 import jakarta.persistence.EntityNotFoundException;
 import nl.inholland.bankingapplication.models.BankAccount;
-import nl.inholland.bankingapplication.models.dto.BankAccountDTO;
+import nl.inholland.bankingapplication.models.dto.BankAccounResponseDTO;
+import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.repositories.BankAccountRepository;
 import org.iban4j.CountryCode;
@@ -37,8 +38,9 @@ public class BankAccountService {
         );
     }
 
-    public BankAccount addBankAccount(BankAccountDTO dto) {
-        return bankAccountRepository.save(this.mapDtoToBankAccount(dto));
+    public BankAccounResponseDTO addBankAccount(BankAccountRegisterDTO dto) {
+        BankAccount bankAccount = bankAccountRepository.save(this.mapDtoToBankAccount(dto));
+        return mapBankAccountToDto(bankAccount);
     }
 
     public BankAccount deactivateBankAccount(Long id) {
@@ -50,16 +52,28 @@ public class BankAccountService {
         return bankAccountRepository.save(bankAccountToUpdate);
     }
 
-    private BankAccount mapDtoToBankAccount(BankAccountDTO dto) {
+    private BankAccount mapDtoToBankAccount(BankAccountRegisterDTO dto) {
         BankAccount bankAccount = new BankAccount();
         bankAccount.setType(dto.getType());
         bankAccount.setStatus(BankAccountStatus.ACTIVE);
         bankAccount.setBalance(0);
         bankAccount.setAbsoluteLimit(0);
         bankAccount.setIBAN(this.GenerateIBAN());
-        bankAccount.setUserAccount(userAccountService.getUserAccountById(dto.getId()));
+        bankAccount.setUserAccount(userAccountService.getUserAccountById(dto.getUserId()));
 
         return bankAccount;
+    }
+
+    private BankAccounResponseDTO mapBankAccountToDto(BankAccount bankAccount) {
+        BankAccounResponseDTO bankAccounResponseDTO = new BankAccounResponseDTO();
+        bankAccounResponseDTO.setType(bankAccount.getType());
+        bankAccounResponseDTO.setStatus(bankAccount.getStatus());
+        bankAccounResponseDTO.setBalance(bankAccount.getBalance());
+        bankAccounResponseDTO.setAbsoluteLimit(bankAccount.getAbsoluteLimit());
+        bankAccounResponseDTO.setIBAN(bankAccount.getIBAN());
+        bankAccounResponseDTO.setUserId(bankAccount.getUserAccount().getId());
+
+        return bankAccounResponseDTO;
     }
 
     public String GenerateIBAN(){
