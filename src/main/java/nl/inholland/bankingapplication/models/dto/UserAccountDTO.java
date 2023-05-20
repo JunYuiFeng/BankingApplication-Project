@@ -14,9 +14,13 @@ public class UserAccountDTO {
     private String email;
     private String username;
     private String password;
-    private UserAccountType type;
+    private String type;
     private String phoneNumber;
     private int bsn;
     private double dayLimit;
     private double transactionLimit;
+
+    public UserAccountType getTypeIgnoreCase() {
+        return UserAccountType.valueOf(type.toUpperCase());
+    }
 }

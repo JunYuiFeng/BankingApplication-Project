@@ -66,7 +66,7 @@ public class UserAccountService {
         userAccountToUpdate.setEmail(userAccountDTO.getEmail());
         userAccountToUpdate.setUsername(userAccountDTO.getUsername());
         userAccountToUpdate.setPassword(userAccountDTO.getPassword());
-        userAccountToUpdate.setType(userAccountDTO.getType());
+        userAccountToUpdate.setType(userAccountDTO.getTypeIgnoreCase());
         userAccountToUpdate.setPhoneNumber(userAccountDTO.getPhoneNumber());
         userAccountToUpdate.setBsn(userAccountDTO.getBsn());
         userAccountToUpdate.setDayLimit(userAccountDTO.getDayLimit());
