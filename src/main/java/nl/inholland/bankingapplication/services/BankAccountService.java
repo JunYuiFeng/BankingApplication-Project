@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.dto.BankAccounResponseDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
+import nl.inholland.bankingapplication.models.dto.BankAccountStatusUpdateDTO;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.repositories.BankAccountRepository;
 import org.iban4j.CountryCode;
@@ -11,6 +12,7 @@ import org.iban4j.Iban;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BankAccountService {
@@ -38,18 +40,24 @@ public class BankAccountService {
         );
     }
 
+    public BankAccount getBankAccountByUserAccountId(Long id) {
+        return bankAccountRepository.findBankAccountByUserAccountId(id).orElseThrow(
+                () -> new EntityNotFoundException("Bank account with id " + id + " not found")
+        );
+    }
+
     public BankAccounResponseDTO addBankAccount(BankAccountRegisterDTO dto) {
         BankAccount bankAccount = bankAccountRepository.save(this.mapDtoToBankAccount(dto));
         return mapBankAccountToDto(bankAccount);
     }
-
-    public BankAccount deactivateBankAccount(Long id) {
-        BankAccount bankAccountToUpdate = bankAccountRepository
-                .findById(id)
+    
+    public BankAccount updateBankAccountStatus(BankAccountStatusUpdateDTO dto, String IBAN) {
+        BankAccount bankAccount = bankAccountRepository
+                .findBankAccountByIBAN(IBAN)
                 .orElseThrow(() -> new EntityNotFoundException("Bank Account not found"));
-        bankAccountToUpdate.setStatus(BankAccountStatus.ACTIVE);
+        bankAccount.setStatus(dto.getStatusIgnoreCase());
 
-        return bankAccountRepository.save(bankAccountToUpdate);
+        return bankAccountRepository.save(bankAccount);
     }
 
     private BankAccount mapDtoToBankAccount(BankAccountRegisterDTO dto) {
