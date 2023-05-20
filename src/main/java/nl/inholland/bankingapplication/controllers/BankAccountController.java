@@ -2,7 +2,9 @@ package nl.inholland.bankingapplication.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
 import nl.inholland.bankingapplication.models.BankAccount;
-import nl.inholland.bankingapplication.models.dto.BankAccountDTO;
+import nl.inholland.bankingapplication.models.dto.BankAccounResponseDTO;
+import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
+import nl.inholland.bankingapplication.models.dto.BankAccountStatusUpdateDTO;
 import nl.inholland.bankingapplication.models.dto.ExceptionDTO;
 import nl.inholland.bankingapplication.services.BankAccountService;
 import org.springframework.http.ResponseEntity;
@@ -41,19 +43,28 @@ public class BankAccountController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<BankAccount> addBankAccount(@RequestBody BankAccountDTO bankAccountDTO) {
+    @GetMapping("UserAccount/{id}")
+    public ResponseEntity<BankAccount> getBankAccountByUserAccountId(@PathVariable Long id) {
         try {
-            return ResponseEntity.status(201).body(bankAccountService.addBankAccount(bankAccountDTO));
+            return ResponseEntity.ok(bankAccountService.getBankAccountByUserAccountId(id));
+        } catch (EntityNotFoundException enfe) {
+            return this.handleException(404, enfe);
+        }
+    }
+
+    @PostMapping
+    public ResponseEntity<BankAccounResponseDTO> addBankAccount(@RequestBody BankAccountRegisterDTO dto) {
+        try {
+            return ResponseEntity.status(201).body(bankAccountService.addBankAccount(dto));
         } catch (Exception e) {
             return this.handleException(400, e);
         }
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<BankAccount> deactivateBankAccount(@PathVariable Long id) {
+    @PatchMapping("/{IBAN}/statusupdate")
+    public ResponseEntity<BankAccount> updateBankAccountStatus(@RequestBody BankAccountStatusUpdateDTO dto, @PathVariable String IBAN) {
         try {
-            return ResponseEntity.status(200).body(bankAccountService.deactivateBankAccount(id));
+            return ResponseEntity.status(200).body(bankAccountService.updateBankAccountStatus(dto, IBAN));
         } catch (Exception e) {
             return this.handleException(400, e);
         }

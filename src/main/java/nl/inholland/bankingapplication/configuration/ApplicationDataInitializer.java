@@ -1,9 +1,8 @@
 package nl.inholland.bankingapplication.configuration;
 
 import jakarta.transaction.Transactional;
-import nl.inholland.bankingapplication.models.dto.BankAccountDTO;
+import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
 import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
-import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.services.BankAccountService;
@@ -34,12 +33,12 @@ public class ApplicationDataInitializer implements ApplicationRunner {
 
     private void loadBackAccounts() {
         List.of(
-                new BankAccountDTO("NL77ABNA5602795901", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, 1L),
-                new BankAccountDTO("NL71RABO3667086008", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, 2L),
-                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, 3L),
-                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), BankAccountType.SAVINGS, BankAccountStatus.ACTIVE, 1000.00, 0, 4L),
-                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), BankAccountType.SAVINGS, BankAccountStatus.ACTIVE, 1000.00, 0, 5L),
-                new BankAccountDTO(bankAccountService.GenerateIBAN().toString(), BankAccountType.SAVINGS, BankAccountStatus.ACTIVE, 1000.00, 0, 6L)
+//                new BankAccountDTO("NL77ABNA5602795901", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, 1L),
+//                new BankAccountDTO("NL71RABO3667086008", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, 2L),
+                new BankAccountRegisterDTO(BankAccountType.CURRENT, 3L),
+                new BankAccountRegisterDTO(BankAccountType.SAVINGS, 4L),
+                new BankAccountRegisterDTO(BankAccountType.SAVINGS, 5L),
+                new BankAccountRegisterDTO(BankAccountType.SAVINGS, 6L)
         ).forEach(
                 dto -> bankAccountService.addBankAccount(dto)
         );
