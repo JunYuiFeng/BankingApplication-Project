@@ -3,6 +3,9 @@ package nl.inholland.bankingapplication.models;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import nl.inholland.bankingapplication.models.enums.UserType;
+
+import java.util.List;
 
 @Entity
 @Data
@@ -22,10 +25,10 @@ public class UserAccount {
 
     private String password;
 
-    //TODO: maybe change to enum later -Jason
-    private String type;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<UserType> type;
 
-    public UserAccount(String firstName, String lastName, String email, String username, String password, String type) {
+    public UserAccount(String firstName, String lastName, String email, String username, String password, List<UserType> type) {
             this.firstName = firstName;
             this.lastName = lastName;
             this.email = email;
@@ -33,4 +36,5 @@ public class UserAccount {
             this.password = password;
             this.type = type;
     }
+
 }
