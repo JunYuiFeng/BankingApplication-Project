@@ -3,6 +3,7 @@ package nl.inholland.bankingapplication.models;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import nl.inholland.bankingapplication.models.enums.UserAccountType;
 
 @Entity
 @Data
@@ -22,15 +23,28 @@ public class UserAccount {
 
     private String password;
 
-    //TODO: maybe change to enum later -Jason
-    private String type;
+    private UserAccountType type;
 
-    public UserAccount(String firstName, String lastName, String email, String username, String password, String type) {
+    private String phoneNumber;
+
+    private int bsn;
+
+    private double dayLimit;
+
+    private double transactionLimit;
+
+
+
+    public UserAccount(String firstName, String lastName, String email, String username, String password, UserAccountType type, String phoneNumber, int bsn, double dayLimit, double transactionLimit) {
             this.firstName = firstName;
             this.lastName = lastName;
             this.email = email;
             this.username = username;
             this.password = password;
             this.type = type;
+            this.phoneNumber = phoneNumber;
+            this.bsn = bsn;
+            this.dayLimit = dayLimit;
+            this.transactionLimit = transactionLimit;
     }
 }

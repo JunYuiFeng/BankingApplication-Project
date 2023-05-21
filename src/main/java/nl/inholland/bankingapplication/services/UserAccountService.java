@@ -1,9 +1,7 @@
 package nl.inholland.bankingapplication.services;
 
 import jakarta.persistence.EntityNotFoundException;
-import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.UserAccount;
-import nl.inholland.bankingapplication.models.dto.BankAccountDTO;
 import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
 import nl.inholland.bankingapplication.repositories.UserAccountRepository;
 import org.springframework.stereotype.Service;
@@ -48,11 +46,8 @@ public class UserAccountService {
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("UserAccount not found"));
 
-        userAccountToUpdate.setFirstName(userAccountDTO.getFirstName());
-        userAccountToUpdate.setLastName(userAccountDTO.getLastName());
-        userAccountToUpdate.setEmail(userAccountDTO.getEmail());
-        userAccountToUpdate.setUsername(userAccountDTO.getUsername());
-        userAccountToUpdate.setPassword(userAccountDTO.getPassword());
+        setUserAccountFields(userAccountDTO, userAccountToUpdate);
+
 
         return userAccountRepository.save(userAccountToUpdate);
 
@@ -60,14 +55,24 @@ public class UserAccountService {
 
     private UserAccount mapDtoToUserAccount(UserAccountDTO dto) {
         UserAccount newUserAccount = new UserAccount();
-        newUserAccount.setFirstName(dto.getFirstName());
-        newUserAccount.setLastName(dto.getLastName());
-        newUserAccount.setEmail(dto.getEmail());
-        newUserAccount.setUsername(dto.getUsername());
-        newUserAccount.setPassword(dto.getPassword());
-        newUserAccount.setType(dto.getType());
+        setUserAccountFields(dto, newUserAccount);
 
         return newUserAccount;
+    }
+
+    private UserAccount setUserAccountFields(UserAccountDTO userAccountDTO, UserAccount userAccountToUpdate) {
+        userAccountToUpdate.setFirstName(userAccountDTO.getFirstName());
+        userAccountToUpdate.setLastName(userAccountDTO.getLastName());
+        userAccountToUpdate.setEmail(userAccountDTO.getEmail());
+        userAccountToUpdate.setUsername(userAccountDTO.getUsername());
+        userAccountToUpdate.setPassword(userAccountDTO.getPassword());
+        userAccountToUpdate.setType(userAccountDTO.getTypeIgnoreCase());
+        userAccountToUpdate.setPhoneNumber(userAccountDTO.getPhoneNumber());
+        userAccountToUpdate.setBsn(userAccountDTO.getBsn());
+        userAccountToUpdate.setDayLimit(userAccountDTO.getDayLimit());
+        userAccountToUpdate.setTransactionLimit(userAccountDTO.getTransactionLimit());
+
+        return userAccountToUpdate;
     }
 
     public UserAccount login(String username, String password) {

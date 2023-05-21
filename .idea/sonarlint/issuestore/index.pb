@@ -1,23 +1,5 @@
 
-€
-Psrc/main/java/nl/inholland/bankingapplication/BankingapplicationApplication.java,0\7\0718d10a68c86df3eda21aaa2328c545f2e45cc9
 ~
 Nsrc/main/java/nl/inholland/bankingapplication/services/UserAccountService.java,6\a\6a23f1c366e9f7407bee458db071e8a04bea17bb
-…
-Usrc/main/java/nl/inholland/bankingapplication/repositories/UserAccountRepository.java,6\b\6bc1357f63345b63f1b6b2fce1fc0769e1605c5e
-~
-Nsrc/main/java/nl/inholland/bankingapplication/controllers/LoginController.java,5\4\5412448f5c6ee1cf70f52b9361cc01954200c252
 u
-Esrc/main/java/nl/inholland/bankingapplication/models/UserAccount.java,1\a\1a3b1130d914650f3ddb90f5a18a228b7ec70e28
-„
-Tsrc/main/java/nl/inholland/bankingapplication/controllers/UserAccountController.java,9\6\96862d0cf5fdd893e02e90a663637f206d1d7123
-v
-Fsrc/main/java/nl/inholland/bankingapplication/models/dto/LoginDTO.java,8\3\8357f87b230ff46c16b79532489bd76aef176229
-‹
-[src/main/java/nl/inholland/bankingapplication/configuration/ApplicationDataInitializer.java,6\2\6280ad5ff1e8d435473e79417d9afac3c2defe92
-{
-Ksrc/main/java/nl/inholland/bankingapplication/configuration/CorsConfig.java,3\1\312863b450bf09cbd347cf9f9312a0e38d1d7ea6
-|
-Lsrc/main/java/nl/inholland/bankingapplication/models/dto/TransactionDTO.java,a\4\a4ef1b37763786b395484d96659a4edc25bce59c
-„
-Tsrc/main/java/nl/inholland/bankingapplication/controllers/TransactionController.java,1\2\12112024a7711afc8a3eb0d530633705a2777639
+Esrc/main/java/nl/inholland/bankingapplication/models/UserAccount.java,1/a/1a3b1130d914650f3ddb90f5a18a228b7ec70e28
