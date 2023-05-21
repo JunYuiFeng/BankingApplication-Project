@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -23,7 +25,8 @@ public class UserAccount {
 
     private String password;
 
-    private UserAccountType type;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<UserAccountType> types;
 
     private String phoneNumber;
 
@@ -35,13 +38,13 @@ public class UserAccount {
 
 
 
-    public UserAccount(String firstName, String lastName, String email, String username, String password, UserAccountType type, String phoneNumber, int bsn, double dayLimit, double transactionLimit) {
+    public UserAccount(String firstName, String lastName, String email, String username, String password, List<UserAccountType> types, String phoneNumber, int bsn, double dayLimit, double transactionLimit) {
             this.firstName = firstName;
             this.lastName = lastName;
             this.email = email;
             this.username = username;
             this.password = password;
-            this.type = type;
+            this.types = types;
             this.phoneNumber = phoneNumber;
             this.bsn = bsn;
             this.dayLimit = dayLimit;
