@@ -53,7 +53,7 @@ public class TransactionService {
 
     public List<Transaction> getTransactionsByDateFrom(Timestamp dateFrom){
         return transactionRepository.findTransactionsByOccuredAtAfter(dateFrom).orElseThrow(
-                () -> new EntityNotFoundException("could not find transactions after timestamp "+ dateFrom)
+                () -> new EntityNotFoundException("could not find transactions after timstamp "+ dateFrom)
         );
     }
 

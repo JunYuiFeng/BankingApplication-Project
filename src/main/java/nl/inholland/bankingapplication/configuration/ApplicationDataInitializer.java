@@ -6,14 +6,12 @@ import nl.inholland.bankingapplication.models.dto.BankAccountDTO;
 import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
-import nl.inholland.bankingapplication.models.enums.UserType;
 import nl.inholland.bankingapplication.services.BankAccountService;
 import nl.inholland.bankingapplication.services.UserAccountService;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Collections;
 import java.util.List;
 
 @Configuration
@@ -51,12 +49,12 @@ public class ApplicationDataInitializer implements ApplicationRunner {
 
     public void loadUserAccounts(){
         List.of(
-                new UserAccountDTO("Bank", "Bank", "Bank@gmail.com", "Bank", "secret123", Collections.singletonList(UserType.ROLE_EMPLOYEE)),
-                new UserAccountDTO("Jun", "Feng", "junfeng@gmail.com", "JunFeng", "secret123", Collections.singletonList(UserType.ROLE_CUSTOMER)),
-                new UserAccountDTO("John", "Doe", "JohnDoe@gmail.com", "JohnDoe", "secret123", Collections.singletonList(UserType.ROLE_CUSTOMER)),
-                new UserAccountDTO("Karen", "Winter", "KarenWinter@gmail.com", "KarenWinter", "secret123", Collections.singletonList(UserType.ROLE_CUSTOMER)),
-                new UserAccountDTO("Steve", "Woo", "SteveWoo@gmail.com", "SteveWoo", "secret123", Collections.singletonList(UserType.ROLE_CUSTOMER)),
-				new UserAccountDTO("Alessandra", "Ribeiro", "ale@gmail.com", "ale", "123", Collections.singletonList(UserType.ROLE_CUSTOMER))
+                new UserAccountDTO("Bank", "Bank", "Bank@gmail.com", "Bank", "secret123", "customer"),
+                new UserAccountDTO("Jun", "Feng", "junfeng@gmail.com", "JunFeng", "secret123", "customer"),
+                new UserAccountDTO("John", "Doe", "JohnDoe@gmail.com", "JohnDoe", "secret123", "customer"),
+                new UserAccountDTO("Karen", "Winter", "KarenWinter@gmail.com", "KarenWinter", "secret123", "employee"),
+                new UserAccountDTO("Steve", "Woo", "SteveWoo@gmail.com", "SteveWoo", "secret123", "registeredUser"),
+				new UserAccountDTO("Alessandra", "Ribeiro", "ale@gmail.com", "ale", "123", "customer")
 
         ).forEach(
                 dto -> userAccountService.addUserAccount(dto)
