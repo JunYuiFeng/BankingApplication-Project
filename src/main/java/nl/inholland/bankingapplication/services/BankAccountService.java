@@ -2,7 +2,9 @@ package nl.inholland.bankingapplication.services;
 
 import jakarta.persistence.EntityNotFoundException;
 import nl.inholland.bankingapplication.models.BankAccount;
-import nl.inholland.bankingapplication.models.dto.BankAccountDTO;
+import nl.inholland.bankingapplication.models.dto.BankAccounResponseDTO;
+import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
+import nl.inholland.bankingapplication.models.dto.BankAccountStatusUpdateDTO;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.repositories.BankAccountRepository;
 import org.iban4j.CountryCode;
@@ -10,6 +12,7 @@ import org.iban4j.Iban;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BankAccountService {
@@ -37,18 +40,26 @@ public class BankAccountService {
         );
     }
 
-    public BankAccount addBankAccount(BankAccountDTO dto) {
-        return bankAccountRepository.save(this.mapDtoToBankAccount(dto));
+    public BankAccount getBankAccountByUserAccountId(Long id) {
+        return bankAccountRepository.findBankAccountByUserAccountId(id).orElseThrow(
+                () -> new EntityNotFoundException("Bank account with id " + id + " not found")
+        );
     }
 
-    public BankAccount deactivateBankAccount(Long id) {
-        BankAccount bankAccountToUpdate = bankAccountRepository
-                .findById(id)
+    public BankAccounResponseDTO addBankAccount(BankAccountRegisterDTO dto) {
+        BankAccount bankAccount = bankAccountRepository.save(this.mapDtoToBankAccount(dto));
+        return mapBankAccountToDto(bankAccount);
+    }
+    
+    public BankAccount updateBankAccountStatus(BankAccountStatusUpdateDTO dto, String IBAN) {
+        BankAccount bankAccount = bankAccountRepository
+                .findBankAccountByIBAN(IBAN)
                 .orElseThrow(() -> new EntityNotFoundException("Bank Account not found"));
-        bankAccountToUpdate.setStatus(BankAccountStatus.ACTIVE);
+        bankAccount.setStatus(dto.getStatusIgnoreCase());
 
-        return bankAccountRepository.save(bankAccountToUpdate);
+        return bankAccountRepository.save(bankAccount);
     }
+
 
     public BankAccount updateAmount(String IBAN, double change){
         BankAccount bankAccountToUpdate = bankAccountRepository
@@ -60,16 +71,29 @@ public class BankAccountService {
         return  bankAccountRepository.save(bankAccountToUpdate);
     }
 
-    private BankAccount mapDtoToBankAccount(BankAccountDTO dto) {
+    private BankAccount mapDtoToBankAccount(BankAccountRegisterDTO dto) {
+
         BankAccount bankAccount = new BankAccount();
         bankAccount.setType(dto.getType());
         bankAccount.setStatus(BankAccountStatus.ACTIVE);
         bankAccount.setBalance(0);
         bankAccount.setAbsoluteLimit(0);
         bankAccount.setIBAN(this.GenerateIBAN());
-        bankAccount.setUserAccount(userAccountService.getUserAccountById(dto.getId()));
+        bankAccount.setUserAccount(userAccountService.getUserAccountById(dto.getUserId()));
 
         return bankAccount;
+    }
+
+    private BankAccounResponseDTO mapBankAccountToDto(BankAccount bankAccount) {
+        BankAccounResponseDTO bankAccounResponseDTO = new BankAccounResponseDTO();
+        bankAccounResponseDTO.setType(bankAccount.getType());
+        bankAccounResponseDTO.setStatus(bankAccount.getStatus());
+        bankAccounResponseDTO.setBalance(bankAccount.getBalance());
+        bankAccounResponseDTO.setAbsoluteLimit(bankAccount.getAbsoluteLimit());
+        bankAccounResponseDTO.setIBAN(bankAccount.getIBAN());
+        bankAccounResponseDTO.setUserId(bankAccount.getUserAccount().getId());
+
+        return bankAccounResponseDTO;
     }
 
     public String GenerateIBAN(){

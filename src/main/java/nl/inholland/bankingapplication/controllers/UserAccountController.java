@@ -6,6 +6,7 @@ import nl.inholland.bankingapplication.models.dto.ExceptionDTO;
 import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
 import nl.inholland.bankingapplication.services.UserAccountService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,6 +46,7 @@ public class UserAccountController {
         }
     }
 
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @DeleteMapping("delete/{id}")
     public ResponseEntity deleteUserAccount(@PathVariable Long id) {
         try {
@@ -68,6 +70,8 @@ public class UserAccountController {
         ExceptionDTO dto = new ExceptionDTO(e.getClass().getName(), e.getMessage());
         return ResponseEntity.status(status).body(dto);
     }
+
+
 
 
 }
