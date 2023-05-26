@@ -38,21 +38,17 @@ public class TransactionService {
     }
 
     public List<Transaction> getTransactionsByIBANFrom(String IBAN){
-        //TODO: which cant be done rn because there are no methods to access bank accounts by their IBAN - CODY
-        //BankAccount bankAccount = bankAccountService.getBankAccountByIBAN(IBAN);
-        //return transactionRepository.findTransactionsByAccountFrom(bankAccount).orElseThrow(
-         //       () -> new EntityNotFoundException("no transactions have been made from this IBAN " + IBAN)
-        //);
-        return null;
+        BankAccount bankAccount = bankAccountService.getBankAccountByIBAN(IBAN);
+        return transactionRepository.findTransactionsByAccountFrom(bankAccount).orElseThrow(
+                () -> new EntityNotFoundException("no transactions have been made from this IBAN " + IBAN)
+        );
     }
 
     public List<Transaction> getTransactionsByIBANTo(String IBAN){
-      //  //TODO: which cant be done rn because there are no methods to access bank accounts by their IBAN - CODY
-        //BankAccount bankAccount = bankAccountService.getBankAccountByIBAN(IBAN);
-        //return transactionRepository.findTransactionsByAccountTo(bankAccount).orElseThrow(
-          //      () -> new EntityNotFoundException("no transactions have been send to this IBAN " + IBAN)
-        //);
-    return null;
+        BankAccount bankAccount = bankAccountService.getBankAccountByIBAN(IBAN);
+        return transactionRepository.findTransactionsByAccountTo(bankAccount).orElseThrow(
+                () -> new EntityNotFoundException("no transactions have been send to this IBAN " + IBAN)
+        );
     }
 
     public List<Transaction> getTransactionsByDateFrom(Timestamp dateFrom){
@@ -72,16 +68,17 @@ public class TransactionService {
         );
     }
     public Transaction makeTransaction(MakeTransactionDTO makeTransactionDTO){
-        //Transaction t = mapMakeTransactionDtoToTransaction(makeTransactionDTO);
-      //  return transactionRepository.save(t);
-        return null;
+        Transaction t = mapMakeTransactionDtoToTransaction(makeTransactionDTO);
+        var i = transactionRepository.save(t);
+        bankAccountService.updateAmount(makeTransactionDTO.getAccountFrom(), makeTransactionDTO.getAmount());
+        bankAccountService.updateAmount(makeTransactionDTO.getAccountTo(), -makeTransactionDTO.getAmount());
+        return i;
     }
     private Transaction mapTransactionDtoToTransaction(TransactionDTO dto) {
         return new Transaction(dto.getAmount(), dto.getMadeBy(), dto.getAccountFrom(),dto.getAccountTo(), dto.getDescription(), dto.getOccuredAt());
     }
-    //private Transaction mapMakeTransactionDtoToTransaction(MakeTransactionDTO dto){
-        // TODO: For this to work I would need to know the bearer token in which is in the header which isn't implemented at the moment so this isn't able to be feature complete - Cody
-        //Date date = new Date();
-      //  return new Transaction(dto.getAmount(), null, bankAccountService.getBankAccountByIBAN(dto.getAccountFrom()), bankAccountService.getBankAccountByIBAN(dto.getAccountTo()), dto.getDescription(), new Timestamp(date.getTime()));
-    //}
+    private Transaction mapMakeTransactionDtoToTransaction(MakeTransactionDTO dto){
+        Date date = new Date();
+        return new Transaction(dto.getAmount(), null, bankAccountService.getBankAccountByIBAN(dto.getAccountFrom()), bankAccountService.getBankAccountByIBAN(dto.getAccountTo()), dto.getDescription(), new Timestamp(date.getTime()));
+    }
 }

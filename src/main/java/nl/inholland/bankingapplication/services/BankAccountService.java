@@ -60,7 +60,19 @@ public class BankAccountService {
         return bankAccountRepository.save(bankAccount);
     }
 
+
+    public BankAccount updateAmount(String IBAN, double change){
+        BankAccount bankAccountToUpdate = bankAccountRepository
+                .findBankAccountByIBAN(IBAN)
+                .orElseThrow(() -> new EntityNotFoundException("Bank Account not found"));
+        double currentBalance = bankAccountToUpdate.getBalance();
+        double newBalance = currentBalance + change;
+        bankAccountToUpdate.setBalance(newBalance);
+        return  bankAccountRepository.save(bankAccountToUpdate);
+    }
+
     private BankAccount mapDtoToBankAccount(BankAccountRegisterDTO dto) {
+
         BankAccount bankAccount = new BankAccount();
         bankAccount.setType(dto.getType());
         bankAccount.setStatus(BankAccountStatus.ACTIVE);
