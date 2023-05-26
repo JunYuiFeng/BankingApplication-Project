@@ -25,7 +25,7 @@ public class WebSecurityConf {
     }
 
     // To create our own custom security configuration, we create a SecurityFilterChain bean
-// Read more here: https://docs.spring.io/spring-security/reference/servlet/authorization/authorize-http-requests.html
+// Read more here: https://docs.spring.io/spring-security/reference/servlet/authorization/authoize-http-requests.html
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf().disable();
@@ -33,6 +33,8 @@ public class WebSecurityConf {
 
         httpSecurity.authorizeHttpRequests()
                 .requestMatchers("/login").permitAll()
+                .requestMatchers("/BankAccounts").permitAll()
+                .requestMatchers("/UserAccounts").permitAll()
                 .anyRequest().authenticated();
 
 // We ensure our own filter is executed before the framework runs its own authentication filter code
