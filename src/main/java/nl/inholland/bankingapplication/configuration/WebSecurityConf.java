@@ -33,8 +33,8 @@ public class WebSecurityConf {
 
         httpSecurity.authorizeHttpRequests()
                 .requestMatchers("/login").permitAll()
-                .requestMatchers("/BankAccounts").permitAll()
-                .requestMatchers("/UserAccounts").permitAll()
+                //.requestMatchers("/BankAccounts").permitAll()
+                //.requestMatchers("/UserAccounts/{id}").permitAll()
                 .anyRequest().authenticated();
 
 // We ensure our own filter is executed before the framework runs its own authentication filter code

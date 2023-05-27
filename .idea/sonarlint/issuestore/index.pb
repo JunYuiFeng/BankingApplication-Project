@@ -7,8 +7,6 @@ Usrc/main/java/nl/inholland/bankingapplication/repositories/TransactionRepositor
 Nsrc/main/java/nl/inholland/bankingapplication/services/TransactionService.java,b/2/b207af52aba5f66dc84f275bb3b41927d9f71c56
 €
 Psrc/main/java/nl/inholland/bankingapplication/BankingapplicationApplication.java,0/7/0718d10a68c86df3eda21aaa2328c545f2e45cc9
-„
-Tsrc/main/java/nl/inholland/bankingapplication/controllers/UserAccountController.java,9/6/96862d0cf5fdd893e02e90a663637f206d1d7123
 ƒ
 Ssrc/main/java/nl/inholland/bankingapplication/models/dto/BankAccounResponseDTO.java,9/a/9a6285af615a5cc63cd61d8536f528b6d503ce51
 „
@@ -17,5 +15,3 @@ Tsrc/main/java/nl/inholland/bankingapplication/models/dto/BankAccountRegisterDTO
 Lsrc/main/java/nl/inholland/bankingapplication/models/dto/UserAccountDTO.java,d/e/de4e8b43bcdf47acc0d28ec4d94b75c456b5eec6
 …
 Usrc/main/java/nl/inholland/bankingapplication/repositories/BankAccountRepository.java,5/a/5a48314defe33bb1e2bc9d9dc20a92abfc3ecd51
-{
-Ksrc/main/java/nl/inholland/bankingapplication/configuration/CorsConfig.java,3/1/312863b450bf09cbd347cf9f9312a0e38d1d7ea6
