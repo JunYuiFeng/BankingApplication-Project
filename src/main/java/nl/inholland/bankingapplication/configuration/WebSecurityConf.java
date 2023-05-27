@@ -33,10 +33,10 @@ public class WebSecurityConf {
 
         httpSecurity.authorizeHttpRequests()
                 .requestMatchers("/login").permitAll()
-                .requestMatchers("/BankAccounts").permitAll()
-                .requestMatchers("/UserAccounts").permitAll()
-                .requestMatchers("/UserAccounts/{id}").permitAll()
-                .requestMatchers("/UserAccounts/update/{id}").permitAll()
+//                .requestMatchers("/BankAccounts").permitAll()
+//                .requestMatchers("/UserAccounts").permitAll()
+//                .requestMatchers("/UserAccounts/{id}").permitAll()
+//                .requestMatchers("/UserAccounts/update/{id}").permitAll()
                 
                 .anyRequest().authenticated();
 

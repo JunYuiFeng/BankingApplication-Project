@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin
 @RequestMapping("Transactions")
 public class TransactionController {
     private TransactionService transactionService;
