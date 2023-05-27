@@ -1,9 +1,13 @@
 package nl.inholland.bankingapplication.configuration;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.Null;
 import nl.inholland.bankingapplication.models.UserAccount;
+import nl.inholland.bankingapplication.models.dto.BankAccountPredefinedDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
+import nl.inholland.bankingapplication.models.dto.BankAccountUpdateDTO;
 import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
+import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.services.BankAccountService;
@@ -34,14 +38,19 @@ public class ApplicationDataInitializer implements ApplicationRunner {
 
     private void loadBackAccounts() {
         List.of(
-//                new BankAccountDTO("NL77ABNA5602795901", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, 1L),
-//                new BankAccountDTO("NL71RABO3667086008", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, 2L),
                 new BankAccountRegisterDTO(BankAccountType.CURRENT, 3L),
                 new BankAccountRegisterDTO(BankAccountType.SAVINGS, 4L),
                 new BankAccountRegisterDTO(BankAccountType.SAVINGS, 5L),
                 new BankAccountRegisterDTO(BankAccountType.SAVINGS, 6L)
         ).forEach(
                 dto -> bankAccountService.addBankAccount(dto)
+        );
+
+        List.of(
+                new BankAccountPredefinedDTO("NL77ABNA5602795901", BankAccountType.CURRENT, 1000.00, 1L),
+                new BankAccountPredefinedDTO("NL71RABO3667086008", BankAccountType.CURRENT, 1000.00, 2L)
+        ).forEach(
+                dto -> bankAccountService.addPredefinedBankAccount(dto)
         );
 
         bankAccountService.getAllBankAccounts().forEach(System.out::println);
