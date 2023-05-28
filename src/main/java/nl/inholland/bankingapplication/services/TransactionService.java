@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class TransactionService {
@@ -70,8 +71,29 @@ public class TransactionService {
     public Transaction makeTransaction(MakeTransactionDTO makeTransactionDTO){
         Transaction t = mapMakeTransactionDtoToTransaction(makeTransactionDTO);
         var i = transactionRepository.save(t);
-        bankAccountService.updateAmount(makeTransactionDTO.getAccountFrom(), makeTransactionDTO.getAmount());
-        bankAccountService.updateAmount(makeTransactionDTO.getAccountTo(), -makeTransactionDTO.getAmount());
+
+        if (Objects.equals(makeTransactionDTO.getAccountFrom(), null) || Objects.equals(makeTransactionDTO.getAccountFrom(), "")) {
+            throw new EntityNotFoundException("No Bank Account has been chosen");
+        }
+
+        if (Objects.equals(makeTransactionDTO.getAccountTo(), null) || Objects.equals(makeTransactionDTO.getAccountTo(), "" ) || Objects.equals(makeTransactionDTO.getAccountTo(), bankAccountService.getBankAccountByIBAN(makeTransactionDTO.getAccountTo()))) {
+            throw new EntityNotFoundException("IBAN not found");
+        }
+
+        if (makeTransactionDTO.getAmount() < 0) {
+            throw new EntityNotFoundException("Amount cannot be negative");
+        }
+
+        if (makeTransactionDTO.getAccountFrom().equals(makeTransactionDTO.getAccountTo())) {
+            throw new EntityNotFoundException("Cannot transfer to the same account");
+        }
+
+        if (bankAccountService.getBankAccountByIBAN(makeTransactionDTO.getAccountFrom()).getBalance() < makeTransactionDTO.getAmount()) {
+            throw new EntityNotFoundException("Not enough balance");
+        }
+
+        bankAccountService.updateAmount(makeTransactionDTO.getAccountFrom(), -makeTransactionDTO.getAmount());
+        bankAccountService.updateAmount(makeTransactionDTO.getAccountTo(), makeTransactionDTO.getAmount());
         return i;
     }
     private Transaction mapTransactionDtoToTransaction(TransactionDTO dto) {

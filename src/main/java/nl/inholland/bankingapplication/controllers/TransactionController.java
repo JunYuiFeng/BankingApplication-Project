@@ -69,8 +69,8 @@ public class TransactionController {
     public ResponseEntity<Transaction> MakeTransaction(@RequestBody MakeTransactionDTO makeTransactionDTO) {
         try {
             return ResponseEntity.status(201).body(transactionService.makeTransaction(makeTransactionDTO));
-        } catch (Exception e) {
-            return null;
+        } catch (EntityNotFoundException e) {
+            return this.handleException(403, e);
         }
     }
 

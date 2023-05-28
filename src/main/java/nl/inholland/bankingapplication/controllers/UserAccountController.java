@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.ExceptionDTO;
 import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
+import nl.inholland.bankingapplication.models.dto.UserAccountUpdateDTO;
 import nl.inholland.bankingapplication.services.UserAccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -57,7 +58,7 @@ public class UserAccountController {
     }
 
     @PutMapping("update/{id}")
-    public ResponseEntity<UserAccount> updateUserAccount(@PathVariable Long id, @RequestBody UserAccountDTO userAccountDTO) {
+    public ResponseEntity<UserAccount> updateUserAccount(@PathVariable Long id, @RequestBody UserAccountUpdateDTO userAccountDTO) {
         try {
             return ResponseEntity.status(200).body(userAccountService.updateUserAccount(id, userAccountDTO));
         } catch (EntityNotFoundException e) {
@@ -69,8 +70,5 @@ public class UserAccountController {
         ExceptionDTO dto = new ExceptionDTO(e.getClass().getName(), e.getMessage());
         return ResponseEntity.status(status).body(dto);
     }
-
-
-
 
 }
