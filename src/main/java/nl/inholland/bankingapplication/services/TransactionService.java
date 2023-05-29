@@ -70,8 +70,8 @@ public class TransactionService {
     public Transaction makeTransaction(MakeTransactionDTO makeTransactionDTO){
         Transaction t = mapMakeTransactionDtoToTransaction(makeTransactionDTO);
         var i = transactionRepository.save(t);
-        bankAccountService.updateAmount(makeTransactionDTO.getAccountFrom(), makeTransactionDTO.getAmount());
-        bankAccountService.updateAmount(makeTransactionDTO.getAccountTo(), -makeTransactionDTO.getAmount());
+        bankAccountService.updateAmount(makeTransactionDTO.getAccountFrom(), -makeTransactionDTO.getAmount());
+        bankAccountService.updateAmount(makeTransactionDTO.getAccountTo(), makeTransactionDTO.getAmount());
         return i;
     }
     private Transaction mapTransactionDtoToTransaction(TransactionDTO dto) {
