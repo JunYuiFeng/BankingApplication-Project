@@ -48,16 +48,14 @@ public class TransactionService {
 
     private List<Transaction> getTransactionsByUserId(Long id){
         UserAccount userAccount = userAccountService.getUserAccountById(id);
-        return transactionRepository.findTransactionsByMadeBy(userAccount).orElseThrow(
-                () -> new EntityNotFoundException("no transactions have been made on this account " + id)
+        return transactionRepository.findTransactionsByMadeBy(userAccount).orElse(
+                null
         );
     }
 
     private List<Transaction> getTransactionsByIBANFrom(String IBAN){
         BankAccount bankAccount = bankAccountService.getBankAccountByIBAN(IBAN);
-        return transactionRepository.findTransactionsByAccountFrom(bankAccount).orElseThrow(
-                () -> new EntityNotFoundException("no transactions have been made from this IBAN " + IBAN)
-        );
+        return transactionRepository.findTransactionsByAccountFrom(bankAccount).orElse(null);
     }
 
     private List<Transaction> getTransactionsByIBANTo(String IBAN){
@@ -84,15 +82,40 @@ public class TransactionService {
         );
     }
     public Transaction makeTransaction(MakeTransactionDTO makeTransactionDTO, UserAccount user) throws Exception {
-        //this method is such a mess good luck reading this xx Cody.
+        //this method is such a mess, good luck reading this ♡♡ Cody.
+        //I added comments to see if it helped with readability but it really didn't f.
+
         List<BankAccount> bankAccountsOfUser = bankAccountService.getBankAccountByUserAccountId(user.getId());
         Transaction transaction = mapMakeTransactionDtoToTransaction(makeTransactionDTO);
+
+        //this if checks if the employee is logged in and if yes the transaction goes through no matter what
         if (user.getTypes().contains(UserAccountType.ROLE_EMPLOYEE)){
             return finalizeTransaction(transaction, user);
         }
+
+        //this if checks if a transaction is made between savings accounts.
+        if (transaction.getAccountFrom().getType().equals(BankAccountType.SAVINGS) && transaction.getAccountTo().getType().equals(BankAccountType.SAVINGS)){
+            throw new Exception("cant make a transaction between savings accounts");
+        }
+
+        //the first if checks if the owner of the account is indeed making the transaction.
         if (bankAccountsOfUser.contains(transaction.getAccountFrom())){
 
+            //this if checks if the account to is a savings account
             if (transaction.getAccountTo().getType().equals(BankAccountType.SAVINGS)) {
+
+                // this if checks if the savings account is owned by the user
+                if (transaction.getAccountTo().getUserAccount().equals(user)){
+                    return finalizeTransaction(transaction, user);
+                }
+                else {
+                    throw new Exception("Can't make a transaction to a savings account you don't own");
+                }
+            }
+            // this if checks if the account is from a savings account.
+            if (transaction.getAccountFrom().getType().equals(BankAccountType.SAVINGS)){
+
+                //this if checks if the account to is owned by the user.
                 if (transaction.getAccountTo().getUserAccount().equals(user)){
                     return finalizeTransaction(transaction, user);
                 }
