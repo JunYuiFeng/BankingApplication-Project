@@ -37,6 +37,7 @@ public class WebSecurityConf {
                 .requestMatchers("/UserAccounts").permitAll()
                 .requestMatchers("/UserAccounts/{id}").permitAll()
                 .requestMatchers("/UserAccounts/update/{id}").permitAll()
+                .requestMatchers("/UserAccounts/registered").permitAll()
                 
                 .anyRequest().authenticated();
 
