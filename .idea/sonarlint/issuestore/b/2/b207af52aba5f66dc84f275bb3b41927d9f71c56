@@ -1,0 +1,32 @@
+
+k	java:S117("QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¬‰öŸøÿÿÿÿ
+f	java:S1171"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(è¡İğ
+F
+java:S1172("+Remove this unused method parameter "IBAN".(¬‰öŸøÿÿÿÿ
+A
+java:S1168."+Return an empty collection instead of null.(¥¹ï
+V	java:S125*"<This block of commented-out lines of code should be removed.(ÄÅñ‘øÿÿÿÿ
+G
+java:S1135)"2Complete the task associated to this TODO comment.(¡Ô•
+
+A
+java:S11721"+Remove this unused method parameter "IBAN".(è¡İğ
+A
+java:S11687"+Return an empty collection instead of null.(¥¹ï
+V	java:S1253"<This block of commented-out lines of code should be removed.(ÄÅñ‘øÿÿÿÿ
+M
+java:S11352"2Complete the task associated to this TODO comment.(ÖÍŒ­øÿÿÿÿ
+T
+java:S1172J"9Remove this unused method parameter "makeTransactionDTO".(®ÈÎĞøÿÿÿÿ
+V	java:S125K"<This block of commented-out lines of code should be removed.(Äëº‡ûÿÿÿÿ
+V	java:S125R"<This block of commented-out lines of code should be removed.(á–ÑËüÿÿÿÿ
+H
+java:S1135S"2Complete the task associated to this TODO comment.(Â½è
+j
+java:S1128"ORemove this unused import 'nl.inholland.bankingapplication.models.BankAccount'.(¿†÷ùÿÿÿÿ
+A
+java:S1128"+Remove this unused import 'java.util.Date'.(¸…¼ü
+L
+java:S1068"6Remove this unused "bankAccountService" private field.(†¡‘í
+^
+java:S1144O"CRemove this unused private "mapTransactionDtoToTransaction" method.(‹¶Òôûÿÿÿÿ

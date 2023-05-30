@@ -3,6 +3,7 @@ package nl.inholland.bankingapplication.configuration;
 import jakarta.transaction.Transactional;
 import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
+import nl.inholland.bankingapplication.models.dto.TransactionDTO;
 import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
@@ -12,6 +13,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Configuration
@@ -62,4 +65,18 @@ public class ApplicationDataInitializer implements ApplicationRunner {
 
         userAccountService.getAllUserAccounts().forEach(System.out::println);
     }
+    private void loadTransactions() {
+        List<TransactionDTO> transactions = List.of(
+                new TransactionDTO(100.00, userAccount1, bankAccount1, bankAccount2, "Payment", Timestamp.valueOf(LocalDateTime.now())),
+                new TransactionDTO(50.00, userAccount2, bankAccount2, bankAccount3, "Transfer", Timestamp.valueOf(LocalDateTime.now())),
+                new TransactionDTO(200.00, userAccount3, bankAccount1, bankAccount3, "Purchase", Timestamp.valueOf(LocalDateTime.now()))
+        );
+
+        transactions.forEach(
+                dto -> transactionService.addTransaction(dto)
+        );
+
+        transactionService.getAllTransactions().forEach(System.out::println);
+    }
+
 }
