@@ -60,7 +60,6 @@ public class UserAccountService {
 
 
         return userAccountRepository.save(userAccountToUpdate);
-
     }
 
     private UserAccount mapDtoToUserAccount(UserAccountDTO dto) {

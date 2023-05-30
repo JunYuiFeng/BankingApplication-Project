@@ -1,12 +1,14 @@
 package nl.inholland.bankingapplication.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Data
@@ -21,7 +23,8 @@ public class BankAccount {
     private double balance;
     private double absoluteLimit;
 
-    @OneToOne
+    @ManyToOne
+    @JsonIgnoreProperties("bankAccounts") //ignored during serialization and deserialization processes performed by Jackson, prevent infinite recursion
     private UserAccount userAccount;
 
     public BankAccount(String IBAN, BankAccountType type, BankAccountStatus status, double balance, double absoluteLimit, UserAccount userAccount) {
