@@ -28,6 +28,10 @@ public class BankAccountService {
         return (List<BankAccount>) bankAccountRepository.findAll();
     }
 
+    public List<BankAccount> getAllBankAccountsExceptBankOwnAccount() {
+        return (List<BankAccount>) bankAccountRepository.findAllExceptOwnAccount(userAccountService.getUserAccountById(1L));
+    }
+
     public BankAccount getBankAccountByIBAN(String IBAN) {
         return bankAccountRepository.findBankAccountByIBAN(IBAN).orElseThrow(
                 () -> new EntityNotFoundException("Bank account not found")
@@ -45,7 +49,7 @@ public class BankAccountService {
     public List<BankAccount> getBankAccountByStatus(String status) {
         List<BankAccount> bankAccounts = bankAccountRepository.findBankAccountByStatus(BankAccountStatus.valueOf(status.toUpperCase()));
         if (bankAccounts.isEmpty()) {
-            throw new EntityNotFoundException("Bank account not found");
+            throw new EntityNotFoundException("No bank accounts found with status " + status);
         }
         return bankAccounts;
     }
@@ -53,7 +57,7 @@ public class BankAccountService {
     public List<BankAccount> getBankAccountByName(String name) {
         List<BankAccount> bankAccounts = bankAccountRepository.findBankAccountByUserAccountFirstNameContainingIgnoreCaseOrUserAccountLastNameContainingIgnoreCase(name, name);
         if (bankAccounts.isEmpty()) {
-            throw new EntityNotFoundException("Bank account not found");
+            throw new EntityNotFoundException("No bank accounts found ");
         }
         return bankAccounts;
     }
