@@ -33,6 +33,8 @@ public class WebSecurityConf {
 
         httpSecurity.authorizeHttpRequests()
                 .requestMatchers("/login").permitAll()
+                .requestMatchers("/h2-console/**").permitAll() // Permit access to H2 console
+                //.requestMatchers("/Transactions").permitAll()
                 //.requestMatchers("/BankAccounts").permitAll()
                 //.requestMatchers("/UserAccounts/{id}").permitAll()
                 .anyRequest().authenticated();
