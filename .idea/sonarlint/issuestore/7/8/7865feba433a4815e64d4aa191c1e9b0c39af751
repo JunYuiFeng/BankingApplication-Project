@@ -1,0 +1,8 @@
+
+f	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Şû±û
+k	java:S1176"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¤¼Äøÿÿÿÿ
+h	java:S100W"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ÿ±òÌşÿÿÿÿ
+N
+java:S1854Y"8Remove this useless assignment to local variable "iban".(¶¨Ù
+S
+java:S1854X"8Remove this useless assignment to local variable "iban".(ÕÍáÿÿÿÿÿ
