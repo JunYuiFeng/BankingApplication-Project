@@ -60,5 +60,7 @@ public class UserAccount {
             this.dayLimit = dayLimit;
             this.transactionLimit = transactionLimit;
             this.bankAccounts = bankAccounts;
+            this.currentDayLimit=0;
+            this.currentTransactionLimit=0;
     }
 }
