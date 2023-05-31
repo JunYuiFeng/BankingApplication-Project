@@ -1,6 +1,4 @@
 
-~
-Nsrc/main/java/nl/inholland/bankingapplication/controllers/LoginController.java,5/4/5412448f5c6ee1cf70f52b9361cc01954200c252
 …
 Usrc/main/java/nl/inholland/bankingapplication/repositories/TransactionRepository.java,d/7/d76dd33607f3b1bdc2a19af45bf86e018c9ad0a2
 €
@@ -11,3 +9,17 @@ Ssrc/main/java/nl/inholland/bankingapplication/models/dto/BankAccounResponseDTO.
 Tsrc/main/java/nl/inholland/bankingapplication/models/dto/BankAccountRegisterDTO.java,e/6/e6dc95dafce53f9f2e455e6970ff6f2c306aa019
 |
 Lsrc/main/java/nl/inholland/bankingapplication/models/dto/UserAccountDTO.java,d/e/de4e8b43bcdf47acc0d28ec4d94b75c456b5eec6
+~
+Nsrc/main/java/nl/inholland/bankingapplication/services/UserAccountService.java,6/a/6a23f1c366e9f7407bee458db071e8a04bea17bb
+„
+Tsrc/main/java/nl/inholland/bankingapplication/controllers/UserAccountController.java,9/6/96862d0cf5fdd893e02e90a663637f206d1d7123
+u
+Esrc/main/java/nl/inholland/bankingapplication/models/UserAccount.java,1/a/1a3b1130d914650f3ddb90f5a18a228b7ec70e28
+€
+Psrc/main/java/nl/inholland/bankingapplication/models/dto/MakeTransactionDTO.java,6/c/6c4adf1c91403395e2259abfb6b06f940774fb63
+„
+Tsrc/main/java/nl/inholland/bankingapplication/controllers/TransactionController.java,1/2/12112024a7711afc8a3eb0d530633705a2777639
+~
+Nsrc/main/java/nl/inholland/bankingapplication/services/TransactionService.java,b/2/b207af52aba5f66dc84f275bb3b41927d9f71c56
+…
+Usrc/main/java/nl/inholland/bankingapplication/repositories/BankAccountRepository.java,5/a/5a48314defe33bb1e2bc9d9dc20a92abfc3ecd51
