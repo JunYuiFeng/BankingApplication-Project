@@ -1,24 +1,16 @@
 package nl.inholland.bankingapplication.controllers;
 
-import jakarta.persistence.EntityNotFoundException;
 import nl.inholland.bankingapplication.models.Transaction;
 import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.ExceptionDTO;
 import nl.inholland.bankingapplication.models.dto.MakeTransactionDTO;
-import nl.inholland.bankingapplication.repositories.TransactionRepository;
 import nl.inholland.bankingapplication.services.TransactionService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @RestController
 @CrossOrigin
@@ -72,6 +64,7 @@ public class TransactionController {
 //        } catch (EntityNotFoundException e) {return this.handleException(404, e);}
 //    }
 
+    @PreAuthorize("hasAnyRole('ROLE_EMPLOYEE','ROLE_CUSTOMER')")
     @PostMapping
     public ResponseEntity<Transaction> MakeTransaction(@RequestBody MakeTransactionDTO makeTransactionDTO) {
         try {

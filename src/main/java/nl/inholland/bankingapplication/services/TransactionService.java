@@ -43,6 +43,9 @@ public class TransactionService {
             return transactions;
         }
         // TODO: add the employee thing where they query each option given and check for them might do this via stream. Cody.
+
+        List<Transaction> allTransactions = (List<Transaction>) transactionRepository.findAll();
+        //allTransactions.stream().filter();
         return null;
     }
 
