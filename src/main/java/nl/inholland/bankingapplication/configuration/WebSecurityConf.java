@@ -34,7 +34,15 @@ public class WebSecurityConf {
         httpSecurity.authorizeHttpRequests()
                 .requestMatchers("/login").permitAll()
                 .requestMatchers("/h2-console/**").permitAll() // Permit access to H2 console
-                //.requestMatchers("/Transactions").permitAll()
+                .requestMatchers("/Transactions").permitAll()
+
+                //will be changed once i can access the role - ALe
+                .requestMatchers("/Transactions/{id}").permitAll()
+                .requestMatchers("/Transactions/{IBANFrom}").permitAll()
+                .requestMatchers("/Transactions/{IBANTo}").permitAll()
+                .requestMatchers("/Transactions/{DateFrom}").permitAll()
+                .requestMatchers("/Transactions/{DateTo}").permitAll()
+
                 //.requestMatchers("/BankAccounts").permitAll()
                 //.requestMatchers("/UserAccounts/{id}").permitAll()
                 .anyRequest().authenticated();
