@@ -18,7 +18,7 @@ import java.util.Collections;
 
 @RestController
 @CrossOrigin
-@RequestMapping("login")
+@RequestMapping("/login")
 public class LoginController {
     private UserAccountService userService;
 
@@ -35,7 +35,7 @@ public class LoginController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     Collections.singletonMap(
-                            "User credentials not valide", e.getMessage()
+                            "User credentials not valid", e.getMessage()
                     ));
         }
         /*UserAccount user = userService.login(loginDTO.getUsername(), loginDTO.getPassword());

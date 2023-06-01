@@ -29,14 +29,14 @@ public class TransactionController {
     public ResponseEntity GetAllTransactions(){
         return ResponseEntity.ok(transactionService.getAllTransactions());
     }
-    @GetMapping(path = "/Transactions/UserId")
-    public ResponseEntity GetTransactionByUserId(@RequestParam Long userId){
+    @GetMapping(value = "{userId}")
+    public ResponseEntity GetTransactionByUserId(@PathVariable Long userId){
         try{
             return ResponseEntity.ok(transactionService.getTransactionsByUserId(userId));
         } catch (EntityNotFoundException e) {return this.handleException(404, e);}
     }
-    @GetMapping(path = "/Transactions/IBANFrom")
-    public ResponseEntity GetTransactionsByIBANFrom(@RequestParam String IBAN){
+    @GetMapping(value = "IBANFrom/{IBAN}")
+    public ResponseEntity GetTransactionsByIBANFrom(@PathVariable String IBAN){
         try{
             return ResponseEntity.ok(transactionService.getTransactionsByIBANFrom(IBAN));
         } catch (EntityNotFoundException e) {return this.handleException(404, e);}
