@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController //an annotation provided by Spring MVC that combines @Controller and @ResponseBody.
 // It is used to create a RESTful web service endpoint that directly returns data, rather than rendering a web page like traditional MVC controllers.
 @CrossOrigin
@@ -27,6 +28,19 @@ public class BankAccountController {
     public ResponseEntity<List<BankAccount>> getAllBankAccounts() {
         try {
             List<BankAccount> bankAccounts = bankAccountService.getAllBankAccounts();
+            if (bankAccounts.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(bankAccounts);
+        } catch (Exception e) {
+            return this.handleException(500, e);
+        }
+    }
+
+    @GetMapping("ExceptBank")
+    public ResponseEntity<List<BankAccount>> getAllBankAccountsExceptBankOwnAccount() {
+        try {
+            List<BankAccount> bankAccounts = bankAccountService.getAllBankAccountsExceptBankOwnAccount();
             if (bankAccounts.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }

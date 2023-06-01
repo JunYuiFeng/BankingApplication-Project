@@ -1,7 +1,9 @@
 package nl.inholland.bankingapplication.repositories;
 
 import nl.inholland.bankingapplication.models.BankAccount;
+import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +16,7 @@ public interface BankAccountRepository extends CrudRepository<BankAccount, Long>
     List<BankAccount> findBankAccountByUserAccountId(Long id); //optional doesn't work with List
     Optional<BankAccount> findBankAccountByIBAN(String IBAN);
     List<BankAccount> findBankAccountByStatus(BankAccountStatus status);
+
+    @Query("SELECT ba FROM BankAccount ba WHERE ba.userAccount <> ?1")
+    List<BankAccount> findAllExceptOwnAccount(UserAccount bankUserAccount);
 }
