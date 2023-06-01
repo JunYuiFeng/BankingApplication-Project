@@ -27,8 +27,8 @@ public class TransactionController {
     }
 
     @GetMapping()
-    public ResponseEntity GetAllTransactions( @RequestParam(required = false) String IBANFrom ,@RequestParam(required = false) String IBANTo,@RequestParam(required = false) Timestamp dateFrom,@RequestParam(required = false) Timestamp dateTo) {
-        return ResponseEntity.ok(transactionService.getAllTransactions((UserAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), IBANFrom, IBANTo, dateFrom, dateTo));
+    public ResponseEntity GetAllTransactions(@RequestParam(required = false) Integer userId, @RequestParam(required = false) String IBANFrom ,@RequestParam(required = false) String IBANTo,@RequestParam(required = false) Timestamp dateFrom,@RequestParam(required = false) Timestamp dateTo ,@RequestParam(required = false) Double amount){
+        return ResponseEntity.ok(transactionService.getAllTransactions(userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()),userId, IBANFrom, IBANTo, dateFrom, dateTo, amount));
     }
 
 //    @GetMapping(path = "/Transactions/UserId")

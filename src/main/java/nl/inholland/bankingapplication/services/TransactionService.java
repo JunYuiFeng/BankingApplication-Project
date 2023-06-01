@@ -6,9 +6,11 @@ import nl.inholland.bankingapplication.models.Transaction;
 import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.MakeTransactionDTO;
 import nl.inholland.bankingapplication.models.dto.TransactionDTO;
+import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.repositories.TransactionRepository;
+import org.springframework.data.domain.Example;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -32,23 +34,38 @@ public class TransactionService {
         this.bankAccountService = bankAccountService;
     }
 
-    public List<Transaction> getAllTransactions(UserAccount user, String IBANFrom, String IBANTo, Timestamp dateFrom, Timestamp dateTo) {
+    public List<Transaction> getAllTransactions(UserAccount user, Integer userId,String IBANFrom, String IBANTo, Timestamp dateFrom, Timestamp dateTo, Double amount) {
+
+        //This is such a dumb hack but hey I have to know if it is empty or not
+
+        BankAccount bankAccountFrom = null;
+        if(IBANFrom != null){
+            bankAccountFrom = bankAccountService.getBankAccountByIBAN(IBANFrom);
+        }
+
+        BankAccount bankAccountTo = null;
+        if (IBANTo != null){
+            bankAccountTo = bankAccountService.getBankAccountByIBAN(IBANTo);
+        }
+
+        List<Transaction> transactions = new ArrayList<>();
+
         if (!user.getTypes().contains(UserAccountType.ROLE_EMPLOYEE)){
-            List<Transaction> transactions = new ArrayList<>();
             for (BankAccount bankAccount: user.getBankAccounts()
                  ) {
                 transactions.addAll(getTransactionsByIBANFrom(bankAccount.getIBAN()));
                 transactions.addAll(getTransactionsByIBANTo(bankAccount.getIBAN()));
             }
+            // TODO: fix this so you can also apply the query for the customer transactions
             return transactions;
         }
-        // TODO: add the employee thing where they query each option given and check for them might do this via stream. Cody.
+        // TODO: make it so you can also filter between dates and amounts also make it so it filters transactions if userID is provided
 
-        List<Transaction> allTransactions = (List<Transaction>) transactionRepository.findAll();
-        //allTransactions.stream().filter();
-        return null;
+        Transaction transaction = Transaction.builder().accountFrom(bankAccountFrom).accountTo(bankAccountTo).occuredAt(dateFrom).amount(amount).build();
+        return transactionRepository.findAll(Example.of(transaction));
     }
 
+    // TODO get rid of all these methods
     private List<Transaction> getTransactionsByUserId(Long id){
         UserAccount userAccount = userAccountService.getUserAccountById(id);
         return transactionRepository.findTransactionsByMadeBy(userAccount).orElse(
@@ -86,10 +103,14 @@ public class TransactionService {
     }
     public Transaction makeTransaction(MakeTransactionDTO makeTransactionDTO, UserAccount user) throws Exception {
         //this method is such a mess, good luck reading this ♡♡ Cody.
-        //I added comments to see if it helped with readability but it really didn't f.
+        //I added comments to see if it helped with readability, but it really didn't f.
 
         List<BankAccount> bankAccountsOfUser = bankAccountService.getBankAccountByUserAccountId(user.getId());
         Transaction transaction = mapMakeTransactionDtoToTransaction(makeTransactionDTO);
+
+        if (transaction.getAccountFrom().getStatus() == BankAccountStatus.INACTIVE || transaction.getAccountTo().getStatus() == BankAccountStatus.INACTIVE){
+            throw new Exception("one of the bankaccounts are de-activated");
+        }
 
         //this if checks if the employee is logged in and if yes the transaction goes through no matter what
         if (user.getTypes().contains(UserAccountType.ROLE_EMPLOYEE)){
@@ -97,7 +118,7 @@ public class TransactionService {
         }
 
         //this if checks if a transaction is made between savings accounts.
-        if (transaction.getAccountFrom().getType().equals(BankAccountType.SAVINGS) && transaction.getAccountTo().getType().equals(BankAccountType.SAVINGS)){
+        if (checkBankAccountType(transaction.getAccountFrom(), BankAccountType.SAVINGS) && checkBankAccountType(transaction.getAccountFrom(), BankAccountType.SAVINGS)){
             throw new Exception("cant make a transaction between savings accounts");
         }
 
@@ -105,10 +126,10 @@ public class TransactionService {
         if (bankAccountsOfUser.contains(transaction.getAccountFrom())){
 
             //this if checks if the account to is a savings account
-            if (transaction.getAccountTo().getType().equals(BankAccountType.SAVINGS)) {
+            if (checkBankAccountType(transaction.accountFrom, BankAccountType.SAVINGS)) {
 
                 // this if checks if the savings account is owned by the user
-                if (transaction.getAccountTo().getUserAccount().equals(user)){
+                if (checkIfBankAccountIsOwnedByUser(transaction.getAccountTo(), user)){
                     return finalizeTransaction(transaction, user);
                 }
                 else {
@@ -116,10 +137,10 @@ public class TransactionService {
                 }
             }
             // this if checks if the account is from a savings account.
-            if (transaction.getAccountFrom().getType().equals(BankAccountType.SAVINGS)){
+            if (checkBankAccountType(transaction.accountTo, BankAccountType.SAVINGS)){
 
                 //this if checks if the account to is owned by the user.
-                if (transaction.getAccountTo().getUserAccount().equals(user)){
+                if (checkIfBankAccountIsOwnedByUser(transaction.getAccountFrom(), user)){
                     return finalizeTransaction(transaction, user);
                 }
                 else {
@@ -134,9 +155,11 @@ public class TransactionService {
     }
 
     private Transaction finalizeTransaction(Transaction transaction, UserAccount user) throws Exception {
-        checkDayLimit(transaction, user);
-        checkTransactionLimit(user);
-        checkAbsoluteLimit(transaction);
+        if (!user.getTypes().contains(UserAccountType.ROLE_EMPLOYEE)) {
+            checkDayLimit(transaction, user);
+            checkTransactionLimit(user);
+            checkAbsoluteLimit(transaction);
+        }
         return saveTransaction(transaction);
     }
 
@@ -174,6 +197,14 @@ public class TransactionService {
                 user.setCurrentDayLimit(user.getCurrentDayLimit() + transaction.getAmount());
             }
         }
+    }
+
+    private Boolean checkBankAccountType(BankAccount bankAccount, BankAccountType bankAccountType){
+        return bankAccount.getType().equals(bankAccountType);
+    }
+
+    private Boolean checkIfBankAccountIsOwnedByUser(BankAccount bankAccount, UserAccount userAccount){
+        return bankAccount.getUserAccount().equals(userAccount);
     }
 
     private Transaction mapTransactionDtoToTransaction(TransactionDTO dto) {

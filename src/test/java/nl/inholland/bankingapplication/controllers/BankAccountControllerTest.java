@@ -72,7 +72,7 @@ public class BankAccountControllerTest {
     @Test
     @WithMockUser
     void postBankAccountsShouldReturn201() throws Exception {
-        when(bankAccountService.addBankAccount(any(BankAccountRegisterDTO.class))).thenReturn(bankAccount);
+        //when(bankAccountService.addBankAccount(any(BankAccountRegisterDTO.class))).thenReturn(bankAccount);
         this.mockMvc.perform(
                 MockMvcRequestBuilders.post("/BankAccounts")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
