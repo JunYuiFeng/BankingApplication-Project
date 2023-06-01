@@ -15,8 +15,8 @@ public interface UserAccountRepository extends CrudRepository<UserAccount, Long>
 
      Optional<UserAccount> findUserAccountByUsername(String username);
 
-     @Query("SELECT u FROM UserAccount u WHERE u.types = 'ROLE_USER'")
-     List<UserAccount> findUserAccountsByTypeee();
+     @Query("SELECT ua FROM UserAccount ua JOIN ua.types t WHERE t = :type")
+     List<UserAccount> findUserAccountsByTypeee(UserAccountType type);
 }
 
 

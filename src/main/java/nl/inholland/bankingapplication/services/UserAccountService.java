@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
 import nl.inholland.bankingapplication.models.dto.UserAccountUpdateDTO;
+import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.repositories.UserAccountRepository;
 import nl.inholland.bankingapplication.util.JWTTokeProvider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -29,7 +30,7 @@ public class UserAccountService {
     }
 
     public List<UserAccount> getAllRegisteredUserAccounts() {
-            return userAccountRepository.findUserAccountsByTypeee();
+            return userAccountRepository.findUserAccountsByTypeee(UserAccountType.ROLE_USER);
     }
 
     public UserAccount getUserAccountById(Long id) {
