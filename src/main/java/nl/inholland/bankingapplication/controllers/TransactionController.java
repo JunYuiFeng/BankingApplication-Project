@@ -7,6 +7,7 @@ import nl.inholland.bankingapplication.models.dto.MakeTransactionDTO;
 import nl.inholland.bankingapplication.repositories.TransactionRepository;
 import nl.inholland.bankingapplication.services.TransactionService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Time;
@@ -30,10 +31,26 @@ public class TransactionController {
         return ResponseEntity.ok(transactionService.getAllTransactions());
     }
     @GetMapping(value = "{userId}")
-    public ResponseEntity GetTransactionByUserId(@PathVariable Long userId){
-        try{
-            return ResponseEntity.ok(transactionService.getTransactionsByUserId(userId));
-        } catch (EntityNotFoundException e) {return this.handleException(404, e);}
+    public ResponseEntity GetTransactionByUserId(@PathVariable Long userId, Authentication authentication) {
+        try {
+            if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"))) {
+                return ResponseEntity.ok(transactionService.getTransactionsByUserId(userId));
+            } else {
+                //auth gets the name of the user who is doing the transaction and then get ehe name of the one
+                if (transactionService.getTransactionsByUserId(userId).isEmpty()) {
+                    return ResponseEntity.status(404).body(new Exception("No transactions have been made on this account"));
+                }
+                if (authentication.getName().equals(transactionService.getTransactionsById(userId).get(0).getMadeBy().getUsername())) {
+                    return ResponseEntity.ok(transactionService.getTransactionsByUserId(userId));
+                }else{
+                    return ResponseEntity.status(401).body(new Exception("You are not authorized to view this transaction"));
+                }
+
+            }
+        } catch (EntityNotFoundException e) {
+            return this.handleException(404, e);
+        }
+
     }
     @GetMapping(value = "IBANFrom/{IBAN}")
     public ResponseEntity GetTransactionsByIBANFrom(@PathVariable String IBAN){
