@@ -15,5 +15,5 @@ public class BankAccounResponseDTO {
     private BankAccountStatus status;
     private double balance;
     private double absoluteLimit;
-    private Long userId;
+    //private Long userId;
 }
