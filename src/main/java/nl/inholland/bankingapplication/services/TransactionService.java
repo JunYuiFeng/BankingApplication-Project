@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TransactionService {
@@ -80,5 +81,10 @@ public class TransactionService {
     private Transaction mapMakeTransactionDtoToTransaction(MakeTransactionDTO dto){
         Date date = new Date();
         return new Transaction(dto.getAmount(), null, bankAccountService.getBankAccountByIBAN(dto.getAccountFrom()), bankAccountService.getBankAccountByIBAN(dto.getAccountTo()), dto.getDescription(), new Timestamp(date.getTime()));
+    }
+
+    public List<Transaction> getTransactionsById(Long userId) {
+        //
+        return null;
     }
 }
