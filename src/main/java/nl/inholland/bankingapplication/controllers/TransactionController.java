@@ -5,6 +5,7 @@ import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.ExceptionDTO;
 import nl.inholland.bankingapplication.models.dto.MakeTransactionDTO;
 import nl.inholland.bankingapplication.services.TransactionService;
+import nl.inholland.bankingapplication.services.UserAccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,14 +19,17 @@ import java.sql.Timestamp;
 @RequestMapping("Transactions")
 public class TransactionController {
     private final TransactionService transactionService;
+    private final UserAccountService userAccountService;
 
-    public TransactionController(TransactionService transactionService) {
+    public TransactionController(TransactionService transactionService, UserAccountService userAccountService) {
         this.transactionService = transactionService;
+        this.userAccountService = userAccountService;
     }
 
     @GetMapping()
-    public ResponseEntity GetAllTransactions( @RequestParam(required = false) String IBANFrom ,@RequestParam(required = false) String IBANTo,@RequestParam(required = false) Timestamp dateFrom,@RequestParam(required = false) Timestamp dateTo){
-        return ResponseEntity.ok(transactionService.getAllTransactions((UserAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), IBANFrom,IBANTo,dateFrom,dateTo));
+    public ResponseEntity GetAllTransactions( @RequestParam(required = false) String IBANFrom ,@RequestParam(required = false) String IBANTo,@RequestParam(required = false) Timestamp dateFrom,@RequestParam(required = false) Timestamp dateTo) {
+        return ResponseEntity.ok(transactionService.getAllTransactions((UserAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), IBANFrom, IBANTo, dateFrom, dateTo));
+    }
 
 //    @GetMapping(path = "/Transactions/UserId")
 //    public ResponseEntity GetTransactionByUserId(@RequestParam Long userId){
@@ -64,11 +68,10 @@ public class TransactionController {
 //        } catch (EntityNotFoundException e) {return this.handleException(404, e);}
 //    }
 
-    @PreAuthorize("hasAnyRole('ROLE_EMPLOYEE','ROLE_CUSTOMER')")
     @PostMapping
     public ResponseEntity<Transaction> MakeTransaction(@RequestBody MakeTransactionDTO makeTransactionDTO) {
         try {
-            return ResponseEntity.status(201).body(transactionService.makeTransaction(makeTransactionDTO, (UserAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal()));
+            return ResponseEntity.status(201).body(transactionService.makeTransaction(makeTransactionDTO, userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName())));
         } catch (Exception e) {
             return handleException(403, e);
         }

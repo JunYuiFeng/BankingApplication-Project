@@ -181,6 +181,6 @@ public class TransactionService {
     }
     private Transaction mapMakeTransactionDtoToTransaction(MakeTransactionDTO dto){
         Date date = new Date();
-        return new Transaction(dto.getAmount(), (UserAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), bankAccountService.getBankAccountByIBAN(dto.getAccountFrom()), bankAccountService.getBankAccountByIBAN(dto.getAccountTo()), dto.getDescription(), new Timestamp(date.getTime()));
+        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountByIBAN(dto.getAccountFrom()), bankAccountService.getBankAccountByIBAN(dto.getAccountTo()), dto.getDescription(), new Timestamp(date.getTime()));
     }
 }
