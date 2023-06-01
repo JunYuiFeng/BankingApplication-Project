@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.naming.AuthenticationException;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,7 +31,7 @@ public class UserAccountService {
     }
 
     public List<UserAccount> getAllRegisteredUserAccounts() {
-            return userAccountRepository.findUserAccountsByTypeee(UserAccountType.ROLE_USER);
+            return userAccountRepository.findUserAccountsWithType(UserAccountType.ROLE_USER);
     }
 
     public UserAccount getUserAccountById(Long id) {
@@ -76,7 +77,7 @@ public class UserAccountService {
         newUserAccount.setEmail(dto.getEmail());
         newUserAccount.setUsername(dto.getUsername());
         newUserAccount.setPassword(dto.getPassword());
-        newUserAccount.setTypes(dto.getTypeIgnoreCase());
+        newUserAccount.setType(dto.getTypeIgnoreCase());
         newUserAccount.setPhoneNumber(dto.getPhoneNumber());
         newUserAccount.setBsn((dto.getBsn()));
         newUserAccount.setDayLimit(dto.getDayLimit());
@@ -90,7 +91,7 @@ public class UserAccountService {
         userAccountToUpdate.setLastName(userAccountDTO.getLastName());
         userAccountToUpdate.setEmail(userAccountDTO.getEmail());
         userAccountToUpdate.setUsername(userAccountDTO.getUsername());
-        userAccountToUpdate.setTypes(List.of(userAccountDTO.getTypeIgnoreCase()));
+        userAccountToUpdate.setType(userAccountDTO.getTypeIgnoreCase());
         userAccountToUpdate.setPhoneNumber(userAccountDTO.getPhoneNumber());
         userAccountToUpdate.setBsn(userAccountDTO.getBsn());
         userAccountToUpdate.setDayLimit(userAccountDTO.getDayLimit());
@@ -120,7 +121,7 @@ public class UserAccountService {
 
         if (bCryptPasswordEncoder.matches(password, user.getPassword())) {
 // Return a JWT to the client
-            return jwtTokeProvider.createToken(user.getUsername(), user.getTypes());
+            return jwtTokeProvider.createToken(user.getUsername(), Collections.singletonList(user.getType()));
         } else {
             throw new AuthenticationException("Invalid username/password");
         }

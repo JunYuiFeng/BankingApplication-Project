@@ -17,17 +17,13 @@ public class UserAccountDTO {
     private String email;
     private String username;
     private String password;
-    private List<String> types;
+    private UserAccountType type;
     private String phoneNumber;
     private int bsn;
     private double dayLimit;
     private double transactionLimit;
 
-    public List<UserAccountType> getTypeIgnoreCase() {
-        List<UserAccountType> list = new ArrayList<>();
-        for (String t:types) {
-            list.add(UserAccountType.valueOf(t.toUpperCase()));
-        }
-        return list;
+    public UserAccountType getTypeIgnoreCase() {
+        return UserAccountType.valueOf(type.toString().toUpperCase());
     }
 }

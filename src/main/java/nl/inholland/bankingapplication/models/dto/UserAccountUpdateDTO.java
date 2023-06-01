@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -15,13 +16,13 @@ public class UserAccountUpdateDTO {
     private String lastName;
     private String email;
     private String username;
-    private List<UserAccountType> types;
+    private UserAccountType type;
     private String phoneNumber;
     private int bsn;
     private double dayLimit;
     private double transactionLimit;
 
     public UserAccountType getTypeIgnoreCase() {
-        return UserAccountType.valueOf(types.get(0).toString().toUpperCase());
+        return UserAccountType.valueOf(type.toString().toUpperCase());
     }
 }
