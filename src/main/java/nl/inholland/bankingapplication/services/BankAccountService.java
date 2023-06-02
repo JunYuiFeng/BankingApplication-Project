@@ -13,20 +13,31 @@ import org.iban4j.Iban;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Service
 public class BankAccountService {
     private final BankAccountRepository bankAccountRepository;
     private final UserAccountService userAccountService;
+    private final BankAccountResponseDTOMapper bankAccountResponseDTOMapper;
 
-    public BankAccountService(BankAccountRepository bankAccountRepository, UserAccountService userAccountService) {
+    public BankAccountService(BankAccountRepository bankAccountRepository, UserAccountService userAccountService, BankAccountResponseDTOMapper bankAccountResponseDTOMapper) {
         this.bankAccountRepository = bankAccountRepository;
         this.userAccountService = userAccountService;
+        this.bankAccountResponseDTOMapper = bankAccountResponseDTOMapper;
     }
+
+//    public List<BankAccounResponseDTO> getAllBankAccounts() {
+//        return ((List<BankAccount>) bankAccountRepository.findAll()).stream()
+//                .map(bankAccountResponseDTOMapper)
+//                .collect(Collectors.toList());
+//    }
 
     public List<BankAccount> getAllBankAccounts() {
         return (List<BankAccount>) bankAccountRepository.findAll();
     }
+
 
     public List<BankAccount> getAllBankAccountsExceptBankOwnAccount() {
         return (List<BankAccount>) bankAccountRepository.findAllExceptOwnAccount(userAccountService.getUserAccountById(1L));

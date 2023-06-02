@@ -51,6 +51,7 @@ public class JWTTokeProvider {
 // The username is the subject
         Claims claims = Jwts.claims().setSubject(username);
 
+
 // And we add an array of the roles to the auth element of the Claims
 // Note that we only provide the role as information to the frontend
 // The actual role based authorization should always be done in the backend code

@@ -68,7 +68,6 @@ public class BankAccountControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
     }
-
     @Test
     @WithMockUser
     void postBankAccountsShouldReturn201() throws Exception {

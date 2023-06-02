@@ -1,9 +1,0 @@
-
-r
-java:S1104"WMake accountFrom a static final constant or non-public and provide accessors if needed.(¬Ğşüÿÿÿÿ
-p
-java:S1104"UMake accountTo a static final constant or non-public and provide accessors if needed.(ê•Ê’ıÿÿÿÿ
-m
-java:S1104"RMake amount a static final constant or non-public and provide accessors if needed.(¶â¤·ıÿÿÿÿ
-j
-java:S1128"ORemove this unused import 'nl.inholland.bankingapplication.models.UserAccount'.(Íì×•úÿÿÿÿ
