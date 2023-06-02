@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.ExceptionDTO;
 import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
+import nl.inholland.bankingapplication.models.dto.UserAccountUpdateDTO;
 import nl.inholland.bankingapplication.services.UserAccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,7 +25,20 @@ public class UserAccountController {
 
     @GetMapping
     public ResponseEntity getAllUserAccounts() {
-        return ResponseEntity.ok(userAccountService.getAllUserAccounts());
+        try{
+            return ResponseEntity.ok(userAccountService.getAllUserAccounts());
+        } catch (EntityNotFoundException e) {
+            return this.handleException(404, e);
+        }
+    }
+
+    @GetMapping("registered")
+    public ResponseEntity getAllRegisteredUserAccounts() {
+        try{
+            return ResponseEntity.ok(userAccountService.getAllRegisteredUserAccounts());
+        } catch (EntityNotFoundException e) {
+            return this.handleException(404, e);
+        }
     }
 
     @GetMapping("{id}")
@@ -36,6 +50,17 @@ public class UserAccountController {
         }
     }
 
+    //get by username
+    @GetMapping("username/{username}")
+    public ResponseEntity getUserAccountByUsername(@PathVariable String username) {
+        try{
+            return ResponseEntity.ok(userAccountService.getUserAccountByUsername(username));
+        } catch (EntityNotFoundException e) {
+            return this.handleException(404, e);
+        }
+    }
+
+
     @PostMapping
     public ResponseEntity<UserAccount> addUserAccount(@RequestBody UserAccountDTO userAccountDTO) {
         try {
@@ -46,7 +71,7 @@ public class UserAccountController {
     }
 
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity deleteUserAccount(@PathVariable Long id) {
         try {
             userAccountService.deleteUserAccount(id);
@@ -56,8 +81,8 @@ public class UserAccountController {
         }
     }
 
-    @PutMapping("update/{id}")
-    public ResponseEntity<UserAccount> updateUserAccount(@PathVariable Long id, @RequestBody UserAccountDTO userAccountDTO) {
+    @PutMapping("{id}")
+    public ResponseEntity<UserAccount> updateUserAccount(@PathVariable Long id, @RequestBody UserAccountUpdateDTO userAccountDTO) {
         try {
             return ResponseEntity.status(200).body(userAccountService.updateUserAccount(id, userAccountDTO));
         } catch (EntityNotFoundException e) {
@@ -69,8 +94,5 @@ public class UserAccountController {
         ExceptionDTO dto = new ExceptionDTO(e.getClass().getName(), e.getMessage());
         return ResponseEntity.status(status).body(dto);
     }
-
-
-
 
 }

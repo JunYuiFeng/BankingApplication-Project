@@ -3,13 +3,17 @@ package nl.inholland.bankingapplication.services;
 import jakarta.persistence.EntityNotFoundException;
 import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
+import nl.inholland.bankingapplication.models.dto.UserAccountUpdateDTO;
+import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.repositories.UserAccountRepository;
 import nl.inholland.bankingapplication.util.JWTTokeProvider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.naming.AuthenticationException;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserAccountService {
@@ -24,6 +28,10 @@ public class UserAccountService {
 
     public List<UserAccount> getAllUserAccounts() {
         return (List<UserAccount>) userAccountRepository.findAll();
+    }
+
+    public List<UserAccount> getAllRegisteredUserAccounts() {
+            return userAccountRepository.findUserAccountsWithType(UserAccountType.ROLE_USER);
     }
 
     public UserAccount getUserAccountById(Long id) {
@@ -51,12 +59,12 @@ public class UserAccountService {
         userAccountRepository.deleteById(id);
     }
 
-    public UserAccount updateUserAccount(Long id, UserAccountDTO userAccountDTO) {
+    public UserAccount updateUserAccount(Long id, UserAccountUpdateDTO userAccountDTO) {
         UserAccount userAccountToUpdate = userAccountRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("UserAccount not found"));
 
-        setUserAccountFields(userAccountDTO, userAccountToUpdate);
+        mapDtoToUserAccountUpdate(userAccountDTO, userAccountToUpdate);
 
 
         return userAccountRepository.save(userAccountToUpdate);
@@ -64,18 +72,26 @@ public class UserAccountService {
 
     private UserAccount mapDtoToUserAccount(UserAccountDTO dto) {
         UserAccount newUserAccount = new UserAccount();
-        setUserAccountFields(dto, newUserAccount);
+        newUserAccount.setFirstName(dto.getFirstName());
+        newUserAccount.setLastName(dto.getLastName());
+        newUserAccount.setEmail(dto.getEmail());
+        newUserAccount.setUsername(dto.getUsername());
+        newUserAccount.setPassword(dto.getPassword());
+        newUserAccount.setType(dto.getTypeIgnoreCase());
+        newUserAccount.setPhoneNumber(dto.getPhoneNumber());
+        newUserAccount.setBsn((dto.getBsn()));
+        newUserAccount.setDayLimit(dto.getDayLimit());
+        newUserAccount.setTransactionLimit(dto.getTransactionLimit());
 
         return newUserAccount;
     }
 
-    private UserAccount setUserAccountFields(UserAccountDTO userAccountDTO, UserAccount userAccountToUpdate) {
+    private UserAccount mapDtoToUserAccountUpdate(UserAccountUpdateDTO userAccountDTO, UserAccount userAccountToUpdate) {
         userAccountToUpdate.setFirstName(userAccountDTO.getFirstName());
         userAccountToUpdate.setLastName(userAccountDTO.getLastName());
         userAccountToUpdate.setEmail(userAccountDTO.getEmail());
         userAccountToUpdate.setUsername(userAccountDTO.getUsername());
-        userAccountToUpdate.setPassword(userAccountDTO.getPassword());
-        userAccountToUpdate.setTypes(List.of(userAccountDTO.getTypeIgnoreCase()));
+        userAccountToUpdate.setType(userAccountDTO.getTypeIgnoreCase());
         userAccountToUpdate.setPhoneNumber(userAccountDTO.getPhoneNumber());
         userAccountToUpdate.setBsn(userAccountDTO.getBsn());
         userAccountToUpdate.setDayLimit(userAccountDTO.getDayLimit());
@@ -105,7 +121,7 @@ public class UserAccountService {
 
         if (bCryptPasswordEncoder.matches(password, user.getPassword())) {
 // Return a JWT to the client
-            return jwtTokeProvider.createToken(user.getId(), user.getUsername(), user.getTypes());
+            return jwtTokeProvider.createToken(user.getUsername(), Collections.singletonList(user.getType()));
         } else {
             throw new AuthenticationException("Invalid username/password");
         }

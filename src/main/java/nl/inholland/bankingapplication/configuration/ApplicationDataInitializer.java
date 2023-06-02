@@ -67,12 +67,12 @@ public class ApplicationDataInitializer implements ApplicationRunner {
 
     public void loadUserAccounts(){
         List.of(
-                new UserAccountDTO("Bank", "Bank", "Bank@gmail.com", "Bank", "123", List.of(UserAccountType.ROLE_EMPLOYEE), "+31111111111", 12345111, 1000.00, 250.00),
-                new UserAccountDTO("Jun", "Feng", "junfeng@gmail.com", "JunFeng", "secret123", List.of(UserAccountType.ROLE_CUSTOMER), "+31222222222", 12345222, 1000.00, 250.00),
-                new UserAccountDTO("John", "Doe", "JohnDoe@gmail.com", "JohnDoe", "secret123", List.of(UserAccountType.ROLE_CUSTOMER), "+31333333333", 12345333, 1000.00, 250.00),
-                new UserAccountDTO("Karen", "Winter", "KarenWinter@gmail.com", "KarenWinter", "secret123", List.of(UserAccountType.ROLE_DEACTIVATEDUSER), "+31444444444", 12345444, 1000.00, 250.00),
-                new UserAccountDTO("Steve", "Woo", "SteveWoo@gmail.com", "SteveWoo", "secret123", List.of(UserAccountType.ROLE_REGISTEREDUSER), "+31555555555", 12345555, 1000.00, 250.00),
-                new UserAccountDTO("Alessandra", "Ribeiro", "ale@gmail.com", "ale", "123", List.of(UserAccountType.ROLE_CUSTOMER), "+31666666666", 12345666, 1000.00, 250.00)
+                new UserAccountDTO("Bank", "Bank", "Bank@gmail.com", "Bank", "secret123", UserAccountType.ROLE_EMPLOYEE, "+31111111111", 12345111, 1000.00, 250.00),
+                new UserAccountDTO("Jun", "Feng", "junfeng@gmail.com", "JunFeng", "secret123", UserAccountType.ROLE_CUSTOMER, "+31222222222", 12345222, 1000.00, 250.00),
+                new UserAccountDTO("John", "Doe", "JohnDoe@gmail.com", "JohnDoe", "secret123", UserAccountType.ROLE_CUSTOMER, "+31333333333", 12345333, 1000.00, 250.00),
+                new UserAccountDTO("Karen", "Winter", "KarenWinter@gmail.com", "KarenWinter", "secret123", UserAccountType.ROLE_EMPLOYEE, "+31444444444", 12345444, 1000.00, 250.00),
+                new UserAccountDTO("Steve", "Woo", "SteveWoo@gmail.com", "SteveWoo", "secret123", UserAccountType.ROLE_USER, "+31555555555", 12345555, 1000.00, 250.00),
+				new UserAccountDTO("Alessandra", "Ribeiro", "ale@gmail.com", "ale", "123", UserAccountType.ROLE_CUSTOMER, "+31666666666", 12345666, 1000.00, 250.00)
 
         ).forEach(
                 dto -> userAccountService.addUserAccount(dto)
