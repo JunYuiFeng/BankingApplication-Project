@@ -31,7 +31,7 @@ public class WebSecurityConf {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                //.cors().and() // Enable CORS configuration
+                .cors().and() // Enable CORS configuration
                 .csrf((csrf -> csrf.ignoringRequestMatchers("/*")))
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
