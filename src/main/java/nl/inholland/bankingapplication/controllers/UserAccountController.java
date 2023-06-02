@@ -50,7 +50,6 @@ public class UserAccountController {
         }
     }
 
-    //get by username
     @GetMapping("username/{username}")
     public ResponseEntity getUserAccountByUsername(@PathVariable String username) {
         try{
