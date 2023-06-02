@@ -11,12 +11,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class UserAccountDTO {
+public class UserAccountUpdateDTO {
     private String firstName;
     private String lastName;
     private String email;
     private String username;
-    private String password;
     private UserAccountType type;
     private String phoneNumber;
     private int bsn;

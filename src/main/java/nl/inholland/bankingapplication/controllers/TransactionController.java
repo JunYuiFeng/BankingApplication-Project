@@ -17,7 +17,6 @@ import java.sql.Timestamp;
 
 @RestController
 @CrossOrigin
-
 @RequestMapping("Transactions")
 public class TransactionController {
     private final TransactionService transactionService;
