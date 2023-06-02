@@ -12,6 +12,7 @@ import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
+import nl.inholland.bankingapplication.repositories.TransactionRepository;
 import nl.inholland.bankingapplication.services.BankAccountService;
 import nl.inholland.bankingapplication.services.TransactionService;
 import nl.inholland.bankingapplication.services.UserAccountService;
@@ -27,11 +28,13 @@ public class ApplicationDataInitializer implements ApplicationRunner {
     private BankAccountService bankAccountService;
     private UserAccountService userAccountService;
     private TransactionService transactionService;
+    private TransactionRepository transactionRepository;
 
-    public ApplicationDataInitializer(BankAccountService bankAccountService, UserAccountService userAccountService, TransactionService transactionService){
+    public ApplicationDataInitializer(BankAccountService bankAccountService, UserAccountService userAccountService, TransactionService transactionService, TransactionRepository transactionRepository){
         this.bankAccountService = bankAccountService;
         this.userAccountService = userAccountService;
         this.transactionService = transactionService;
+        this.transactionRepository = transactionRepository;
     }
 
     @Override
@@ -78,19 +81,27 @@ public class ApplicationDataInitializer implements ApplicationRunner {
         userAccountService.getAllUserAccounts().forEach(System.out::println);
     }
     private void loadTransactions() {
-       List<BankAccount> accounts = bankAccountService.getAllBankAccounts();
 
-        List<MakeTransactionDTO> transactions = List.of(
-                //double amount, UserAccount madeBy, BankAccount accountFrom, BankAccount accountTo, String description, Timestamp occuredAt
-                new MakeTransactionDTO(accounts.get(3).getIBAN(), accounts.get(4).getIBAN(), 100, "oi"),
-                new MakeTransactionDTO(accounts.get(4).getIBAN(), accounts.get(2).getIBAN(), 50,"la" ),
-                new MakeTransactionDTO(accounts.get(2).getIBAN(), accounts.get(3).getIBAN(),200,"ta" )
-        );
+            List<BankAccount> accounts = bankAccountService.getAllBankAccounts();
 
-        transactions.forEach(
-                dto -> transactionService.makeTransaction(dto)
-        );
+            List<MakeTransactionDTO> transactions = List.of(
+                    //double amount, UserAccount madeBy, BankAccount accountFrom, BankAccount accountTo, String description, Timestamp occuredAt
+                    new MakeTransactionDTO(accounts.get(3).getIBAN(), accounts.get(4).getIBAN(), 100, "oi"),
+                    new MakeTransactionDTO(accounts.get(4).getIBAN(), accounts.get(2).getIBAN(), 50,"la" ),
+                    new MakeTransactionDTO(accounts.get(2).getIBAN(), accounts.get(3).getIBAN(),200,"ta" )
+            );
+            UserAccount bankUserAccount = userAccountService.getUserAccountById(1L);
+            transactions.forEach(
+                    dto -> {
+                        try {
+                            transactionService.makeMockTransaction(dto);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+            );
 
-        transactionService.getAllTransactions().forEach(System.out::println);
+            transactionRepository.findAll().forEach(System.out::println);
+
     }
 }

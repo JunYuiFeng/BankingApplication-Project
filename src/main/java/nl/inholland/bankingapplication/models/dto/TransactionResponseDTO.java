@@ -12,5 +12,4 @@ public class TransactionResponseDTO {
     public String accountTo;
     public String description;
     public Timestamp occurredAt;
-
 }

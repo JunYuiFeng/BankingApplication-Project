@@ -1,9 +1,7 @@
 package nl.inholland.bankingapplication.models;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.annotation.Nullable;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,9 +21,9 @@ public class Transaction {
     public Double amount;
     @OneToOne
     public UserAccount madeBy;
-    @OneToOne
+    @ManyToOne
     public BankAccount accountFrom;
-    @OneToOne
+    @ManyToOne
     public BankAccount accountTo;
     @Nullable
     public String description;

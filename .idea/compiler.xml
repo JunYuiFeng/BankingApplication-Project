@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="bankingapplication" />
+        <module name="BankingApplication-Project" />
         <module name="guitarshop-api" />
       </profile>
     </annotationProcessing>
