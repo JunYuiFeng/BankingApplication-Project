@@ -36,6 +36,7 @@ public class WebSecurityConf {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/login", "/Transactions/**").permitAll()
+                        .requestMatchers("/UserAccounts").permitAll()
                         .requestMatchers(toH2Console()).permitAll()
                         .anyRequest().authenticated())
                 // We ensure our own filter is executed before the framework runs its own authentication filter code
