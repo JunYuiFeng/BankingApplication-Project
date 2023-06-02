@@ -5,19 +5,22 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import nl.inholland.bankingapplication.models.UserAccount;
 
 import java.sql.Timestamp;
 @Data
+@Builder
+@AllArgsConstructor
 @Entity
 @NoArgsConstructor
 public class Transaction {
     @Id
     @GeneratedValue
     public Long id;
-    public double amount;
+    public Double amount;
     @OneToOne
     public UserAccount madeBy;
     @OneToOne
@@ -28,7 +31,7 @@ public class Transaction {
     public String description;
     public Timestamp occuredAt;
 
-    public Transaction(double amount, UserAccount madeBy, BankAccount accountFrom, BankAccount accountTo, String description, Timestamp occuredAt) {
+    public Transaction(Double amount, UserAccount madeBy, BankAccount accountFrom, BankAccount accountTo, String description, Timestamp occuredAt) {
         this.amount = amount;
         this.madeBy = madeBy;
         this.accountFrom = accountFrom;

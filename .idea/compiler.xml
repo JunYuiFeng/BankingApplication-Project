@@ -8,7 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="bankingapplication" />
-        <module name="BankingApplication-Project" />
+        <module name="guitarshop-api" />
       </profile>
     </annotationProcessing>
   </component>
@@ -16,6 +16,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="BankingApplication-Project" options="-parameters" />
       <module name="bankingapplication" options="-parameters" />
+      <module name="guitarshop-api" options="-parameters" />
     </option>
   </component>
 </project>
