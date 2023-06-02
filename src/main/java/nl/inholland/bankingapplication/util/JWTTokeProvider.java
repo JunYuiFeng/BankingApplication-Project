@@ -30,7 +30,7 @@ public class JWTTokeProvider {
         this.userDetailsService = userDetailsService;
     }
 
-    public String createToken(String username, List<UserAccountType> roles) throws JwtException {
+    public String createToken(Long userId, String username, List<UserAccountType> roles) throws JwtException {
 
 /* The token will look something like this
 
@@ -50,6 +50,7 @@ public class JWTTokeProvider {
 // We create a new Claims object for the token
 // The username is the subject
         Claims claims = Jwts.claims().setSubject(username);
+        claims.setId(userId.toString());
 
 
 // And we add an array of the roles to the auth element of the Claims

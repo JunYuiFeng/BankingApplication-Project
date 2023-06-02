@@ -19,7 +19,7 @@ public class Transaction {
     @GeneratedValue
     public Long id;
     public Double amount;
-    @OneToOne
+    @ManyToOne
     public UserAccount madeBy;
     @ManyToOne
     public BankAccount accountFrom;

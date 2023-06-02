@@ -105,7 +105,7 @@ public class UserAccountService {
 
         if (bCryptPasswordEncoder.matches(password, user.getPassword())) {
 // Return a JWT to the client
-            return jwtTokeProvider.createToken(user.getUsername(), user.getTypes());
+            return jwtTokeProvider.createToken(user.getId(), user.getUsername(), user.getTypes());
         } else {
             throw new AuthenticationException("Invalid username/password");
         }
