@@ -68,16 +68,15 @@ public class BankAccountControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
     }
-
-//    @Test
-//    @WithMockUser
-//    void postBankAccountsShouldReturn201() throws Exception {
-//        when(bankAccountService.addBankAccount(any(BankAccountRegisterDTO.class))).thenReturn(bankAccount);
-//        this.mockMvc.perform(
-//                MockMvcRequestBuilders.post("/BankAccounts")
-//                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-//                        .content("{}"))
-//                .andExpect(status().isCreated())
-//                .andExpect(jsonPath("$.IBAN").value("NL77ABNA5602795901"));
-//    }
+    @Test
+    @WithMockUser
+    void postBankAccountsShouldReturn201() throws Exception {
+        //when(bankAccountService.addBankAccount(any(BankAccountRegisterDTO.class))).thenReturn(bankAccount);
+        this.mockMvc.perform(
+                MockMvcRequestBuilders.post("/BankAccounts")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content("{}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.IBAN").value("NL77ABNA5602795901"));
+    }
 }
