@@ -30,24 +30,16 @@ public class WebSecurityConf {
 // Read more here: https://docs.spring.io/spring-security/reference/servlet/authorization/authoize-http-requests.html
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-
-        httpSecurity.
-                csrf((csrf ->
-                        csrf
-                                .ignoringRequestMatchers("/*")));
-        httpSecurity.sessionManagement(
-                sess -> sess
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        httpSecurity.
-                authorizeHttpRequests((
-                        authz -> authz
-                                .requestMatchers("/login", "/Transactions/**").permitAll()
-                                .requestMatchers(toH2Console()).permitAll()
-                                .anyRequest().authenticated()));
-
-// We ensure our own filter is executed before the framework runs its own authentication filter code
-        httpSecurity.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+        httpSecurity
+                //.cors().and() // Enable CORS configuration
+                .csrf((csrf -> csrf.ignoringRequestMatchers("/*")))
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/login", "/Transactions/**").permitAll()
+                        .requestMatchers(toH2Console()).permitAll()
+                        .anyRequest().authenticated())
+                // We ensure our own filter is executed before the framework runs its own authentication filter code
+                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
     }
