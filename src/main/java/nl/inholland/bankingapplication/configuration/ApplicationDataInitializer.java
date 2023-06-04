@@ -4,11 +4,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Null;
 import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.UserAccount;
-import nl.inholland.bankingapplication.models.dto.BankAccountPredefinedDTO;
-import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
-import nl.inholland.bankingapplication.models.dto.BankAccountUpdateDTO;
-import nl.inholland.bankingapplication.models.dto.MakeTransactionDTO;
-import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
+import nl.inholland.bankingapplication.models.dto.*;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
@@ -82,7 +78,7 @@ public class ApplicationDataInitializer implements ApplicationRunner {
     }
     private void loadTransactions() {
 
-            List<BankAccount> accounts = bankAccountService.getAllBankAccounts();
+            List<BankAccounResponseDTO> accounts = bankAccountService.getAllBankAccounts();
 
             List<MakeTransactionDTO> transactions = List.of(
                     //double amount, UserAccount madeBy, BankAccount accountFrom, BankAccount accountTo, String description, Timestamp occuredAt
