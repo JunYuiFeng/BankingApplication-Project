@@ -88,8 +88,10 @@ public class ApplicationDataInitializer implements ApplicationRunner {
                     //double amount, UserAccount madeBy, BankAccount accountFrom, BankAccount accountTo, String description, Timestamp occuredAt
                     new MakeTransactionDTO(accounts.get(3).getIBAN(), accounts.get(4).getIBAN(), 100, "oi"),
                     new MakeTransactionDTO(accounts.get(4).getIBAN(), accounts.get(2).getIBAN(), 50,"la" ),
-                    new MakeTransactionDTO(accounts.get(2).getIBAN(), accounts.get(3).getIBAN(),200,"ta" )
+                    new MakeTransactionDTO(accounts.get(2).getIBAN(), accounts.get(3).getIBAN(),200,"ta" ),
+                    new MakeTransactionDTO(accounts.get(5).getIBAN(), accounts.get(4).getIBAN(),500,"ta" )
             );
+
             UserAccount bankUserAccount = userAccountService.getUserAccountById(1L);
             transactions.forEach(
                     dto -> {
