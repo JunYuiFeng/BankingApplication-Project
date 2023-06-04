@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import javax.naming.AuthenticationException;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserAccountService {
@@ -81,8 +80,9 @@ public class UserAccountService {
         newUserAccount.setPhoneNumber(dto.getPhoneNumber());
         newUserAccount.setBsn((dto.getBsn()));
         newUserAccount.setDayLimit(dto.getDayLimit());
+        newUserAccount.setCurrentDayLimit(dto.getCurrentDayLimit());
         newUserAccount.setTransactionLimit(dto.getTransactionLimit());
-
+        newUserAccount.setCurrentTransactionLimit(dto.getCurrentTransactionLimit());
         return newUserAccount;
     }
 
@@ -95,7 +95,9 @@ public class UserAccountService {
         userAccountToUpdate.setPhoneNumber(userAccountDTO.getPhoneNumber());
         userAccountToUpdate.setBsn(userAccountDTO.getBsn());
         userAccountToUpdate.setDayLimit(userAccountDTO.getDayLimit());
+        userAccountToUpdate.setCurrentDayLimit(userAccountDTO.getCurrentDayLimit());
         userAccountToUpdate.setTransactionLimit(userAccountDTO.getTransactionLimit());
+        userAccountToUpdate.setCurrentTransactionLimit(userAccountDTO.getCurrentTransactionLimit());
 
         return userAccountToUpdate;
     }
