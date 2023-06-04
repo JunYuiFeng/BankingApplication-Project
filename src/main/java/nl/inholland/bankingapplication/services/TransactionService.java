@@ -1,25 +1,25 @@
 package nl.inholland.bankingapplication.services;
 
-import jakarta.persistence.EntityNotFoundException;
 import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.Transaction;
 import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.MakeTransactionDTO;
-import nl.inholland.bankingapplication.models.dto.TransactionDTO;
 import nl.inholland.bankingapplication.models.dto.TransactionResponseDTO;
+import nl.inholland.bankingapplication.models.dto.UserAccountUpdateDTO;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.repositories.TransactionRepository;
 import org.springframework.data.domain.Example;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 public class TransactionService {
@@ -51,17 +51,12 @@ public class TransactionService {
         List<Transaction> transactions = transactionRepository.findAll(Example.of(transaction));
 
         if (!Objects.equals(user.getType(), UserAccountType.ROLE_EMPLOYEE)){
-            List <Transaction> transactionFrom = new ArrayList<>();
-            List<Transaction> transactionsTo = new ArrayList<>();
-            for (BankAccount bankAccount: user.getBankAccounts()
-                 ) {
-                transactionFrom.addAll(transactions.stream().filter(t -> t.getAccountFrom().equals(bankAccountService.getBankAccountByIBAN(bankAccount.getIBAN()))).toList());
-                transactionsTo.addAll(transactions.stream().filter(t -> t.getAccountTo().equals(bankAccountService.getBankAccountByIBAN(bankAccount.getIBAN()))).toList());
+           transactions = filterTransactionsByUser(user, transactions);
+        }
+        else {
+            if(userId !=null){
+                transactions = filterTransactionsByUser(userAccountService.getUserAccountById(userId.longValue()),transactions);
             }
-            // TODO: fix this so you can also apply the query for the customer transactions
-            transactions.removeAll(transactions);
-            transactions.addAll(transactionFrom);
-            transactions.addAll(transactionsTo);
         }
         transactions = filterTransactionResponseForDates(transactions, dateFrom, dateTo);
         transactions = filterTransactionsResponseForAmount(transactions, amount);
@@ -69,43 +64,22 @@ public class TransactionService {
         return transactions;
     }
 
-    // TODO get rid of all these methods
-    private List<Transaction> getTransactionsByUserId(Long id){
-        UserAccount userAccount = userAccountService.getUserAccountById(id);
-        return transactionRepository.findTransactionsByMadeBy(userAccount).orElse(
-                null
-        );
+    private List<Transaction> filterTransactionsByUser(UserAccount user, List<Transaction> transactions) {
+        List <Transaction> transactionFrom = new ArrayList<>();
+        List<Transaction> transactionsTo = new ArrayList<>();
+        for (BankAccount bankAccount: user.getBankAccounts()
+             ) {
+            transactionFrom.addAll(transactions.stream().filter(t -> t.getAccountFrom().equals(bankAccountService.getBankAccountByIBAN(bankAccount.getIBAN()))).toList());
+            transactionsTo.addAll(transactions.stream().filter(t -> t.getAccountTo().equals(bankAccountService.getBankAccountByIBAN(bankAccount.getIBAN()))).toList());
+        }
+        // TODO: fix this so you can also apply the query for the customer transactions
+        transactions.removeAll(transactions);
+        transactions.addAll(transactionFrom);
+        transactions.addAll(transactionsTo);
+        return transactions;
     }
 
-    private List<Transaction> getTransactionsByIBANFrom(String IBAN){
-        BankAccount bankAccount = bankAccountService.getBankAccountByIBAN(IBAN);
-        return transactionRepository.findTransactionsByAccountFrom(bankAccount).orElse(null);
-    }
-
-    private List<Transaction> getTransactionsByIBANTo(String IBAN){
-        BankAccount bankAccount = bankAccountService.getBankAccountByIBAN(IBAN);
-        return transactionRepository.findTransactionsByAccountTo(bankAccount).orElseThrow(
-                () -> new EntityNotFoundException("no transactions have been send to this IBAN " + IBAN)
-        );
-    }
-
-    private List<Transaction> getTransactionsByDateFrom(Timestamp dateFrom){
-        return transactionRepository.findTransactionsByOccuredAtAfter(dateFrom).orElseThrow(
-                () -> new EntityNotFoundException("could not find transactions after timstamp "+ dateFrom)
-        );
-    }
-
-    private List<Transaction> getTransactionsByDateTo(Timestamp dateTo){
-        return transactionRepository.findTransactionsByOccuredAtBefore(dateTo).orElseThrow(
-                () -> new EntityNotFoundException("could not find transactions before timestamp "+dateTo)
-        );
-    }
-    private List<Transaction> getTransactionsByDateBetween(Timestamp dateFrom, Timestamp dateTo){
-        return transactionRepository.findTransactionsByOccuredAtBetween(dateFrom, dateTo).orElseThrow(
-                () -> new EntityNotFoundException("could not find transactions between timestamps "+ dateFrom+" "+dateTo)
-        );
-    }
-    public TransactionResponseDTO makeTransaction(MakeTransactionDTO makeTransactionDTO, UserAccount user) throws Exception {
+    public TransactionResponseDTO makeTransaction(MakeTransactionDTO makeTransactionDTO, UserAccount user) throws ResponseStatusException {
         //this method is such a mess, good luck reading this ♡♡ Cody.
         //I added comments to see if it helped with readability, but it really didn't f.
 
@@ -113,7 +87,7 @@ public class TransactionService {
         Transaction transaction = mapMakeTransactionDtoToTransaction(makeTransactionDTO);
 
         if (transaction.getAccountFrom().getStatus() == BankAccountStatus.INACTIVE || transaction.getAccountTo().getStatus() == BankAccountStatus.INACTIVE){
-            throw new Exception("one of the bankaccounts are de-activated");
+            throw new ResponseStatusException(401,"one of the bankaccounts are de-activated",null);
         }
 
         //this if checks if the employee is logged in and if yes the transaction goes through no matter what
@@ -129,7 +103,7 @@ public class TransactionService {
 
         //this if checks if a transaction is made between savings accounts.
         if (checkBankAccountType(transaction.getAccountFrom(), BankAccountType.SAVINGS) && checkBankAccountType(transaction.getAccountFrom(), BankAccountType.SAVINGS)){
-            throw new Exception("cant make a transaction between savings accounts");
+            throw new ResponseStatusException(401,"cant make a transaction between savings accounts",null);
         }
 
         //the first if checks if the owner of the account is indeed making the transaction.
@@ -143,7 +117,8 @@ public class TransactionService {
                     return finalizeTransaction(transaction, user);
                 }
                 else {
-                    throw new Exception("Can't make a transaction to a savings account you don't own");
+                    throw new ResponseStatusException(401,"Can't make a transaction to a savings account you don't own",null);
+
                 }
             }
             // this if checks if the account is from a savings account.
@@ -154,17 +129,19 @@ public class TransactionService {
                     return finalizeTransaction(transaction, user);
                 }
                 else {
-                    throw new Exception("Can't make a transaction to a savings account you don't own");
+                    throw new ResponseStatusException(401,"Can't make a transaction to a savings account you don't own",null);
+
                 }
             }
             return finalizeTransaction(transaction, user);
         }
         else {
-            throw new Exception("you don't own the bankaccount you are making the transaction with");
+            throw new ResponseStatusException(401,"you don't own the bankaccount you are making the transaction with",null);
+
         }
     }
 
-    private TransactionResponseDTO finalizeTransaction(Transaction transaction, UserAccount user) throws Exception {
+    private TransactionResponseDTO finalizeTransaction(Transaction transaction, UserAccount user) throws ResponseStatusException {
         if (!Objects.equals(user.getType(), UserAccountType.ROLE_EMPLOYEE)) {
             checkDayLimit(transaction, user);
             checkTransactionLimit(user);
@@ -181,31 +158,35 @@ public class TransactionService {
         return i;
     }
 
-    private void checkAbsoluteLimit(Transaction transaction) throws Exception {
+    private void checkAbsoluteLimit(Transaction transaction) throws ResponseStatusException {
         if (transaction.getAccountFrom().getBalance() - transaction.getAmount() < transaction.getAccountFrom().getAbsoluteLimit()) {
-            throw new Exception("with this transaction you will pass the absolute limit of your account");
+            throw new ResponseStatusException(401,"with this transaction you will pass the absolute limit of your account",null);
         }
     }
 
-    private void checkTransactionLimit(UserAccount user) throws Exception {
+    private void checkTransactionLimit(UserAccount user) throws ResponseStatusException {
         if (user.getCurrentTransactionLimit() >= user.getTransactionLimit()){
-            throw new Exception("you have passed your transaction limit");
+            throw new ResponseStatusException(401,"you have passed your transaction limit",null);
         }
         else {
             user.setCurrentTransactionLimit(user.getCurrentTransactionLimit() + 1);
+            userAccountService.updateUserAccount(user.getId().longValue(), new UserAccountUpdateDTO(user.getFirstName(),user.getLastName(),user.getEmail(),user.getUsername(),user.getType(),user.getPhoneNumber(),user.getBsn(),user.getDayLimit(),user.getCurrentDayLimit(),user.getTransactionLimit(),user.getCurrentTransactionLimit()));
         }
     }
 
-    private void checkDayLimit(Transaction transaction, UserAccount user) throws Exception {
+    private void checkDayLimit(Transaction transaction, UserAccount user) throws ResponseStatusException {
         if (user.getCurrentDayLimit() >= user.getDayLimit()){
-            throw new Exception("passed your day limit");
+            throw new ResponseStatusException(401,"passed your day limit",null);
+
         }
         else {
             if (user.getCurrentDayLimit() + transaction.getAmount() >= user.getDayLimit()){
-                throw new Exception ("you are passing your day limit lower the amount of the transaction to proceed");
+                throw new ResponseStatusException(401,"you are passing your day limit lower the amount of the transaction to proceed",null);
+
             }
             else {
                 user.setCurrentDayLimit(user.getCurrentDayLimit() + transaction.getAmount());
+                userAccountService.updateUserAccount(user.getId().longValue(), new UserAccountUpdateDTO(user.getFirstName(),user.getLastName(),user.getEmail(),user.getUsername(),user.getType(),user.getPhoneNumber(),user.getBsn(),user.getDayLimit(),user.getCurrentDayLimit(),user.getTransactionLimit(),user.getCurrentTransactionLimit()));
             }
         }
     }
@@ -218,9 +199,6 @@ public class TransactionService {
         return bankAccount.getUserAccount().equals(userAccount);
     }
 
-    private Transaction mapTransactionDtoToTransaction(TransactionDTO dto) {
-        return new Transaction(dto.getAmount(), dto.getMadeBy(), dto.getAccountFrom(),dto.getAccountTo(), dto.getDescription(), dto.getOccuredAt());
-    }
     private Transaction mapMakeTransactionDtoToTransaction(MakeTransactionDTO dto){
         Date date = new Date();
         return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountByIBAN(dto.getAccountFrom()), bankAccountService.getBankAccountByIBAN(dto.getAccountTo()), dto.getDescription(), new Timestamp(date.getTime()));
@@ -269,10 +247,5 @@ public class TransactionService {
 
     private TransactionResponseDTO mapTransactionTOTransactionResponseDTO(Transaction tra){
         return new TransactionResponseDTO(tra.getId(), tra.getAmount(),tra.getMadeBy().getId().intValue(),tra.getAccountFrom().getIBAN(),tra.getAccountTo().getIBAN(),tra.getDescription(),tra.getOccuredAt());
-    }
-
-    public List<Transaction> getTransactionsById(Long userId) {
-        //
-        return null;
     }
 }
