@@ -60,7 +60,6 @@ public class TransactionService {
         }
         transactions = filterTransactionResponseForDates(transactions, dateFrom, dateTo);
         transactions = filterTransactionsResponseForAmount(transactions, amount);
-        // TODO: make it so you can also filter between dates and amounts also make it so it filters transactions if userID is provided
         return transactions;
     }
 
@@ -69,10 +68,9 @@ public class TransactionService {
         List<Transaction> transactionsTo = new ArrayList<>();
         for (BankAccount bankAccount: user.getBankAccounts()
              ) {
-            transactionFrom.addAll(transactions.stream().filter(t -> t.getAccountFrom().equals(bankAccountService.getBankAccountByIBAN(bankAccount.getIBAN()))).toList());
-            transactionsTo.addAll(transactions.stream().filter(t -> t.getAccountTo().equals(bankAccountService.getBankAccountByIBAN(bankAccount.getIBAN()))).toList());
+            transactionFrom.addAll(transactions.stream().filter(t -> t.getAccountFrom().getIBAN().equals(bankAccount.getIBAN())).toList());
+            transactionsTo.addAll(transactions.stream().filter(t -> t.getAccountTo().getIBAN().equals(bankAccount.getIBAN())).toList());
         }
-        // TODO: fix this so you can also apply the query for the customer transactions
         transactions.removeAll(transactions);
         transactions.addAll(transactionFrom);
         transactions.addAll(transactionsTo);
