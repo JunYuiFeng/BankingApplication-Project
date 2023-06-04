@@ -8,6 +8,7 @@ import nl.inholland.bankingapplication.models.dto.BankAccountUpdateDTO;
 import nl.inholland.bankingapplication.models.dto.ExceptionDTO;
 import nl.inholland.bankingapplication.services.BankAccountService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,9 +26,9 @@ public class BankAccountController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BankAccount>> getAllBankAccounts() {
+    public ResponseEntity<List<BankAccounResponseDTO>> getAllBankAccounts() {
         try {
-            List<BankAccount> bankAccounts = bankAccountService.getAllBankAccounts();
+            List<BankAccounResponseDTO> bankAccounts = bankAccountService.getAllBankAccounts();
             if (bankAccounts.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
@@ -37,10 +38,11 @@ public class BankAccountController {
         }
     }
 
-    @GetMapping("ExceptBank")
-    public ResponseEntity<List<BankAccount>> getAllBankAccountsExceptBankOwnAccount() {
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
+    @GetMapping("ExcludeUserAccount/{userId}")
+    public ResponseEntity<List<BankAccount>> getAllBankAccountsExceptBankOwnAccount(@PathVariable Long userId) {
         try {
-            List<BankAccount> bankAccounts = bankAccountService.getAllBankAccountsExceptBankOwnAccount();
+            List<BankAccount> bankAccounts = bankAccountService.getBankAccountsExceptOwnAccount(userId);
             if (bankAccounts.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
@@ -68,6 +70,7 @@ public class BankAccountController {
         }
     }
 
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @GetMapping(params = "status")
     public ResponseEntity<List<BankAccount>> getBankAccountByStatus(@RequestParam String status) {
         try {
@@ -86,6 +89,7 @@ public class BankAccountController {
         }
     }
 
+    //@PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @PostMapping
     public ResponseEntity<BankAccounResponseDTO> addBankAccount(@RequestBody BankAccountRegisterDTO dto) {
         try {
@@ -98,7 +102,7 @@ public class BankAccountController {
     @PatchMapping("/{IBAN}")
     public ResponseEntity<BankAccount> updateBankAccount(@RequestBody BankAccountUpdateDTO dto, @PathVariable String IBAN) {
         try {
-            return ResponseEntity.status(200).body(bankAccountService.updateBankAccount(dto, IBAN));
+            return ResponseEntity.status(201).body(bankAccountService.updateBankAccount(dto, IBAN));
         } catch (Exception e) {
             return this.handleException(400, e);
         }

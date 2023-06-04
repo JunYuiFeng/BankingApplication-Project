@@ -15,6 +15,7 @@ public class BankAccountResponseDTOMapper implements Function<BankAccount, BankA
                 bankAccount.getType(),
                 bankAccount.getStatus(),
                 bankAccount.getBalance(),
-                bankAccount.getAbsoluteLimit());
+                bankAccount.getAbsoluteLimit(),
+                bankAccount.getUserAccount());
     }
 }
