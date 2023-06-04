@@ -8,6 +8,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+
 @Service
 public class UserAccountDetailsService implements UserDetailsService {
     private UserAccountRepository userRepository;
@@ -18,13 +20,17 @@ public class UserAccountDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        System.out.println("loadUserByUsername: " + username);
+
         final UserAccount member = userRepository.findUserAccountByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User with username: " + username + " not found"));
+
+        System.out.println(member.getType().toString());
 
         return User
                 .withUsername(username)
                 .password(member.getPassword())
-                .authorities(member.getTypes())
+                .authorities(member.getType().toString())
                 .build();
     }
 

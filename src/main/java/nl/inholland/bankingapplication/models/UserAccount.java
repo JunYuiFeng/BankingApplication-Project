@@ -28,8 +28,8 @@ public class UserAccount {
 
     private String password;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<UserAccountType> types;
+    //@ElementCollection(fetch = FetchType.EAGER)
+    private UserAccountType type;
 
     private String phoneNumber;
 
@@ -48,13 +48,13 @@ public class UserAccount {
 
 
 
-    public UserAccount(String firstName, String lastName, String email, String username, String password, List<UserAccountType> types, String phoneNumber, int bsn, double dayLimit, double transactionLimit, List<BankAccount> bankAccounts) {
+    public UserAccount(String firstName, String lastName, String email, String username, String password, UserAccountType type, String phoneNumber, int bsn, double dayLimit, double transactionLimit, List<BankAccount> bankAccounts) {
             this.firstName = firstName;
             this.lastName = lastName;
             this.email = email;
             this.username = username;
             this.password = password;
-            this.types = types;
+            this.type = type;
             this.phoneNumber = phoneNumber;
             this.bsn = bsn;
             this.dayLimit = dayLimit;

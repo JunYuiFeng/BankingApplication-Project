@@ -19,10 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class TransactionService {
@@ -53,7 +50,7 @@ public class TransactionService {
         Transaction transaction = Transaction.builder().accountFrom(bankAccountFrom).accountTo(bankAccountTo).build();
         List<Transaction> transactions = transactionRepository.findAll(Example.of(transaction));
 
-        if (!user.getTypes().contains(UserAccountType.ROLE_EMPLOYEE)){
+        if (!Objects.equals(user.getType(), UserAccountType.ROLE_EMPLOYEE)){
             List <Transaction> transactionFrom = new ArrayList<>();
             List<Transaction> transactionsTo = new ArrayList<>();
             for (BankAccount bankAccount: user.getBankAccounts()
@@ -120,7 +117,7 @@ public class TransactionService {
         }
 
         //this if checks if the employee is logged in and if yes the transaction goes through no matter what
-        if (user.getTypes().contains(UserAccountType.ROLE_EMPLOYEE)){
+        if (Objects.equals(user.getType(), UserAccountType.ROLE_EMPLOYEE)){
             return finalizeTransaction(transaction, user);
         }
         for (BankAccount b: bankAccountsOfUser
@@ -168,7 +165,7 @@ public class TransactionService {
     }
 
     private TransactionResponseDTO finalizeTransaction(Transaction transaction, UserAccount user) throws Exception {
-        if (!user.getTypes().contains(UserAccountType.ROLE_EMPLOYEE)) {
+        if (!Objects.equals(user.getType(), UserAccountType.ROLE_EMPLOYEE)) {
             checkDayLimit(transaction, user);
             checkTransactionLimit(user);
             checkAbsoluteLimit(transaction);
