@@ -2,12 +2,14 @@ package nl.inholland.bankingapplication.services;
 
 import jakarta.persistence.EntityNotFoundException;
 import nl.inholland.bankingapplication.models.BankAccount;
+import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.BankAccounResponseDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountPredefinedDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountUpdateDTO;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
+import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.repositories.BankAccountRepository;
 import org.iban4j.CountryCode;
 import org.iban4j.Iban;
@@ -51,9 +53,9 @@ public class BankAccountService {
 
     public List<BankAccount> getBankAccountByUserAccountId(Long id) {
         List<BankAccount> bankAccounts = bankAccountRepository.findBankAccountByUserAccountId(id);
-//        if (bankAccounts.isEmpty()) {
-//            throw new EntityNotFoundException("Bank account not found");
-//        }
+        if (bankAccounts.isEmpty()) {
+            throw new EntityNotFoundException("Bank account not found");
+        }
         return bankAccounts;
     }
 
@@ -75,17 +77,17 @@ public class BankAccountService {
 
 
     public BankAccounResponseDTO addBankAccount(BankAccountRegisterDTO dto) {
-        List<BankAccount> userBankAccounts = getBankAccountByUserAccountId(dto.getUserId());
-
-        if (userBankAccounts != null && !userBankAccounts.isEmpty()) {
-            // Check if the user already has a savings account
-            boolean hasSavingsAccount = userBankAccounts.stream()
-                    .anyMatch(account -> account.getType() == BankAccountType.SAVINGS);
-
-            if (hasSavingsAccount) {
-                throw new IllegalArgumentException("User already has a savings account");
-            }
-        }
+//        List<BankAccount> userBankAccounts = getBankAccountByUserAccountId(dto.getUserId());
+//
+//        if (userBankAccounts != null && !userBankAccounts.isEmpty()) {
+//            // Check if the user already has a savings account
+//            boolean hasSavingsAccount = userBankAccounts.stream()
+//                    .anyMatch(account -> account.getType() == BankAccountType.SAVINGS);
+//
+//            if (hasSavingsAccount) {
+//                throw new IllegalArgumentException("User already has a savings account");
+//            }
+//        }
 
         BankAccount bankAccount = bankAccountRepository.save(this.mapDtoToBankAccount(dto));
         return mapBankAccountToDto(bankAccount);
@@ -97,21 +99,23 @@ public class BankAccountService {
     }
 
 
-    public BankAccount updateBankAccount(BankAccountUpdateDTO dto, String IBAN) {
+    public BankAccount updateBankAccount(BankAccountUpdateDTO dto, String IBAN, UserAccount userAccount) {
         BankAccount bankAccount = bankAccountRepository
                 .findBankAccountByIBAN(IBAN)
                 .orElseThrow(() -> new EntityNotFoundException("Bank Account not found"));
 
-        if (dto.getStatusIgnoreCase() != null) {
-            bankAccount.setStatus(dto.getStatusIgnoreCase());
+        if(userAccount.getType().equals(UserAccountType.ROLE_EMPLOYEE)) {
+            if (dto.getStatusIgnoreCase() != null) {
+                bankAccount.setStatus(dto.getStatusIgnoreCase());
+            }
+
+            if (dto.getAbsoluteLimit() != 0) {
+                bankAccount.setAbsoluteLimit(dto.getAbsoluteLimit());
+            }
         }
 
         if (dto.getBalance() != 0) {
             bankAccount.setBalance(dto.getBalance());
-        }
-
-        if (dto.getAbsoluteLimit() != 0) {
-            bankAccount.setAbsoluteLimit(dto.getAbsoluteLimit());
         }
 
         return bankAccountRepository.save(bankAccount);

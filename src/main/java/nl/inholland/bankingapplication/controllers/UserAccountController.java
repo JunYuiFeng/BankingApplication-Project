@@ -90,7 +90,7 @@ public class UserAccountController {
     }
 
     private ResponseEntity handleException(int status, EntityNotFoundException e) {
-        ExceptionDTO dto = new ExceptionDTO(e.getClass().getName(), e.getMessage());
+        ExceptionDTO dto = new ExceptionDTO(status, e.getClass().getName(), e.getMessage());
         return ResponseEntity.status(status).body(dto);
     }
 

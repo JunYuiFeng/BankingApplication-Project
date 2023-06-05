@@ -10,6 +10,7 @@ import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.repositories.TransactionRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Example;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -116,7 +117,6 @@ public class TransactionService {
                 }
                 else {
                     throw new ResponseStatusException(401,"Can't make a transaction to a savings account you don't own",null);
-
                 }
             }
             // this if checks if the account is from a savings account.
@@ -172,14 +172,14 @@ public class TransactionService {
         }
     }
 
-    private void checkDayLimit(Transaction transaction, UserAccount user) throws ResponseStatusException {
+    private void checkDayLimit(Transaction transaction, UserAccount user) {
         if (user.getCurrentDayLimit() >= user.getDayLimit()){
-            throw new ResponseStatusException(401,"passed your day limit",null);
+            throw new DataIntegrityViolationException("passed your day limit");
 
         }
         else {
             if (user.getCurrentDayLimit() + transaction.getAmount() >= user.getDayLimit()){
-                throw new ResponseStatusException(401,"you are passing your day limit lower the amount of the transaction to proceed",null);
+                throw new DataIntegrityViolationException("you are passing your day limit lower the amount of the transaction to proceed");
 
             }
             else {

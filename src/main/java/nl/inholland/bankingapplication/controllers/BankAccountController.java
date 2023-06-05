@@ -7,8 +7,10 @@ import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountUpdateDTO;
 import nl.inholland.bankingapplication.models.dto.ExceptionDTO;
 import nl.inholland.bankingapplication.services.BankAccountService;
+import nl.inholland.bankingapplication.services.UserAccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,9 +22,11 @@ import java.util.List;
 @RequestMapping("BankAccounts")
 public class BankAccountController {
     private BankAccountService bankAccountService;
+    private UserAccountService userAccountService;
 
-    public BankAccountController(BankAccountService bankAccountService) {
+    public BankAccountController(BankAccountService bankAccountService, UserAccountService userAccountService) {
         this.bankAccountService = bankAccountService;
+        this.userAccountService = userAccountService;
     }
 
     @GetMapping
@@ -63,11 +67,7 @@ public class BankAccountController {
 
     @GetMapping("UserAccount/{id}")
     public ResponseEntity<List<BankAccount>> getBankAccountByUserAccountId(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(bankAccountService.getBankAccountByUserAccountId(id));
-        } catch (EntityNotFoundException enfe) {
-            return this.handleException(404, enfe);
-        }
+        return ResponseEntity.ok(bankAccountService.getBankAccountByUserAccountId(id));
     }
 
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
@@ -89,7 +89,7 @@ public class BankAccountController {
         }
     }
 
-    //@PreAuthorize("hasRole('ROLE_EMPLOYEE')")
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @PostMapping
     public ResponseEntity<BankAccounResponseDTO> addBankAccount(@RequestBody BankAccountRegisterDTO dto) {
         try {
@@ -102,14 +102,14 @@ public class BankAccountController {
     @PatchMapping("/{IBAN}")
     public ResponseEntity<BankAccount> updateBankAccount(@RequestBody BankAccountUpdateDTO dto, @PathVariable String IBAN) {
         try {
-            return ResponseEntity.status(201).body(bankAccountService.updateBankAccount(dto, IBAN));
+            return ResponseEntity.status(201).body(bankAccountService.updateBankAccount(dto, IBAN, userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName())));
         } catch (Exception e) {
             return this.handleException(400, e);
         }
     }
 
     private ResponseEntity handleException(int status, Exception e) {
-        ExceptionDTO dto = new ExceptionDTO(e.getClass().getName(), e.getMessage());
+        ExceptionDTO dto = new ExceptionDTO(status, e.getClass().getName(), e.getMessage());
         return ResponseEntity.status(status).body(dto);
     }
 }
