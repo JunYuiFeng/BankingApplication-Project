@@ -35,7 +35,7 @@ public class UserAccountService {
 
     public UserAccount getUserAccountById(Long id) {
         return userAccountRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("UserAccount not found")
+                () -> new EntityNotFoundException("UserAccount not found")
         );
     }
 
@@ -64,8 +64,6 @@ public class UserAccountService {
                 .orElseThrow(() -> new RuntimeException("UserAccount not found"));
 
         mapDtoToUserAccountUpdate(userAccountDTO, userAccountToUpdate);
-
-
         return userAccountRepository.save(userAccountToUpdate);
     }
 

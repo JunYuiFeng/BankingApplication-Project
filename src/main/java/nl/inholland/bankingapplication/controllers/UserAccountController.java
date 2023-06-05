@@ -23,6 +23,7 @@ public class UserAccountController {
         this.userAccountService = userAccountService;
     }
 
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @GetMapping
     public ResponseEntity getAllUserAccounts() {
         try{
@@ -31,6 +32,7 @@ public class UserAccountController {
             return this.handleException(404, e);
         }
     }
+
 
     @GetMapping("registered")
     public ResponseEntity getAllRegisteredUserAccounts() {
@@ -60,7 +62,7 @@ public class UserAccountController {
     }
 
 
-    @PostMapping
+    @PostMapping("register")
     public ResponseEntity<UserAccount> addUserAccount(@RequestBody UserAccountDTO userAccountDTO) {
         try {
             return ResponseEntity.status(201).body(userAccountService.addUserAccount(userAccountDTO));
