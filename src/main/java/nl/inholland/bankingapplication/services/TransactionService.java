@@ -6,6 +6,7 @@ import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.MakeTransactionDTO;
 import nl.inholland.bankingapplication.models.dto.TransactionResponseDTO;
 import nl.inholland.bankingapplication.models.dto.UserAccountUpdateDTO;
+import nl.inholland.bankingapplication.models.dto.WithdrawalAndDepositRequestDTO;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
@@ -139,10 +140,30 @@ public class TransactionService {
         }
     }
 
+    public TransactionResponseDTO makeDeposit(WithdrawalAndDepositRequestDTO dto, UserAccount user){
+        if (bankAccountService.getBankAccountByUserAccountId(user.getId()).contains(bankAccountService.getBankAccountByIBAN(dto.getIBAN()))){
+            return mapTransactionTOTransactionResponseDTO(saveTransaction(mapDepositRequestDtoToTransaction(dto)));
+        }
+        else {
+            throw new ResponseStatusException(403, "You are not allowed to make deposits with bank-accounts you don't own",null);
+        }
+
+    }
+
+    public TransactionResponseDTO makeWithdrawal(WithdrawalAndDepositRequestDTO dto, UserAccount user){
+        if (bankAccountService.getBankAccountByUserAccountId(user.getId()).contains(bankAccountService.getBankAccountByIBAN(dto.getIBAN()))){
+            return mapTransactionTOTransactionResponseDTO(saveTransaction(mapWithdrawalRequestDtoToTransaction(dto)));
+        }
+        else {
+            throw new ResponseStatusException(403, "You are not allowed to make withdrawals with bank-accounts you don't own",null);
+        }
+
+    }
+
     private TransactionResponseDTO finalizeTransaction(Transaction transaction, UserAccount user) throws ResponseStatusException {
         if (!Objects.equals(user.getType(), UserAccountType.ROLE_EMPLOYEE)) {
             checkDayLimit(transaction, user);
-            checkTransactionLimit(user);
+            checkTransactionLimit(transaction, user);
             checkAbsoluteLimit(transaction);
         }
         Transaction transaction1 = saveTransaction(transaction);
@@ -158,17 +179,13 @@ public class TransactionService {
 
     private void checkAbsoluteLimit(Transaction transaction) throws ResponseStatusException {
         if (transaction.getAccountFrom().getBalance() - transaction.getAmount() < transaction.getAccountFrom().getAbsoluteLimit()) {
-            throw new ResponseStatusException(401,"with this transaction you will pass the absolute limit of your account",null);
+            throw new DataIntegrityViolationException("with this transaction you will pass the absolute limit of your account");
         }
     }
 
-    private void checkTransactionLimit(UserAccount user) throws ResponseStatusException {
-        if (user.getCurrentTransactionLimit() >= user.getTransactionLimit()){
-            throw new ResponseStatusException(401,"you have passed your transaction limit",null);
-        }
-        else {
-            user.setCurrentTransactionLimit(user.getCurrentTransactionLimit() + 1);
-            userAccountService.updateUserAccount(user.getId().longValue(), new UserAccountUpdateDTO(user.getFirstName(),user.getLastName(),user.getEmail(),user.getUsername(),user.getType(),user.getPhoneNumber(),user.getBsn(),user.getDayLimit(),user.getCurrentDayLimit(),user.getTransactionLimit(),user.getCurrentTransactionLimit()));
+    private void checkTransactionLimit(Transaction transaction, UserAccount user) throws ResponseStatusException {
+        if (transaction.getAmount() > user.getTransactionLimit()){
+            throw new DataIntegrityViolationException("this transactions passes you transaction limit");
         }
     }
 
@@ -184,7 +201,7 @@ public class TransactionService {
             }
             else {
                 user.setCurrentDayLimit(user.getCurrentDayLimit() + transaction.getAmount());
-                userAccountService.updateUserAccount(user.getId().longValue(), new UserAccountUpdateDTO(user.getFirstName(),user.getLastName(),user.getEmail(),user.getUsername(),user.getType(),user.getPhoneNumber(),user.getBsn(),user.getDayLimit(),user.getCurrentDayLimit(),user.getTransactionLimit(),user.getCurrentTransactionLimit()));
+                userAccountService.updateUserAccount(user.getId().longValue(), new UserAccountUpdateDTO(user.getFirstName(),user.getLastName(),user.getEmail(),user.getUsername(),user.getType(),user.getPhoneNumber(),user.getBsn(),user.getDayLimit(),user.getCurrentDayLimit(),user.getTransactionLimit()));
             }
         }
     }
@@ -200,6 +217,15 @@ public class TransactionService {
     private Transaction mapMakeTransactionDtoToTransaction(MakeTransactionDTO dto){
         Date date = new Date();
         return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountByIBAN(dto.getAccountFrom()), bankAccountService.getBankAccountByIBAN(dto.getAccountTo()), dto.getDescription(), new Timestamp(date.getTime()));
+    }
+
+    private Transaction mapWithdrawalRequestDtoToTransaction(WithdrawalAndDepositRequestDTO dto){
+        Date date = new Date();
+        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountByIBAN(dto.getIBAN()),bankAccountService.getBankAccountByUserAccountId(1L).get(0),"Withdrawal", new Timestamp(date.getTime()));
+    }
+    private Transaction mapDepositRequestDtoToTransaction(WithdrawalAndDepositRequestDTO dto){
+        Date date = new Date();
+        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountByUserAccountId(1L).get(0),bankAccountService.getBankAccountByIBAN(dto.getIBAN()),"Withdrawal", new Timestamp(date.getTime()));
     }
 
     private List<Transaction> filterTransactionResponseForDates(List<Transaction> transactions, Timestamp dateFrom, Timestamp dateTo){
