@@ -83,7 +83,7 @@ public class TransactionService {
         //this method is such a mess, good luck reading this ♡♡ Cody.
         //I added comments to see if it helped with readability, but it really didn't f.
 
-        List<BankAccount> bankAccountsOfUser = bankAccountService.getBankAccountsById(user.getId());
+        List<BankAccount> bankAccountsOfUser = bankAccountService.getBankAccountsByUserAccountId(user.getId());
         Transaction transaction = mapMakeTransactionDtoToTransaction(makeTransactionDTO);
 
         if (transaction.getAccountFrom().getStatus() == BankAccountStatus.INACTIVE || transaction.getAccountTo().getStatus() == BankAccountStatus.INACTIVE){
@@ -221,11 +221,11 @@ public class TransactionService {
 
     private Transaction mapWithdrawalRequestDtoToTransaction(WithdrawalAndDepositRequestDTO dto){
         Date date = new Date();
-        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountByIBAN(dto.getIBAN()),bankAccountService.getBankAccountByUserAccountId(1L).get(0),"Withdrawal", new Timestamp(date.getTime()));
+        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountByIBAN(dto.getIBAN()),bankAccountService.getBankAccountsByUserAccountId(1L).get(0),"Withdrawal", new Timestamp(date.getTime()));
     }
     private Transaction mapDepositRequestDtoToTransaction(WithdrawalAndDepositRequestDTO dto){
         Date date = new Date();
-        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountByUserAccountId(1L).get(0),bankAccountService.getBankAccountByIBAN(dto.getIBAN()),"Withdrawal", new Timestamp(date.getTime()));
+        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountsByUserAccountId(1L).get(0),bankAccountService.getBankAccountByIBAN(dto.getIBAN()),"Withdrawal", new Timestamp(date.getTime()));
     }
 
     private List<Transaction> filterTransactionResponseForDates(List<Transaction> transactions, Timestamp dateFrom, Timestamp dateTo){
