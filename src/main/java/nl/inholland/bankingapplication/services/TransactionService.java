@@ -141,7 +141,7 @@ public class TransactionService {
     }
 
     public TransactionResponseDTO makeDeposit(WithdrawalAndDepositRequestDTO dto, UserAccount user){
-        if (bankAccountService.getBankAccountByUserAccountId(user.getId()).contains(bankAccountService.getBankAccountByIBAN(dto.getIBAN()))){
+        if (checkIfBankAccountIsOwnedByUser(bankAccountService.getBankAccountByIBAN(dto.getIBAN()),user)){
             return mapTransactionTOTransactionResponseDTO(saveTransaction(mapDepositRequestDtoToTransaction(dto)));
         }
         else {
@@ -151,7 +151,7 @@ public class TransactionService {
     }
 
     public TransactionResponseDTO makeWithdrawal(WithdrawalAndDepositRequestDTO dto, UserAccount user){
-        if (bankAccountService.getBankAccountByUserAccountId(user.getId()).contains(bankAccountService.getBankAccountByIBAN(dto.getIBAN()))){
+        if (checkIfBankAccountIsOwnedByUser(bankAccountService.getBankAccountByIBAN(dto.getIBAN()),user)){
             return mapTransactionTOTransactionResponseDTO(saveTransaction(mapWithdrawalRequestDtoToTransaction(dto)));
         }
         else {
@@ -211,7 +211,7 @@ public class TransactionService {
     }
 
     private Boolean checkIfBankAccountIsOwnedByUser(BankAccount bankAccount, UserAccount userAccount){
-        return bankAccount.getUserAccount().equals(userAccount);
+        return bankAccount.getUserAccount().getId().equals(userAccount.getId());
     }
 
     private Transaction mapMakeTransactionDtoToTransaction(MakeTransactionDTO dto){
