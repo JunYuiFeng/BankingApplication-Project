@@ -13,6 +13,7 @@ import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.repositories.BankAccountRepository;
 import org.iban4j.CountryCode;
 import org.iban4j.Iban;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,9 +32,19 @@ public class BankAccountService {
     }
 
     public List<BankAccounResponseDTO> getAllBankAccounts() {
-        return ((List<BankAccount>) bankAccountRepository.findAll()).stream()
-                .map(bankAccountResponseDTOMapper)
-                .collect(Collectors.toList());
+        try {
+            List<BankAccount> bankAccounts = (List<BankAccount>) bankAccountRepository.findAll();
+
+            if (bankAccounts.isEmpty()) {
+                throw new EntityNotFoundException("No bank accounts found.");
+            }
+
+            return bankAccounts.stream()
+                    .map(bankAccountResponseDTOMapper)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new DataIntegrityViolationException("Something went wrong");
+        }
     }
 
 //    public List<BankAccount> getAllBankAccounts() {
@@ -42,24 +53,23 @@ public class BankAccountService {
 
 
     public List<BankAccount> getBankAccountsExceptOwnAccount(Long userId) {
-        return (List<BankAccount>) bankAccountRepository.findAllExceptOwnAccount(userAccountService.getUserAccountById(userId));
+        return bankAccountRepository.findAllExceptOwnAccount(userAccountService.getUserAccountById(userId)); //already returns a list so no need to cast
     }
 
     public BankAccount getBankAccountByIBAN(String IBAN) {
-        return bankAccountRepository.findBankAccountByIBAN(IBAN).orElseThrow(
-                () -> new EntityNotFoundException("Bank account not found")
-        );
+        return bankAccountRepository.findBankAccountByIBAN(IBAN)
+                .orElseThrow(() -> new EntityNotFoundException("Bank account not found"));
     }
 
-    public List<BankAccount> getBankAccountByUserAccountId(Long id) {
+    public List<BankAccount> getBankAccountsById(Long id) {
         List<BankAccount> bankAccounts = bankAccountRepository.findBankAccountByUserAccountId(id);
         if (bankAccounts.isEmpty()) {
-            throw new EntityNotFoundException("Bank account not found");
+            throw new EntityNotFoundException("Bank accounts not found");
         }
         return bankAccounts;
     }
 
-    public List<BankAccount> getBankAccountByStatus(String status) {
+    public List<BankAccount> getBankAccountsByStatus(String status) {
         List<BankAccount> bankAccounts = bankAccountRepository.findBankAccountByStatus(BankAccountStatus.valueOf(status.toUpperCase()));
         if (bankAccounts.isEmpty()) {
             throw new EntityNotFoundException("No bank accounts found with status " + status);
@@ -67,7 +77,7 @@ public class BankAccountService {
         return bankAccounts;
     }
 
-    public List<BankAccount> getBankAccountByName(String name) {
+    public List<BankAccount> getBankAccountsByName(String name) {
         List<BankAccount> bankAccounts = bankAccountRepository.findBankAccountByUserAccountFirstNameIgnoreCaseOrUserAccountLastNameIgnoreCase(name, name);
         if (bankAccounts.isEmpty()) {
             throw new EntityNotFoundException("No bank accounts found with name '" + name + "'");
@@ -76,18 +86,13 @@ public class BankAccountService {
     }
 
 
+    public Boolean hasSavingsAccount(Long userId) {
+        return bankAccountRepository.existsByUserAccountAndType(userAccountService.getUserAccountById(userId), BankAccountType.SAVINGS);
+    }
     public BankAccounResponseDTO addBankAccount(BankAccountRegisterDTO dto) {
-//        List<BankAccount> userBankAccounts = getBankAccountByUserAccountId(dto.getUserId());
-//
-//        if (userBankAccounts != null && !userBankAccounts.isEmpty()) {
-//            // Check if the user already has a savings account
-//            boolean hasSavingsAccount = userBankAccounts.stream()
-//                    .anyMatch(account -> account.getType() == BankAccountType.SAVINGS);
-//
-//            if (hasSavingsAccount) {
-//                throw new IllegalArgumentException("User already has a savings account");
-//            }
-//        }
+        if (this.hasSavingsAccount(dto.getUserId())) {
+            throw new IllegalArgumentException("User already has a savings account, only 1 savings savings account can be created");
+        }
 
         BankAccount bankAccount = bankAccountRepository.save(this.mapDtoToBankAccount(dto));
         return mapBankAccountToDto(bankAccount);
@@ -100,25 +105,28 @@ public class BankAccountService {
 
 
     public BankAccount updateBankAccount(BankAccountUpdateDTO dto, String IBAN, UserAccount userAccount) {
-        BankAccount bankAccount = bankAccountRepository
-                .findBankAccountByIBAN(IBAN)
-                .orElseThrow(() -> new EntityNotFoundException("Bank Account not found"));
+        try {
 
-        if(userAccount.getType().equals(UserAccountType.ROLE_EMPLOYEE)) {
-            if (dto.getStatusIgnoreCase() != null) {
-                bankAccount.setStatus(dto.getStatusIgnoreCase());
+            BankAccount bankAccount = this.getBankAccountByIBAN(IBAN);
+
+            if(userAccount.getType().equals(UserAccountType.ROLE_EMPLOYEE)) {
+                if (dto.getStatusIgnoreCase() != null) {
+                    bankAccount.setStatus(dto.getStatusIgnoreCase());
+                }
+
+                if (dto.getAbsoluteLimit() != 0) {
+                    bankAccount.setAbsoluteLimit(dto.getAbsoluteLimit());
+                }
             }
 
-            if (dto.getAbsoluteLimit() != 0) {
-                bankAccount.setAbsoluteLimit(dto.getAbsoluteLimit());
+            if (dto.getBalance() != 0) {
+                bankAccount.setBalance(dto.getBalance());
             }
-        }
 
-        if (dto.getBalance() != 0) {
-            bankAccount.setBalance(dto.getBalance());
+            return bankAccountRepository.save(bankAccount);
+        } catch(Exception e) {
+            throw new DataIntegrityViolationException("Failed to update bank account.");
         }
-
-        return bankAccountRepository.save(bankAccount);
     }
 
 

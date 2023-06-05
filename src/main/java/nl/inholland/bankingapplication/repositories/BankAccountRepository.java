@@ -3,6 +3,7 @@ package nl.inholland.bankingapplication.repositories;
 import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
+import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -19,4 +20,5 @@ public interface BankAccountRepository extends CrudRepository<BankAccount, Long>
 
     @Query("SELECT ba FROM BankAccount ba WHERE ba.userAccount <> ?1")
     List<BankAccount> findAllExceptOwnAccount(UserAccount userAccount);
+    boolean existsByUserAccountAndType(UserAccount userAccount, BankAccountType type);
 }
