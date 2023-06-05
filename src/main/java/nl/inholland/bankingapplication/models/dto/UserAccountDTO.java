@@ -21,7 +21,9 @@ public class UserAccountDTO {
     private String phoneNumber;
     private int bsn;
     private double dayLimit;
+    private double currentDayLimit;
     private double transactionLimit;
+    private double currentTransactionLimit;
 
     public UserAccountType getTypeIgnoreCase() {
         return UserAccountType.valueOf(type.toString().toUpperCase());

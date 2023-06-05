@@ -4,11 +4,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Null;
 import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.UserAccount;
-import nl.inholland.bankingapplication.models.dto.BankAccountPredefinedDTO;
-import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
-import nl.inholland.bankingapplication.models.dto.BankAccountUpdateDTO;
-import nl.inholland.bankingapplication.models.dto.MakeTransactionDTO;
-import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
+import nl.inholland.bankingapplication.models.dto.*;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
@@ -67,12 +63,12 @@ public class ApplicationDataInitializer implements ApplicationRunner {
 
     public void loadUserAccounts(){
         List.of(
-                new UserAccountDTO("Bank", "Bank", "Bank@gmail.com", "Bank", "secret123", UserAccountType.ROLE_EMPLOYEE, "+31111111111", 12345111, 1000.00, 250.00),
-                new UserAccountDTO("Jun", "Feng", "junfeng@gmail.com", "JunFeng", "secret123", UserAccountType.ROLE_CUSTOMER, "+31222222222", 12345222, 1000.00, 250.00),
-                new UserAccountDTO("John", "Doe", "JohnDoe@gmail.com", "JohnDoe", "secret123", UserAccountType.ROLE_CUSTOMER, "+31333333333", 12345333, 1000.00, 250.00),
-                new UserAccountDTO("Karen", "Winter", "KarenWinter@gmail.com", "KarenWinter", "secret123", UserAccountType.ROLE_EMPLOYEE, "+31444444444", 12345444, 1000.00, 250.00),
-                new UserAccountDTO("Steve", "Woo", "SteveWoo@gmail.com", "SteveWoo", "secret123", UserAccountType.ROLE_USER, "+31555555555", 12345555, 1000.00, 250.00),
-				new UserAccountDTO("Alessandra", "Ribeiro", "ale@gmail.com", "ale", "123", UserAccountType.ROLE_CUSTOMER, "+31666666666", 12345666, 1000.00, 250.00)
+                new UserAccountDTO("Bank", "Bank", "Bank@gmail.com", "Bank", "secret123", UserAccountType.ROLE_EMPLOYEE, "+31111111111", 12345111, 1000.00,0, 250.00,0),
+                new UserAccountDTO("Jun", "Feng", "junfeng@gmail.com", "JunFeng", "secret123", UserAccountType.ROLE_CUSTOMER, "+31222222222", 12345222, 1000.00,0, 250.00,0),
+                new UserAccountDTO("John", "Doe", "JohnDoe@gmail.com", "JohnDoe", "secret123", UserAccountType.ROLE_CUSTOMER, "+31333333333", 12345333, 1000.00,0, 250.00,0),
+                new UserAccountDTO("Karen", "Winter", "KarenWinter@gmail.com", "KarenWinter", "secret123", UserAccountType.ROLE_EMPLOYEE, "+31444444444", 12345444, 1000.00, 0,250.00,0),
+                new UserAccountDTO("Steve", "Woo", "SteveWoo@gmail.com", "SteveWoo", "secret123", UserAccountType.ROLE_USER, "+31555555555", 12345555, 1000.00, 0,250.00,0),
+				new UserAccountDTO("Alessandra", "Ribeiro", "ale@gmail.com", "ale", "123", UserAccountType.ROLE_CUSTOMER, "+31666666666", 12345666, 1000.00, 0,250.00,0)
 
         ).forEach(
                 dto -> userAccountService.addUserAccount(dto)
@@ -82,14 +78,18 @@ public class ApplicationDataInitializer implements ApplicationRunner {
     }
     private void loadTransactions() {
 
-            List<BankAccount> accounts = bankAccountService.getAllBankAccounts();
+            List<BankAccounResponseDTO> accounts = bankAccountService.getAllBankAccounts();
 
             List<MakeTransactionDTO> transactions = List.of(
                     //double amount, UserAccount madeBy, BankAccount accountFrom, BankAccount accountTo, String description, Timestamp occuredAt
                     new MakeTransactionDTO(accounts.get(3).getIBAN(), accounts.get(4).getIBAN(), 100, "oi"),
                     new MakeTransactionDTO(accounts.get(4).getIBAN(), accounts.get(2).getIBAN(), 50,"la" ),
                     new MakeTransactionDTO(accounts.get(2).getIBAN(), accounts.get(3).getIBAN(),200,"ta" ),
+
                     new MakeTransactionDTO(accounts.get(5).getIBAN(), accounts.get(4).getIBAN(),500,"ta" )
+
+                    new MakeTransactionDTO(accounts.get(1).getIBAN(), accounts.get(2).getIBAN(), 10, null)
+
             );
 
             UserAccount bankUserAccount = userAccountService.getUserAccountById(1L);

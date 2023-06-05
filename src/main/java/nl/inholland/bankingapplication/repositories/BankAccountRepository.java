@@ -12,11 +12,11 @@ import java.util.Optional;
 
 @Repository
 public interface BankAccountRepository extends CrudRepository<BankAccount, Long>{
-    List<BankAccount> findBankAccountByUserAccountFirstNameContainingIgnoreCaseOrUserAccountLastNameContainingIgnoreCase(String firstName, String lastName);
+    List<BankAccount> findBankAccountByUserAccountFirstNameIgnoreCaseOrUserAccountLastNameIgnoreCase(String firstName, String lastName);
     List<BankAccount> findBankAccountByUserAccountId(Long id); //optional doesn't work with List
     Optional<BankAccount> findBankAccountByIBAN(String IBAN);
     List<BankAccount> findBankAccountByStatus(BankAccountStatus status);
 
     @Query("SELECT ba FROM BankAccount ba WHERE ba.userAccount <> ?1")
-    List<BankAccount> findAllExceptOwnAccount(UserAccount bankUserAccount);
+    List<BankAccount> findAllExceptOwnAccount(UserAccount userAccount);
 }

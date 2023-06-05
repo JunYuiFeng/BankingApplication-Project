@@ -7,14 +7,13 @@ import nl.inholland.bankingapplication.models.dto.BankAccountPredefinedDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountUpdateDTO;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
+import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import nl.inholland.bankingapplication.repositories.BankAccountRepository;
 import org.iban4j.CountryCode;
 import org.iban4j.Iban;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,19 +28,19 @@ public class BankAccountService {
         this.bankAccountResponseDTOMapper = bankAccountResponseDTOMapper;
     }
 
-//    public List<BankAccounResponseDTO> getAllBankAccounts() {
-//        return ((List<BankAccount>) bankAccountRepository.findAll()).stream()
-//                .map(bankAccountResponseDTOMapper)
-//                .collect(Collectors.toList());
-//    }
-
-    public List<BankAccount> getAllBankAccounts() {
-        return (List<BankAccount>) bankAccountRepository.findAll();
+    public List<BankAccounResponseDTO> getAllBankAccounts() {
+        return ((List<BankAccount>) bankAccountRepository.findAll()).stream()
+                .map(bankAccountResponseDTOMapper)
+                .collect(Collectors.toList());
     }
 
+//    public List<BankAccount> getAllBankAccounts() {
+//        return (List<BankAccount>) bankAccountRepository.findAll();
+//    }
 
-    public List<BankAccount> getAllBankAccountsExceptBankOwnAccount() {
-        return (List<BankAccount>) bankAccountRepository.findAllExceptOwnAccount(userAccountService.getUserAccountById(1L));
+
+    public List<BankAccount> getBankAccountsExceptOwnAccount(Long userId) {
+        return (List<BankAccount>) bankAccountRepository.findAllExceptOwnAccount(userAccountService.getUserAccountById(userId));
     }
 
     public BankAccount getBankAccountByIBAN(String IBAN) {
@@ -52,9 +51,9 @@ public class BankAccountService {
 
     public List<BankAccount> getBankAccountByUserAccountId(Long id) {
         List<BankAccount> bankAccounts = bankAccountRepository.findBankAccountByUserAccountId(id);
-        if (bankAccounts.isEmpty()) {
-            throw new EntityNotFoundException("Bank account not found");
-        }
+//        if (bankAccounts.isEmpty()) {
+//            throw new EntityNotFoundException("Bank account not found");
+//        }
         return bankAccounts;
     }
 
@@ -67,14 +66,27 @@ public class BankAccountService {
     }
 
     public List<BankAccount> getBankAccountByName(String name) {
-        List<BankAccount> bankAccounts = bankAccountRepository.findBankAccountByUserAccountFirstNameContainingIgnoreCaseOrUserAccountLastNameContainingIgnoreCase(name, name);
+        List<BankAccount> bankAccounts = bankAccountRepository.findBankAccountByUserAccountFirstNameIgnoreCaseOrUserAccountLastNameIgnoreCase(name, name);
         if (bankAccounts.isEmpty()) {
-            throw new EntityNotFoundException("No bank accounts found ");
+            throw new EntityNotFoundException("No bank accounts found with name '" + name + "'");
         }
         return bankAccounts;
     }
 
+
     public BankAccounResponseDTO addBankAccount(BankAccountRegisterDTO dto) {
+        List<BankAccount> userBankAccounts = getBankAccountByUserAccountId(dto.getUserId());
+
+        if (userBankAccounts != null && !userBankAccounts.isEmpty()) {
+            // Check if the user already has a savings account
+            boolean hasSavingsAccount = userBankAccounts.stream()
+                    .anyMatch(account -> account.getType() == BankAccountType.SAVINGS);
+
+            if (hasSavingsAccount) {
+                throw new IllegalArgumentException("User already has a savings account");
+            }
+        }
+
         BankAccount bankAccount = bankAccountRepository.save(this.mapDtoToBankAccount(dto));
         return mapBankAccountToDto(bankAccount);
     }
