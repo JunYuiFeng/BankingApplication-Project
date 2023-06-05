@@ -41,7 +41,6 @@ public class UserAccount {
 
     private double transactionLimit;
 
-    private double currentTransactionLimit;
 
     @OneToMany(mappedBy = "userAccount", fetch = FetchType.EAGER)
     private List<BankAccount> bankAccounts = new ArrayList<>();
@@ -61,6 +60,5 @@ public class UserAccount {
             this.transactionLimit = transactionLimit;
             this.bankAccounts = bankAccounts;
             this.currentDayLimit=0;
-            this.currentTransactionLimit=0;
     }
 }

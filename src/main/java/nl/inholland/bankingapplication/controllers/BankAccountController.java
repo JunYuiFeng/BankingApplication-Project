@@ -7,8 +7,10 @@ import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountUpdateDTO;
 import nl.inholland.bankingapplication.models.dto.ExceptionDTO;
 import nl.inholland.bankingapplication.services.BankAccountService;
+import nl.inholland.bankingapplication.services.UserAccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,96 +22,67 @@ import java.util.List;
 @RequestMapping("BankAccounts")
 public class BankAccountController {
     private BankAccountService bankAccountService;
+    private UserAccountService userAccountService;
+    private String authenticatUsername;
 
-    public BankAccountController(BankAccountService bankAccountService) {
+
+    public BankAccountController(BankAccountService bankAccountService, UserAccountService userAccountService) {
         this.bankAccountService = bankAccountService;
+        this.userAccountService = userAccountService;
     }
+
+//    public void  authenticatedUsername() {
+//        UserAccount userAccount = userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+//        this.authenticatUsername = userAccount.getUsername();
+//    }
 
     @GetMapping
     public ResponseEntity<List<BankAccounResponseDTO>> getAllBankAccounts() {
-        try {
-            List<BankAccounResponseDTO> bankAccounts = bankAccountService.getAllBankAccounts();
-            if (bankAccounts.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
-            return ResponseEntity.ok(bankAccounts);
-        } catch (Exception e) {
-            return this.handleException(500, e);
-        }
+        return ResponseEntity.ok(bankAccountService.getAllBankAccounts());
     }
 
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @GetMapping("ExcludeUserAccount/{userId}")
     public ResponseEntity<List<BankAccount>> getAllBankAccountsExceptBankOwnAccount(@PathVariable Long userId) {
-        try {
-            List<BankAccount> bankAccounts = bankAccountService.getBankAccountsExceptOwnAccount(userId);
-            if (bankAccounts.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
-            return ResponseEntity.ok(bankAccounts);
-        } catch (Exception e) {
-            return this.handleException(500, e);
-        }
+        return ResponseEntity.ok(bankAccountService.getBankAccountsExceptOwnAccount(userId));
     }
 
     @GetMapping("{IBAN}")
     public ResponseEntity getBankAccountByIBAN(@PathVariable String IBAN) {
-        try {
-            return ResponseEntity.ok(bankAccountService.getBankAccountByIBAN(IBAN));
-        } catch (EntityNotFoundException enfe) {
-            return this.handleException(404, enfe);
-        }
+        return ResponseEntity.ok(bankAccountService.getBankAccountByIBAN(IBAN));
     }
 
+    @PreAuthorize("principal.username == @userAccountService.getUserAccountById(#id).username")
     @GetMapping("UserAccount/{id}")
     public ResponseEntity<List<BankAccount>> getBankAccountByUserAccountId(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(bankAccountService.getBankAccountByUserAccountId(id));
-        } catch (EntityNotFoundException enfe) {
-            return this.handleException(404, enfe);
-        }
+        return ResponseEntity.ok(bankAccountService.getBankAccountsById(id));
     }
 
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @GetMapping(params = "status")
     public ResponseEntity<List<BankAccount>> getBankAccountByStatus(@RequestParam String status) {
-        try {
-            return ResponseEntity.ok(bankAccountService.getBankAccountByStatus(status));
-        } catch (EntityNotFoundException enfe) {
-            return this.handleException(404, enfe);
-        }
+        return ResponseEntity.ok(bankAccountService.getBankAccountsByStatus(status));
     }
 
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @GetMapping(params = "name")
-    public ResponseEntity<List<BankAccount>> getBankAccountName(@RequestParam String name) {
-        try {
-            return ResponseEntity.ok(bankAccountService.getBankAccountByName(name));
-        } catch (EntityNotFoundException enfe) {
-            return this.handleException(404, enfe);
-        }
+    public ResponseEntity<List<BankAccount>> getBankAccountByName(@RequestParam String name) {
+        return ResponseEntity.ok(bankAccountService.getBankAccountsByName(name));
     }
 
-    //@PreAuthorize("hasRole('ROLE_EMPLOYEE')")
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @PostMapping
     public ResponseEntity<BankAccounResponseDTO> addBankAccount(@RequestBody BankAccountRegisterDTO dto) {
-        try {
-            return ResponseEntity.status(201).body(bankAccountService.addBankAccount(dto));
-        } catch (Exception e) {
-            return this.handleException(400, e);
-        }
+        return ResponseEntity.status(201).body(bankAccountService.addBankAccount(dto));
     }
 
     @PatchMapping("/{IBAN}")
     public ResponseEntity<BankAccount> updateBankAccount(@RequestBody BankAccountUpdateDTO dto, @PathVariable String IBAN) {
-        try {
-            return ResponseEntity.status(201).body(bankAccountService.updateBankAccount(dto, IBAN));
-        } catch (Exception e) {
-            return this.handleException(400, e);
-        }
+        return ResponseEntity.status(201).body(bankAccountService.updateBankAccount(dto, IBAN, userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName())));
     }
 
     private ResponseEntity handleException(int status, Exception e) {
-        ExceptionDTO dto = new ExceptionDTO(e.getClass().getName(), e.getMessage());
+        ExceptionDTO dto = new ExceptionDTO(status, e.getClass().getName(), e.getMessage());
         return ResponseEntity.status(status).body(dto);
     }
 }

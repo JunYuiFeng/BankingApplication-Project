@@ -5,6 +5,7 @@ import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.ExceptionDTO;
 import nl.inholland.bankingapplication.models.dto.MakeTransactionDTO;
 import nl.inholland.bankingapplication.models.dto.TransactionResponseDTO;
+import nl.inholland.bankingapplication.models.dto.WithdrawalAndDepositRequestDTO;
 import nl.inholland.bankingapplication.services.TransactionService;
 import nl.inholland.bankingapplication.services.UserAccountService;
 import org.springframework.http.ResponseEntity;
@@ -47,9 +48,21 @@ public class TransactionController {
             return handleException(e.getStatusCode().value(), e);
         }
     }
+    @PostMapping("Deposit")
+    public ResponseEntity<TransactionResponseDTO> Deposit(@RequestBody WithdrawalAndDepositRequestDTO withdrawalAndDepositRequestDTO){
+        try{
+            return ResponseEntity.status(201).body(transactionService.makeDeposit(withdrawalAndDepositRequestDTO, userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName())));
+        } catch (ResponseStatusException e) {return handleException(e.getStatusCode().value(),e);}
+    }
+    @PostMapping("Withdrawal")
+    public ResponseEntity<TransactionResponseDTO> Withdrawal(@RequestBody WithdrawalAndDepositRequestDTO withdrawalAndDepositRequestDTO){
+        try{
+            return ResponseEntity.status(201).body(transactionService.makeWithdrawal(withdrawalAndDepositRequestDTO, userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName())));
+        } catch (ResponseStatusException e) {return handleException(e.getStatusCode().value(),e);}
+    }
 
     private ResponseEntity handleException(int status, Exception e) {
-        ExceptionDTO dto = new ExceptionDTO(e.getClass().getName(), e.getMessage());
+        ExceptionDTO dto = new ExceptionDTO(status, e.getClass().getName(), e.getMessage());
         return ResponseEntity.status(status).body(dto);
     }
 }

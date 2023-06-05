@@ -23,7 +23,6 @@ public class UserAccountDTO {
     private double dayLimit;
     private double currentDayLimit;
     private double transactionLimit;
-    private double currentTransactionLimit;
 
     public UserAccountType getTypeIgnoreCase() {
         return UserAccountType.valueOf(type.toString().toUpperCase());
