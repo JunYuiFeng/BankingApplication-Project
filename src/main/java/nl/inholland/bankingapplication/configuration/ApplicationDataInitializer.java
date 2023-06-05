@@ -43,7 +43,6 @@ public class ApplicationDataInitializer implements ApplicationRunner {
 
     private void loadBackAccounts() {
         List.of(
-                new BankAccountRegisterDTO(BankAccountType.CURRENT, 3L),
                 new BankAccountRegisterDTO(BankAccountType.SAVINGS, 4L),
                 new BankAccountRegisterDTO(BankAccountType.SAVINGS, 5L),
                 new BankAccountRegisterDTO(BankAccountType.SAVINGS, 6L)
@@ -52,8 +51,9 @@ public class ApplicationDataInitializer implements ApplicationRunner {
         );
 
         List.of(
-                new BankAccountPredefinedDTO("NL77ABNA5602795901", BankAccountType.CURRENT, 1000.00, 1L),
-                new BankAccountPredefinedDTO("NL71RABO3667086008", BankAccountType.CURRENT, 1000.00, 2L)
+                new BankAccountPredefinedDTO("NL01INHO0000000001", BankAccountType.CURRENT, 1000000000.00, 1L),
+                new BankAccountPredefinedDTO("NL71RABO3667086008", BankAccountType.CURRENT, 1000.00, 2L),
+                new BankAccountPredefinedDTO("NL43ABNA5253446745", BankAccountType.CURRENT, 1000.00, 3L)
         ).forEach(
                 dto -> bankAccountService.addPredefinedBankAccount(dto)
         );

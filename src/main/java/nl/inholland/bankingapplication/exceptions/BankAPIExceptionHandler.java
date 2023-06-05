@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.naming.AuthenticationException;
+
 @ControllerAdvice
 @Log
 public class BankAPIExceptionHandler extends ResponseEntityExceptionHandler {
@@ -38,15 +40,15 @@ public class BankAPIExceptionHandler extends ResponseEntityExceptionHandler {
                 );
     }
 
-//    @ExceptionHandler(value = {UnauthorizedException.class})
-//    public ResponseEntity<Object> handleUnauthorizedException(UnauthorizedException unauthorizedException, WebRequest webRequest) {
-//        ExceptionDTO exceptionDTO = new ExceptionDTO(
-//                401,
-//                unauthorizedException.getClass().getName(),
-//                unauthorizedException.getMessage()
-//        );
-//
-//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionDTO);
-//    }
+    @ExceptionHandler(value = {AuthenticationException.class})
+    public ResponseEntity<Object> handleAuthenticationException(AuthenticationException authenticationException, WebRequest webRequest) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ExceptionDTO(
+                                401,
+                                authenticationException.getClass().getName(),
+                                authenticationException.getMessage()
+                        )
+                );
+    }
 
 }
