@@ -33,7 +33,7 @@ public class UserAccountController {
         }
     }
 
-
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @GetMapping("registered")
     public ResponseEntity getAllRegisteredUserAccounts() {
         try{
@@ -43,6 +43,7 @@ public class UserAccountController {
         }
     }
 
+    @PreAuthorize("principal.username == @userAccountService.getUserAccountById(#id).username")
     @GetMapping("{id}")
     public ResponseEntity getUserAccountById(@PathVariable Long id) {
         try{
@@ -51,6 +52,7 @@ public class UserAccountController {
             return this.handleException(404, e);
         }
     }
+
 
     @GetMapping("username/{username}")
     public ResponseEntity getUserAccountByUsername(@PathVariable String username) {
@@ -82,6 +84,7 @@ public class UserAccountController {
         }
     }
 
+    @PreAuthorize("principal.username == @userAccountService.getUserAccountById(#id).username OR hasRole('ROLE_EMPLOYEE')")
     @PutMapping("{id}")
     public ResponseEntity<UserAccount> updateUserAccount(@PathVariable Long id, @RequestBody UserAccountUpdateDTO userAccountDTO) {
         try {
