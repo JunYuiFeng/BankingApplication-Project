@@ -61,7 +61,7 @@ public class BankAccountService {
                 .orElseThrow(() -> new EntityNotFoundException("Bank account not found"));
     }
 
-    public List<BankAccount> getBankAccountsById(Long id) {
+    public List<BankAccount> getBankAccountsByUserAccountId(Long id) {
         List<BankAccount> bankAccounts = bankAccountRepository.findBankAccountByUserAccountId(id);
         if (bankAccounts.isEmpty()) {
             throw new EntityNotFoundException("Bank accounts not found");

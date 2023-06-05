@@ -1,6 +1,5 @@
 package nl.inholland.bankingapplication.controllers;
 
-import jakarta.persistence.EntityNotFoundException;
 import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.dto.BankAccounResponseDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
@@ -55,7 +54,7 @@ public class BankAccountController {
     @PreAuthorize("principal.username == @userAccountService.getUserAccountById(#id).username")
     @GetMapping("UserAccount/{id}")
     public ResponseEntity<List<BankAccount>> getBankAccountByUserAccountId(@PathVariable Long id) {
-        return ResponseEntity.ok(bankAccountService.getBankAccountsById(id));
+        return ResponseEntity.ok(bankAccountService.getBankAccountsByUserAccountId(id));
     }
 
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")

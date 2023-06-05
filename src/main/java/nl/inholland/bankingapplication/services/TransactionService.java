@@ -83,7 +83,7 @@ public class TransactionService {
         //this method is such a mess, good luck reading this ♡♡ Cody.
         //I added comments to see if it helped with readability, but it really didn't f.
 
-        List<BankAccount> bankAccountsOfUser = bankAccountService.getBankAccountsById(user.getId());
+        List<BankAccount> bankAccountsOfUser = bankAccountService.getBankAccountsByUserAccountId(user.getId());
         Transaction transaction = mapMakeTransactionDtoToTransaction(makeTransactionDTO);
 
         if (transaction.getAccountFrom().getStatus() == BankAccountStatus.INACTIVE || transaction.getAccountTo().getStatus() == BankAccountStatus.INACTIVE){
