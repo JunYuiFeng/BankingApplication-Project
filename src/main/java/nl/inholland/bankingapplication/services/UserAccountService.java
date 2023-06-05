@@ -82,7 +82,6 @@ public class UserAccountService {
         newUserAccount.setDayLimit(dto.getDayLimit());
         newUserAccount.setCurrentDayLimit(dto.getCurrentDayLimit());
         newUserAccount.setTransactionLimit(dto.getTransactionLimit());
-        newUserAccount.setCurrentTransactionLimit(dto.getCurrentTransactionLimit());
         return newUserAccount;
     }
 
@@ -97,7 +96,6 @@ public class UserAccountService {
         userAccountToUpdate.setDayLimit(userAccountDTO.getDayLimit());
         userAccountToUpdate.setCurrentDayLimit(userAccountDTO.getCurrentDayLimit());
         userAccountToUpdate.setTransactionLimit(userAccountDTO.getTransactionLimit());
-        userAccountToUpdate.setCurrentTransactionLimit(userAccountDTO.getCurrentTransactionLimit());
 
         return userAccountToUpdate;
     }
