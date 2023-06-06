@@ -1,4 +1,4 @@
-package nl.inholland.bankingapplication.services;
+package nl.inholland.bankingapplication.services.mappers;
 
 import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.dto.BankAccounResponseDTO;

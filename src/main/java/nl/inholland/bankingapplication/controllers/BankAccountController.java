@@ -63,7 +63,7 @@ public class BankAccountController {
         return ResponseEntity.ok(bankAccountService.getBankAccountsByStatus(status));
     }
 
-    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
+    //@PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @GetMapping(params = "name")
     public ResponseEntity<List<BankAccount>> getBankAccountByName(@RequestParam String name) {
         return ResponseEntity.ok(bankAccountService.getBankAccountsByName(name));
@@ -80,8 +80,8 @@ public class BankAccountController {
         return ResponseEntity.status(201).body(bankAccountService.updateBankAccount(dto, IBAN, userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName())));
     }
 
-    private ResponseEntity handleException(int status, Exception e) {
-        ExceptionDTO dto = new ExceptionDTO(status, e.getClass().getName(), e.getMessage());
-        return ResponseEntity.status(status).body(dto);
-    }
+//    private ResponseEntity handleException(int status, Exception e) {
+//        ExceptionDTO dto = new ExceptionDTO(status, e.getClass().getName(), e.getMessage());
+//        return ResponseEntity.status(status).body(dto);
+//    }
 }
