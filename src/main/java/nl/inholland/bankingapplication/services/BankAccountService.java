@@ -11,6 +11,7 @@ import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.repositories.BankAccountRepository;
+import nl.inholland.bankingapplication.services.mappers.BankAccountResponseDTOMapper;
 import org.iban4j.CountryCode;
 import org.iban4j.Iban;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -58,7 +59,7 @@ public class BankAccountService {
 
     public BankAccount getBankAccountByIBAN(String IBAN) {
         return bankAccountRepository.findBankAccountByIBAN(IBAN)
-                .orElseThrow(() -> new EntityNotFoundException("Bank account not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Bank account with IBAN " + IBAN + " not found" ));
     }
 
     public List<BankAccount> getBankAccountsByUserAccountId(Long id) {

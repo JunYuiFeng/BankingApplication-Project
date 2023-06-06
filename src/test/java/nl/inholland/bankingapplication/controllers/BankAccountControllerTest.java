@@ -28,6 +28,7 @@ import java.util.List;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 // We use @WebMvcTest because it allows us to only test the controller without starting the full spring boot application and loading in all the dependencies (repositories, services etc.)
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(BankAccountController.class)
-@Import(JWTFilter.class)
+//@Import(JWTFilter.class)
 
 public class BankAccountControllerTest {
 
@@ -77,7 +78,7 @@ public class BankAccountControllerTest {
     void addBankAccountReturnsCreatedStatus() throws Exception {
         when(bankAccountService.addBankAccount(any(BankAccountRegisterDTO.class))).thenReturn(bankAccounResponseDTO);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/BankAccounts")
+        mockMvc.perform(MockMvcRequestBuilders.post("/BankAccounts").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content("{\"type\": \"CURRENT\", \"userId\": 2}"))
                 .andExpect(status().isCreated());
