@@ -1,6 +1,7 @@
 package nl.inholland.bankingapplication.repositories;
 
 import nl.inholland.bankingapplication.models.UserAccount;
+import nl.inholland.bankingapplication.models.dto.UserAccountResponseDTO;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

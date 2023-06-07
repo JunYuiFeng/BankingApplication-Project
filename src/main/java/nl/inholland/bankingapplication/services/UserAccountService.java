@@ -1,11 +1,14 @@
 package nl.inholland.bankingapplication.services;
 
 import jakarta.persistence.EntityNotFoundException;
+import nl.inholland.bankingapplication.controllers.UserAccountController;
 import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
+import nl.inholland.bankingapplication.models.dto.UserAccountResponseDTO;
 import nl.inholland.bankingapplication.models.dto.UserAccountUpdateDTO;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.repositories.UserAccountRepository;
+import nl.inholland.bankingapplication.services.mappers.UserAccountResponseDTOMapper;
 import nl.inholland.bankingapplication.util.JWTTokeProvider;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,27 +19,35 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 @Service
 public class UserAccountService {
     private final UserAccountRepository userAccountRepository;
     private  final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JWTTokeProvider jwtTokeProvider;
+
+    private final UserAccountResponseDTOMapper userAccountResponseDTOMapper;
+
     public UserAccountService(UserAccountRepository userAccountRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JWTTokeProvider jwtTokeProvider) {
         this.userAccountRepository = userAccountRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtTokeProvider = jwtTokeProvider;
+        this.userAccountResponseDTOMapper = new UserAccountResponseDTOMapper();
     }
 
-    public List<UserAccount> getAllUserAccounts() {
-        return (List<UserAccount>) userAccountRepository.findAll();
+    public List<UserAccountResponseDTO> getAllUserAccounts() {
+        return getUserAccountResponseDTOS((List<UserAccount>) userAccountRepository.findAll());
     }
 
-    public List<UserAccount> getAllUserAccountsExceptOne(Long id) {
-        return userAccountRepository.getAllUserAccountsExceptOne(id);
+
+
+    public List<UserAccountResponseDTO> getAllUserAccountsExceptOne(Long id) {
+        return getUserAccountResponseDTOS(userAccountRepository.getAllUserAccountsExceptOne(id));
     }
 
-    public List<UserAccount> getAllRegisteredUserAccounts() {
-            return userAccountRepository.findUserAccountsWithType(UserAccountType.ROLE_USER);
+    public List<UserAccountResponseDTO> getAllRegisteredUserAccounts() {
+        return getUserAccountResponseDTOS(userAccountRepository.findUserAccountsWithType(UserAccountType.ROLE_USER));
     }
 
     public UserAccount getUserAccountById(Long id) {
@@ -51,11 +62,11 @@ public class UserAccountService {
         );
     }
 
-    public UserAccount addUserAccount(UserAccountDTO userAccount) {
-        //return //userAccountRepository.save(this.mapDtoToUserAccount(userAccount));
+    public UserAccountResponseDTO addUserAccount(UserAccountDTO userAccount) {
          if(userAccountRepository.findUserAccountByUsername(userAccount.getUsername()).isEmpty()){
           userAccount.setPassword(bCryptPasswordEncoder.encode(userAccount.getPassword()));
-          return userAccountRepository.save(this.mapDtoToUserAccount(userAccount));
+          UserAccount user = userAccountRepository.save(this.mapDtoToUserAccount(userAccount));
+          return userAccountResponseDTOMapper.apply(user);
         }
          throw new IllegalArgumentException("User already exists");
     }
@@ -64,13 +75,14 @@ public class UserAccountService {
         userAccountRepository.deleteById(id);
     }
 
-    public UserAccount updateUserAccount(Long id, UserAccountUpdateDTO userAccountDTO) {
+    public UserAccountResponseDTO updateUserAccount(Long id, UserAccountUpdateDTO userAccountDTO) {
         UserAccount userAccountToUpdate = userAccountRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("UserAccount not found"));
 
         mapDtoToUserAccountUpdate(userAccountDTO, userAccountToUpdate);
-        return userAccountRepository.save(userAccountToUpdate);
+        UserAccount user = userAccountRepository.save(userAccountToUpdate);
+        return userAccountResponseDTOMapper.apply(user);
     }
 
     @Scheduled(cron = "0 0 0 * * *") // Execute at midnight every day
@@ -81,6 +93,16 @@ public class UserAccountService {
         userAccounts.stream()
                 .peek(userAccount -> userAccount.setCurrentDayLimit(0)) //peek change the daylimit of each userAccount without transforming the stream
                 .forEach(userAccountRepository::save);
+    }
+
+    private List<UserAccountResponseDTO> getUserAccountResponseDTOS(List<UserAccount> users) {
+        if (users.isEmpty()) {
+            throw new EntityNotFoundException("No user accounts found");
+        }
+
+        return users.stream()
+                .map(userAccountResponseDTOMapper)
+                .toList();
     }
 
     private UserAccount mapDtoToUserAccount(UserAccountDTO dto) {
