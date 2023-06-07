@@ -1,8 +1,7 @@
 package nl.inholland.bankingapplication.controllers;
 
-import nl.inholland.bankingapplication.filter.JWTFilter;
 import nl.inholland.bankingapplication.models.BankAccount;
-import nl.inholland.bankingapplication.models.dto.BankAccounResponseDTO;
+import nl.inholland.bankingapplication.models.dto.BankAccountResponseDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -54,18 +52,18 @@ public class BankAccountControllerTest {
 
 
     private BankAccount bankAccount;
-    private BankAccounResponseDTO bankAccounResponseDTO;
+    private BankAccountResponseDTO bankAccountResponseDTO;
     @BeforeEach
     void init() {
         bankAccount = new BankAccount("NL77ABNA5602795901", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, userAccountService.getUserAccountById(2L));
-        bankAccounResponseDTO = new BankAccounResponseDTO("NL77ABNA5602795901", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, userAccountService.getUserAccountById(2L));
+        bankAccountResponseDTO = new BankAccountResponseDTO("NL77ABNA5602795901", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, userAccountService.getUserAccountById(2L));
     }
 
     @Test
     @WithMockUser(username = "JunFeng", roles = {"EMPLOYEE"})
     void getAllBankAccountsShouldReturnAListOfOne() throws Exception {
         when(bankAccountService.getAllBankAccounts())
-                .thenReturn(List.of(bankAccounResponseDTO));
+                .thenReturn(List.of(bankAccountResponseDTO));
 
         this.mockMvc.perform(
                 MockMvcRequestBuilders.get("/BankAccounts"))
@@ -76,7 +74,7 @@ public class BankAccountControllerTest {
     @Test
     @WithMockUser(username = "JunFeng", roles = {"EMPLOYEE"})
     void addBankAccountReturnsCreatedStatus() throws Exception {
-        when(bankAccountService.addBankAccount(any(BankAccountRegisterDTO.class))).thenReturn(bankAccounResponseDTO);
+        when(bankAccountService.addBankAccount(any(BankAccountRegisterDTO.class))).thenReturn(bankAccountResponseDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/BankAccounts").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
