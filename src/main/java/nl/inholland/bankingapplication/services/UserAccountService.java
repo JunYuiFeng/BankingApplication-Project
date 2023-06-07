@@ -7,10 +7,12 @@ import nl.inholland.bankingapplication.models.dto.UserAccountUpdateDTO;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.repositories.UserAccountRepository;
 import nl.inholland.bankingapplication.util.JWTTokeProvider;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.naming.AuthenticationException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -65,6 +67,16 @@ public class UserAccountService {
 
         mapDtoToUserAccountUpdate(userAccountDTO, userAccountToUpdate);
         return userAccountRepository.save(userAccountToUpdate);
+    }
+
+    @Scheduled(cron = "0 0 0 * * *") // Execute at midnight every day
+    public void updateCurrentDayLimit() {
+        List<UserAccount> userAccounts = new ArrayList<>();
+        userAccountRepository.findAll().forEach(userAccounts::add);
+
+        userAccounts.stream()
+                .peek(userAccount -> userAccount.setCurrentDayLimit(0)) //peek change the daylimit of each userAccount without transforming the stream
+                .forEach(userAccountRepository::save);
     }
 
     private UserAccount mapDtoToUserAccount(UserAccountDTO dto) {
