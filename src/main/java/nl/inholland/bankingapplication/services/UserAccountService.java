@@ -6,6 +6,7 @@ import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
 import nl.inholland.bankingapplication.models.dto.UserAccountResponseDTO;
 import nl.inholland.bankingapplication.models.dto.UserAccountUpdateDTO;
+import nl.inholland.bankingapplication.models.dto.UserAccountUpdateTypeDTO;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.repositories.UserAccountRepository;
 import nl.inholland.bankingapplication.services.mappers.UserAccountResponseDTOMapper;
@@ -81,6 +82,16 @@ public class UserAccountService {
                 .orElseThrow(() -> new RuntimeException("UserAccount not found"));
 
         mapDtoToUserAccountUpdate(userAccountDTO, userAccountToUpdate);
+        UserAccount user = userAccountRepository.save(userAccountToUpdate);
+        return userAccountResponseDTOMapper.apply(user);
+    }
+
+    public UserAccountResponseDTO updateUserAccountType(Long id, UserAccountUpdateTypeDTO userAccountTypeDTO) {
+        UserAccount userAccountToUpdate = userAccountRepository
+                .findById(id)
+                .orElseThrow(() -> new RuntimeException("UserAccount not found"));
+
+        userAccountToUpdate.setType(userAccountTypeDTO.getType());
         UserAccount user = userAccountRepository.save(userAccountToUpdate);
         return userAccountResponseDTOMapper.apply(user);
     }

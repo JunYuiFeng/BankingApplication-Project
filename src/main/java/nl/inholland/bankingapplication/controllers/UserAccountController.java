@@ -3,6 +3,7 @@ package nl.inholland.bankingapplication.controllers;
 import jakarta.persistence.EntityNotFoundException;
 import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.*;
+import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.services.UserAccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -86,7 +87,7 @@ public class UserAccountController {
     public ResponseEntity deleteUserAccount(@PathVariable Long id) {
         try {
             UserAccount user = userAccountService.getUserAccountById(id);
-            if (user.getBankAccounts().size() > 0) {
+            if (user.getType() != UserAccountType.ROLE_USER) {
                 return ResponseEntity.status(400).body("User with accounts cannot be deleted.");
             }
             else {
@@ -103,6 +104,16 @@ public class UserAccountController {
     public ResponseEntity<UserAccountResponseDTO> updateUserAccount(@PathVariable Long id, @RequestBody UserAccountUpdateDTO userAccountUpdateDTO) {
         try {
             return ResponseEntity.status(200).body(userAccountService.updateUserAccount(id, userAccountUpdateDTO));
+        } catch (EntityNotFoundException e) {
+            return this.handleException(404, e);
+        }
+    }
+
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
+    @PatchMapping("{id}")
+    public ResponseEntity<UserAccountResponseDTO> updateUserAccountType(@PathVariable Long id, @RequestBody UserAccountUpdateTypeDTO userAccountTypeDTO) {
+        try {
+            return ResponseEntity.status(200).body(userAccountService.updateUserAccountType(id, userAccountTypeDTO));
         } catch (EntityNotFoundException e) {
             return this.handleException(404, e);
         }
