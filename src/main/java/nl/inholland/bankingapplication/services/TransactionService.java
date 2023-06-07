@@ -94,12 +94,6 @@ public class TransactionService {
         if (Objects.equals(user.getType(), UserAccountType.ROLE_EMPLOYEE)){
             return finalizeTransaction(transaction, user);
         }
-        for (BankAccount b: bankAccountsOfUser
-             ) {
-            System.out.println(b.getIBAN());
-        }
-
-        System.out.println(transaction.getAccountFrom().getIBAN());
 
         //this if checks if a transaction is made between savings accounts.
         if (checkBankAccountType(transaction.getAccountFrom(), BankAccountType.SAVINGS) && checkBankAccountType(transaction.getAccountFrom(), BankAccountType.SAVINGS)){
@@ -117,7 +111,7 @@ public class TransactionService {
                     return finalizeTransaction(transaction, user);
                 }
                 else {
-                    throw new ResponseStatusException(401,"Can't make a transaction to a savings account you don't own",null);
+                    throw new ResponseStatusException(401,"Can't make a transaction from a savings account you don't own",null);
                 }
             }
             // this if checks if the account is from a savings account.

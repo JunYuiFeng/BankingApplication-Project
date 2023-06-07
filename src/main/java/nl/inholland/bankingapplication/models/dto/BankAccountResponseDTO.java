@@ -10,7 +10,7 @@ import nl.inholland.bankingapplication.models.enums.BankAccountType;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class BankAccounResponseDTO {
+public class BankAccountResponseDTO {
     private String IBAN;
     private BankAccountType type;
     private BankAccountStatus status;
