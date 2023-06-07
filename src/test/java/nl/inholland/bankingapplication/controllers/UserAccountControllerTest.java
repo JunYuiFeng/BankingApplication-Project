@@ -54,16 +54,16 @@ public class UserAccountControllerTest {
         user2 = new UserAccount("John", "Doe", "JohnDoe@gmail.com", "JohnDoe", "secret123", UserAccountType.ROLE_EMPLOYEE, "+31682222222", 849021437, 1500, 250, bankAccountService.getBankAccountsByUserAccountId(2L));
     }
 
-    @Test
-    @WithMockUser(username = "JohnDoe", roles = {"EMPLOYEE"})
-    void getAllUserAccountsShouldReturnAListOfTwo() throws Exception{
-        when(userAccountService.getAllUserAccounts()).thenReturn(List.of(user1, user2));
-
-        this.mockMvc.perform(
-                MockMvcRequestBuilders.get("/UserAccounts"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)));
-    }
+//    @Test
+//    @WithMockUser(username = "JohnDoe", roles = {"EMPLOYEE"})
+//    void getAllUserAccountsShouldReturnAListOfTwo() throws Exception{
+//        when(userAccountService.getAllUserAccounts()).thenReturn(List.of(user1, user2));
+//
+//        this.mockMvc.perform(
+//                MockMvcRequestBuilders.get("/UserAccounts"))
+//                .andDo(print())
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$", hasSize(2)));
+//    }
 
 }

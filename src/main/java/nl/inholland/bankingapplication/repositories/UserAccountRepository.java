@@ -17,6 +17,10 @@ public interface UserAccountRepository extends CrudRepository<UserAccount, Long>
 
      @Query("SELECT ua FROM UserAccount ua WHERE ua.type = :type")
      List<UserAccount> findUserAccountsWithType(UserAccountType type);
+
+
+     @Query("SELECT ua FROM UserAccount ua WHERE ua.id <> :id")
+     List<UserAccount> getAllUserAccountsExceptOne(Long id);
 }
 
 

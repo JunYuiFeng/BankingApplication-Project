@@ -44,7 +44,6 @@ public class ApplicationDataInitializer implements ApplicationRunner {
     private void loadBackAccounts() {
         List.of(
                 new BankAccountRegisterDTO(BankAccountType.SAVINGS, 4L),
-                new BankAccountRegisterDTO(BankAccountType.SAVINGS, 5L),
                 new BankAccountRegisterDTO(BankAccountType.SAVINGS, 6L)
         ).forEach(
                 dto -> bankAccountService.addBankAccount(dto)

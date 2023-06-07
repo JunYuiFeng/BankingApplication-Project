@@ -34,6 +34,16 @@ public class UserAccountController {
     }
 
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
+    @GetMapping("Exclude/{id}")
+    public ResponseEntity getAllUserAccountsExceptOne(@PathVariable Long id) {
+        try{
+            return ResponseEntity.ok(userAccountService.getAllUserAccountsExceptOne(id));
+        } catch (EntityNotFoundException e) {
+            return this.handleException(404, e);
+        }
+    }
+
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @GetMapping("registered")
     public ResponseEntity getAllRegisteredUserAccounts() {
         try{

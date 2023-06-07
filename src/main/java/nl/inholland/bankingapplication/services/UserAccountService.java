@@ -31,6 +31,10 @@ public class UserAccountService {
         return (List<UserAccount>) userAccountRepository.findAll();
     }
 
+    public List<UserAccount> getAllUserAccountsExceptOne(Long id) {
+        return userAccountRepository.getAllUserAccountsExceptOne(id);
+    }
+
     public List<UserAccount> getAllRegisteredUserAccounts() {
             return userAccountRepository.findUserAccountsWithType(UserAccountType.ROLE_USER);
     }
