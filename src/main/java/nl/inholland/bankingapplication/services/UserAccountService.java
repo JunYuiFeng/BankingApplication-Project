@@ -1,12 +1,9 @@
 package nl.inholland.bankingapplication.services;
 
 import jakarta.persistence.EntityNotFoundException;
-import nl.inholland.bankingapplication.controllers.UserAccountController;
 import nl.inholland.bankingapplication.models.UserAccount;
-import nl.inholland.bankingapplication.models.dto.UserAccountDTO;
-import nl.inholland.bankingapplication.models.dto.UserAccountResponseDTO;
-import nl.inholland.bankingapplication.models.dto.UserAccountUpdateDTO;
-import nl.inholland.bankingapplication.models.dto.UserAccountUpdateTypeDTO;
+import nl.inholland.bankingapplication.models.dto.*;
+import nl.inholland.bankingapplication.models.enums.UserAccountStatus;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.repositories.UserAccountRepository;
 import nl.inholland.bankingapplication.services.mappers.UserAccountResponseDTOMapper;
@@ -19,8 +16,7 @@ import javax.naming.AuthenticationException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
+import java.util.Objects;
 
 @Service
 public class UserAccountService {
@@ -72,6 +68,17 @@ public class UserAccountService {
          throw new IllegalArgumentException("User already exists");
     }
 
+public UserAccountResponseDTO addPredefinedUserAccount(UserAccountPredefinedDTO userAccount) {
+        if(userAccountRepository.findUserAccountByUsername(userAccount.getUsername()).isEmpty()){
+            userAccount.setPassword(bCryptPasswordEncoder.encode(userAccount.getPassword()));
+            UserAccount user = userAccountRepository.save(this.mapPredefinedDtoToUserAccount(userAccount));
+            return userAccountResponseDTOMapper.apply(user);
+        }
+        throw new IllegalArgumentException("User already exists");
+    }
+
+
+
     public void deleteUserAccount(Long id) {
         userAccountRepository.deleteById(id);
     }
@@ -86,12 +93,18 @@ public class UserAccountService {
         return userAccountResponseDTOMapper.apply(user);
     }
 
-    public UserAccountResponseDTO updateUserAccountType(Long id, UserAccountUpdateTypeDTO userAccountTypeDTO) {
+    public UserAccountResponseDTO patchUserAccount(Long id, UserAccountPatchDTO userAccountPatchDTO) {
         UserAccount userAccountToUpdate = userAccountRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("UserAccount not found"));
 
-        userAccountToUpdate.setType(userAccountTypeDTO.getType());
+        if (Objects.nonNull(userAccountPatchDTO.getStatus())) {
+            userAccountToUpdate.setStatus(userAccountPatchDTO.getStatus());
+        }
+        if (Objects.nonNull(userAccountPatchDTO.getCurrentDayLimit())) {
+            userAccountToUpdate.setDayLimit(userAccountPatchDTO.getCurrentDayLimit());
+        }
+
         UserAccount user = userAccountRepository.save(userAccountToUpdate);
         return userAccountResponseDTOMapper.apply(user);
     }
@@ -123,7 +136,8 @@ public class UserAccountService {
         newUserAccount.setEmail(dto.getEmail());
         newUserAccount.setUsername(dto.getUsername());
         newUserAccount.setPassword(dto.getPassword());
-        newUserAccount.setType(dto.getTypeIgnoreCase());
+        newUserAccount.setType(UserAccountType.ROLE_USER);
+        newUserAccount.setStatus(UserAccountStatus.ACTIVE);
         newUserAccount.setPhoneNumber(dto.getPhoneNumber());
         newUserAccount.setBsn((dto.getBsn()));
         newUserAccount.setDayLimit(dto.getDayLimit());
@@ -131,6 +145,24 @@ public class UserAccountService {
         newUserAccount.setTransactionLimit(dto.getTransactionLimit());
         return newUserAccount;
     }
+
+    private UserAccount mapPredefinedDtoToUserAccount(UserAccountPredefinedDTO dto){
+        UserAccount newUserAccount = new UserAccount();
+        newUserAccount.setFirstName(dto.getFirstName());
+        newUserAccount.setLastName(dto.getLastName());
+        newUserAccount.setEmail(dto.getEmail());
+        newUserAccount.setUsername(dto.getUsername());
+        newUserAccount.setPassword(dto.getPassword());
+        newUserAccount.setType(dto.getType());
+        newUserAccount.setStatus(dto.getStatus());
+        newUserAccount.setPhoneNumber(dto.getPhoneNumber());
+        newUserAccount.setBsn((dto.getBsn()));
+        newUserAccount.setDayLimit(dto.getDayLimit());
+        newUserAccount.setCurrentDayLimit(dto.getCurrentDayLimit());
+        newUserAccount.setTransactionLimit(dto.getTransactionLimit());
+        return newUserAccount;
+    }
+
 
     private UserAccount mapDtoToUserAccountUpdate(UserAccountUpdateDTO userAccountDTO, UserAccount userAccountToUpdate) {
         userAccountToUpdate.setFirstName(userAccountDTO.getFirstName());

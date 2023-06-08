@@ -5,6 +5,7 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import nl.inholland.bankingapplication.models.enums.UserAccountStatus;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 
 import java.util.ArrayList;
@@ -31,6 +32,8 @@ public class UserAccount {
     //@ElementCollection(fetch = FetchType.EAGER)
     private UserAccountType type;
 
+    private UserAccountStatus status;
+
     private String phoneNumber;
 
     private int bsn;
@@ -47,13 +50,14 @@ public class UserAccount {
 
 
 
-    public UserAccount(String firstName, String lastName, String email, String username, String password, UserAccountType type, String phoneNumber, int bsn, double dayLimit, double transactionLimit, List<BankAccount> bankAccounts) {
+    public UserAccount(String firstName, String lastName, String email, String username, String password, UserAccountType type, UserAccountStatus status, String phoneNumber, int bsn, double dayLimit, double transactionLimit, List<BankAccount> bankAccounts) {
             this.firstName = firstName;
             this.lastName = lastName;
             this.email = email;
             this.username = username;
             this.password = password;
             this.type = type;
+            this.status = status;
             this.phoneNumber = phoneNumber;
             this.bsn = bsn;
             this.dayLimit = dayLimit;

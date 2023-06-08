@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.*;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
+import nl.inholland.bankingapplication.models.enums.UserAccountStatus;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.repositories.TransactionRepository;
 import nl.inholland.bankingapplication.services.BankAccountService;
@@ -59,15 +60,15 @@ public class ApplicationDataInitializer implements ApplicationRunner {
 
     public void loadUserAccounts(){
         List.of(
-                new UserAccountDTO("Bank", "Bank", "Bank@gmail.com", "Bank", "secret123", UserAccountType.ROLE_EMPLOYEE, "+31111111111", 12345111, 1000.00,0, 250.00),
-                new UserAccountDTO("Jun", "Feng", "junfeng@gmail.com", "JunFeng", "secret123", UserAccountType.ROLE_CUSTOMER, "+31222222222", 12345222, 1000.00,0, 250.00),
-                new UserAccountDTO("John", "Doe", "JohnDoe@gmail.com", "JohnDoe", "secret123", UserAccountType.ROLE_CUSTOMER, "+31333333333", 12345333, 1000.00,0, 250.00),
-                new UserAccountDTO("Karen", "Winter", "KarenWinter@gmail.com", "KarenWinter", "secret123", UserAccountType.ROLE_EMPLOYEE, "+31444444444", 12345444, 1000.00, 0,250.00),
-                new UserAccountDTO("Steve", "Woo", "SteveWoo@gmail.com", "SteveWoo", "secret123", UserAccountType.ROLE_USER, "+31555555555", 12345555, 1000.00, 0,250.00),
-				new UserAccountDTO("Alessandra", "Ribeiro", "ale@gmail.com", "ale", "123", UserAccountType.ROLE_CUSTOMER, "+31666666666", 12345666, 1000.00, 0,250.00)
+                new UserAccountPredefinedDTO("Bank", "Bank", "Bank@gmail.com", "Bank", "secret123", UserAccountType.ROLE_EMPLOYEE, UserAccountStatus.ACTIVE, "+31111111111", 12345111, 1000.00,0, 250.00),
+                new UserAccountPredefinedDTO("Jun", "Feng", "junfeng@gmail.com", "JunFeng", "secret123", UserAccountType.ROLE_CUSTOMER, UserAccountStatus.ACTIVE, "+31222222222", 12345222, 1000.00,0, 250.00),
+                new UserAccountPredefinedDTO("John", "Doe", "JohnDoe@gmail.com", "JohnDoe", "secret123", UserAccountType.ROLE_CUSTOMER, UserAccountStatus.ACTIVE, "+31333333333", 12345333, 1000.00,0, 250.00),
+                new UserAccountPredefinedDTO("Karen", "Winter", "KarenWinter@gmail.com", "KarenWinter", "secret123", UserAccountType.ROLE_EMPLOYEE, UserAccountStatus.ACTIVE, "+31444444444", 12345444, 1000.00, 0,250.00),
+                new UserAccountPredefinedDTO("Steve", "Woo", "SteveWoo@gmail.com", "SteveWoo", "secret123", UserAccountType.ROLE_USER, UserAccountStatus.ACTIVE, "+31555555555", 12345555, 1000.00, 0,250.00),
+				new UserAccountPredefinedDTO("Alessandra", "Ribeiro", "ale@gmail.com", "ale", "123", UserAccountType.ROLE_CUSTOMER, UserAccountStatus.ACTIVE, "+31666666666", 12345666, 1000.00, 0,250.00)
 
         ).forEach(
-                dto -> userAccountService.addUserAccount(dto)
+                dto -> userAccountService.addPredefinedUserAccount(dto)
         );
 
         userAccountService.getAllUserAccounts().forEach(System.out::println);

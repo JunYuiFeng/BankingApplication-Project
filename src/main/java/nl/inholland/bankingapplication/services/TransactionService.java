@@ -3,10 +3,7 @@ package nl.inholland.bankingapplication.services;
 import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.Transaction;
 import nl.inholland.bankingapplication.models.UserAccount;
-import nl.inholland.bankingapplication.models.dto.MakeTransactionDTO;
-import nl.inholland.bankingapplication.models.dto.TransactionResponseDTO;
-import nl.inholland.bankingapplication.models.dto.UserAccountUpdateDTO;
-import nl.inholland.bankingapplication.models.dto.WithdrawalAndDepositRequestDTO;
+import nl.inholland.bankingapplication.models.dto.*;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
@@ -195,7 +192,7 @@ public class TransactionService {
             }
             else {
                 user.setCurrentDayLimit(user.getCurrentDayLimit() + transaction.getAmount());
-                userAccountService.updateUserAccount(user.getId().longValue(), new UserAccountUpdateDTO(user.getFirstName(),user.getLastName(),user.getEmail(),user.getUsername(),user.getType(),user.getPhoneNumber(),user.getBsn(),user.getDayLimit(),user.getCurrentDayLimit(),user.getTransactionLimit()));
+                userAccountService.patchUserAccount(user.getId().longValue(), new UserAccountPatchDTO(user.getStatus(),user.getCurrentDayLimit()));
             }
         }
     }

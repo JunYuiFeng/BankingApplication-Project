@@ -48,11 +48,12 @@ public class UserAccountController {
         try{
             return ResponseEntity.ok(userAccountService.getAllRegisteredUserAccounts());
         } catch (EntityNotFoundException e) {
-            return this.handleException(404, e);
+            //return this.handleException(404, e);
+            return null;
         }
     }
 
-    @PreAuthorize("principal.username == @userAccountService.getUserAccountById(#id).username")
+    @PreAuthorize("principal.username == @userAccountService.getUserAccountById(#id).username || hasRole('ROLE_EMPLOYEE')")
     @GetMapping("{id}")
     public ResponseEntity getUserAccountById(@PathVariable Long id) {
         try{
@@ -111,9 +112,9 @@ public class UserAccountController {
 
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @PatchMapping("{id}")
-    public ResponseEntity<UserAccountResponseDTO> updateUserAccountType(@PathVariable Long id, @RequestBody UserAccountUpdateTypeDTO userAccountTypeDTO) {
+    public ResponseEntity<UserAccountResponseDTO> patchUserAccount(@PathVariable Long id, @RequestBody UserAccountPatchDTO userAccountPatchDTO) {
         try {
-            return ResponseEntity.status(200).body(userAccountService.updateUserAccountType(id, userAccountTypeDTO));
+            return ResponseEntity.status(200).body(userAccountService.patchUserAccount(id, userAccountPatchDTO));
         } catch (EntityNotFoundException e) {
             return this.handleException(404, e);
         }

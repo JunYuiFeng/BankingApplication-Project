@@ -3,11 +3,12 @@ package nl.inholland.bankingapplication.models.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import nl.inholland.bankingapplication.models.enums.UserAccountType;
+import nl.inholland.bankingapplication.models.enums.UserAccountStatus;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class UserAccountUpdateTypeDTO {
-    private UserAccountType type;
+public class UserAccountPatchDTO {
+    private UserAccountStatus status;
+    private double currentDayLimit;
 }

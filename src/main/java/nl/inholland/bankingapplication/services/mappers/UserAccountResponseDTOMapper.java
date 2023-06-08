@@ -15,6 +15,7 @@ public class UserAccountResponseDTOMapper implements Function<UserAccount, UserA
                 userAccount.getEmail(),
                 userAccount.getUsername(),
                 userAccount.getType(),
+                userAccount.getStatus(),
                 userAccount.getPhoneNumber(),
                 userAccount.getBsn(),
                 userAccount.getDayLimit(),

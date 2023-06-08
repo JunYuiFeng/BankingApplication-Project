@@ -3,6 +3,7 @@ package nl.inholland.bankingapplication.models.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import nl.inholland.bankingapplication.models.enums.UserAccountStatus;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ public class UserAccountUpdateDTO {
     private String email;
     private String username;
     private UserAccountType type;
+    private UserAccountStatus status;
     private String phoneNumber;
     private int bsn;
     private double dayLimit;
