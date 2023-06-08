@@ -5,9 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

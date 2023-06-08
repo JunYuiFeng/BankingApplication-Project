@@ -1,14 +1,13 @@
 package nl.inholland.bankingapplication.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Data
