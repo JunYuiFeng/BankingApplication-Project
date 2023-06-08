@@ -3,7 +3,7 @@ package nl.inholland.bankingapplication.services;
 import jakarta.persistence.EntityNotFoundException;
 import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.UserAccount;
-import nl.inholland.bankingapplication.models.dto.BankAccounResponseDTO;
+import nl.inholland.bankingapplication.models.dto.BankAccountResponseDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountPredefinedDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountUpdateDTO;
@@ -32,7 +32,7 @@ public class BankAccountService {
         this.bankAccountResponseDTOMapper = bankAccountResponseDTOMapper;
     }
 
-    public List<BankAccounResponseDTO> getAllBankAccounts() {
+    public List<BankAccountResponseDTO> getAllBankAccounts() {
         try {
             List<BankAccount> bankAccounts = (List<BankAccount>) bankAccountRepository.findAll();
 
@@ -88,18 +88,18 @@ public class BankAccountService {
 
 
     public Boolean hasSavingsAccount(Long userId) {
-        return bankAccountRepository.existsByUserAccountAndType(userAccountService.getUserAccountById(userId), BankAccountType.SAVINGS);
+        return bankAccountRepository.existsByUserAccountIdAndType(userId, BankAccountType.SAVINGS);
     }
-    public BankAccounResponseDTO addBankAccount(BankAccountRegisterDTO dto) {
-        if (this.hasSavingsAccount(dto.getUserId())) {
-            throw new IllegalArgumentException("User already has a savings account, only 1 savings savings account can be created");
+    public BankAccountResponseDTO addBankAccount(BankAccountRegisterDTO dto) {
+        if (this.hasSavingsAccount(dto.getUserId()) && dto.getType().equals(BankAccountType.SAVINGS)) {
+            throw new DataIntegrityViolationException("User already has a savings account, only 1 savings account can be created");
         }
 
         BankAccount bankAccount = bankAccountRepository.save(this.mapDtoToBankAccount(dto));
         return mapBankAccountToDto(bankAccount);
     }
 
-    public BankAccounResponseDTO addPredefinedBankAccount(BankAccountPredefinedDTO dto) {
+    public BankAccountResponseDTO addPredefinedBankAccount(BankAccountPredefinedDTO dto) {
         BankAccount bankAccount = bankAccountRepository.save(this.mapPreDtoToBankAccount(dto));
         return mapBankAccountToDto(bankAccount);
     }
@@ -167,15 +167,15 @@ public class BankAccountService {
         return bankAccount;
     }
 
-    private BankAccounResponseDTO mapBankAccountToDto(BankAccount bankAccount) {
-        BankAccounResponseDTO bankAccounResponseDTO = new BankAccounResponseDTO();
-        bankAccounResponseDTO.setType(bankAccount.getType());
-        bankAccounResponseDTO.setStatus(bankAccount.getStatus());
-        bankAccounResponseDTO.setBalance(bankAccount.getBalance());
-        bankAccounResponseDTO.setAbsoluteLimit(bankAccount.getAbsoluteLimit());
-        bankAccounResponseDTO.setIBAN(bankAccount.getIBAN());
+    private BankAccountResponseDTO mapBankAccountToDto(BankAccount bankAccount) {
+        BankAccountResponseDTO bankAccountResponseDTO = new BankAccountResponseDTO();
+        bankAccountResponseDTO.setType(bankAccount.getType());
+        bankAccountResponseDTO.setStatus(bankAccount.getStatus());
+        bankAccountResponseDTO.setBalance(bankAccount.getBalance());
+        bankAccountResponseDTO.setAbsoluteLimit(bankAccount.getAbsoluteLimit());
+        bankAccountResponseDTO.setIBAN(bankAccount.getIBAN());
 
-        return bankAccounResponseDTO;
+        return bankAccountResponseDTO;
     }
 
     public String GenerateIBAN(){

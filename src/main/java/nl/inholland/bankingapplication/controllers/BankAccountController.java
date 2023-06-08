@@ -1,7 +1,7 @@
 package nl.inholland.bankingapplication.controllers;
 
 import nl.inholland.bankingapplication.models.BankAccount;
-import nl.inholland.bankingapplication.models.dto.BankAccounResponseDTO;
+import nl.inholland.bankingapplication.models.dto.BankAccountResponseDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountUpdateDTO;
 import nl.inholland.bankingapplication.services.BankAccountService;
@@ -35,7 +35,7 @@ public class BankAccountController {
 //    }
 
     @GetMapping
-    public ResponseEntity<List<BankAccounResponseDTO>> getAllBankAccounts() {
+    public ResponseEntity<List<BankAccountResponseDTO>> getAllBankAccounts() {
         return ResponseEntity.ok(bankAccountService.getAllBankAccounts());
     }
 
@@ -70,7 +70,7 @@ public class BankAccountController {
 
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @PostMapping
-    public ResponseEntity<BankAccounResponseDTO> addBankAccount(@RequestBody BankAccountRegisterDTO dto) {
+    public ResponseEntity<BankAccountResponseDTO> addBankAccount(@RequestBody BankAccountRegisterDTO dto) {
         return ResponseEntity.status(201).body(bankAccountService.addBankAccount(dto));
     }
 

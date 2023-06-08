@@ -20,5 +20,5 @@ public interface BankAccountRepository extends CrudRepository<BankAccount, Long>
 
     @Query("SELECT ba FROM BankAccount ba WHERE ba.userAccount <> ?1")
     List<BankAccount> findAllExceptOwnAccount(UserAccount userAccount);
-    boolean existsByUserAccountAndType(UserAccount userAccount, BankAccountType type);
+    boolean existsByUserAccountIdAndType(Long id, BankAccountType type);
 }

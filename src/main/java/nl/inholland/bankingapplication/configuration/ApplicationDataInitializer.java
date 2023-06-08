@@ -41,7 +41,6 @@ public class ApplicationDataInitializer implements ApplicationRunner {
     private void loadBackAccounts() {
         List.of(
                 new BankAccountRegisterDTO(BankAccountType.SAVINGS, 4L),
-                new BankAccountRegisterDTO(BankAccountType.SAVINGS, 5L),
                 new BankAccountRegisterDTO(BankAccountType.SAVINGS, 6L)
         ).forEach(
                 dto -> bankAccountService.addBankAccount(dto)
@@ -75,7 +74,7 @@ public class ApplicationDataInitializer implements ApplicationRunner {
     }
     private void loadTransactions() {
 
-            List<BankAccounResponseDTO> accounts = bankAccountService.getAllBankAccounts();
+            List<BankAccountResponseDTO> accounts = bankAccountService.getAllBankAccounts();
 
             List<MakeTransactionDTO> transactions = List.of(
                     //double amount, UserAccount madeBy, BankAccount accountFrom, BankAccount accountTo, String description, Timestamp occuredAt

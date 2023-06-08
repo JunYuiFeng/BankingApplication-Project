@@ -106,6 +106,7 @@ public class TransactionService {
             if (checkBankAccountType(transaction.getAccountFrom(), BankAccountType.SAVINGS)) {
 
                 // this if checks if the savings account is owned by the user
+
                 if (checkIfBankAccountIsOwnedByUser(transaction.getAccountFrom(), user)){
                     return finalizeTransaction(transaction, user);
                 }
