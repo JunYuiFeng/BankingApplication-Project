@@ -113,11 +113,7 @@ public class UserAccountController {
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @PatchMapping("{id}")
     public ResponseEntity<UserAccountResponseDTO> patchUserAccount(@PathVariable Long id, @RequestBody UserAccountPatchDTO userAccountPatchDTO) {
-        try {
             return ResponseEntity.status(200).body(userAccountService.patchUserAccount(id, userAccountPatchDTO));
-        } catch (EntityNotFoundException e) {
-            return this.handleException(404, e);
-        }
     }
 
     private ResponseEntity handleException(int status, EntityNotFoundException e) {

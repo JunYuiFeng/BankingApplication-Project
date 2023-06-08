@@ -52,7 +52,6 @@ public class WebSecurityConf {
         httpSecurity.authorizeHttpRequests()
                 .requestMatchers("/login").permitAll()
                 .requestMatchers("/UserAccounts/register").permitAll()
-                .requestMatchers("/ATM").permitAll()
                 //.requestMatchers("/BankAccounts").permitAll()
                 //.requestMatchers("/UserAccounts/{id}").permitAll()
                 .anyRequest().authenticated();

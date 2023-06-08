@@ -17,7 +17,4 @@ public class UserAccountDTO {
     private String password;
     private String phoneNumber;
     private int bsn;
-    private double dayLimit;
-    private double currentDayLimit;
-    private double transactionLimit;
 }

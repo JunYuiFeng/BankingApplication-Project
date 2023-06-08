@@ -40,6 +40,17 @@ public class BankAPIExceptionHandler extends ResponseEntityExceptionHandler {
                 );
     }
 
+    @ExceptionHandler(value = {IllegalArgumentException.class})
+    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException illegalArgumentException, WebRequest webRequest) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ExceptionDTO(
+                                400,
+                                illegalArgumentException.getClass().getName(),
+                                illegalArgumentException.getMessage()
+                        )
+                );
+    }
+
     @ExceptionHandler(value = {AuthenticationException.class})
     public ResponseEntity<Object> handleAuthenticationException(AuthenticationException authenticationException, WebRequest webRequest) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

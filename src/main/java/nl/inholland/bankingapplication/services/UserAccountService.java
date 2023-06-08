@@ -94,19 +94,20 @@ public UserAccountResponseDTO addPredefinedUserAccount(UserAccountPredefinedDTO 
     }
 
     public UserAccountResponseDTO patchUserAccount(Long id, UserAccountPatchDTO userAccountPatchDTO) {
-        UserAccount userAccountToUpdate = userAccountRepository
-                .findById(id)
-                .orElseThrow(() -> new RuntimeException("UserAccount not found"));
+            UserAccount userAccountToUpdate = userAccountRepository
+                    .findById(id)
+                    .orElseThrow(() -> new RuntimeException("UserAccount not found"));
 
-        if (Objects.nonNull(userAccountPatchDTO.getStatus())) {
-            userAccountToUpdate.setStatus(userAccountPatchDTO.getStatus());
-        }
-        if (Objects.nonNull(userAccountPatchDTO.getCurrentDayLimit())) {
-            userAccountToUpdate.setDayLimit(userAccountPatchDTO.getCurrentDayLimit());
-        }
+            if (Objects.nonNull(userAccountPatchDTO.getStatus())) {
+                userAccountToUpdate.setStatus(userAccountPatchDTO.getStatus());
+            }
 
-        UserAccount user = userAccountRepository.save(userAccountToUpdate);
-        return userAccountResponseDTOMapper.apply(user);
+            if (Objects.nonNull(userAccountPatchDTO.getCurrentDayLimit())) {
+                userAccountToUpdate.setDayLimit(userAccountPatchDTO.getCurrentDayLimit());
+            }
+
+            UserAccount user = userAccountRepository.save(userAccountToUpdate);
+            return userAccountResponseDTOMapper.apply(user);
     }
 
     @Scheduled(cron = "0 0 0 * * *") // Execute at midnight every day
@@ -140,9 +141,9 @@ public UserAccountResponseDTO addPredefinedUserAccount(UserAccountPredefinedDTO 
         newUserAccount.setStatus(UserAccountStatus.ACTIVE);
         newUserAccount.setPhoneNumber(dto.getPhoneNumber());
         newUserAccount.setBsn((dto.getBsn()));
-        newUserAccount.setDayLimit(dto.getDayLimit());
-        newUserAccount.setCurrentDayLimit(dto.getCurrentDayLimit());
-        newUserAccount.setTransactionLimit(dto.getTransactionLimit());
+        newUserAccount.setDayLimit(2500);
+        newUserAccount.setCurrentDayLimit(0);
+        newUserAccount.setTransactionLimit(1000);
         return newUserAccount;
     }
 
@@ -197,6 +198,9 @@ public UserAccountResponseDTO addPredefinedUserAccount(UserAccountPredefinedDTO 
                 .orElseThrow(() -> new AuthenticationException("User not found"));
 
 // Check if the password hash matches
+        if (user.getStatus().equals(UserAccountStatus.INACTIVE)) {
+            throw new AuthenticationException("User has been deactivated");
+        }
 
         if (bCryptPasswordEncoder.matches(password, user.getPassword())) {
 // Return a JWT to the client
