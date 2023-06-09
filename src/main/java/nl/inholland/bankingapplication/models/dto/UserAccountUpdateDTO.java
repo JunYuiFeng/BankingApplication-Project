@@ -15,11 +15,9 @@ public class UserAccountUpdateDTO {
     private String email;
     private String username;
     private UserAccountType type;
-    private UserAccountStatus status;
     private String phoneNumber;
     private int bsn;
     private double dayLimit;
-    private double currentDayLimit;
     private double transactionLimit;
 
     public UserAccountType getTypeIgnoreCase() {

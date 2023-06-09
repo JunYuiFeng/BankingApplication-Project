@@ -1,6 +1,7 @@
 package nl.inholland.bankingapplication.controllers;
 
 import nl.inholland.bankingapplication.models.dto.UserAccountResponseDTO;
+import nl.inholland.bankingapplication.models.enums.UserAccountStatus;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.services.UserAccountService;
 import nl.inholland.bankingapplication.util.JWTTokeProvider;
@@ -44,8 +45,8 @@ public class UserAccountControllerTest {
 
     @BeforeEach
     void init(){
-        user1 = new UserAccountResponseDTO(1L, "Jason", "Xie", "Jasonxie@gmail.com", "JasonXie", UserAccountType.ROLE_CUSTOMER, "+31681111111", 784935753, 2500, 0, 250);
-        user2 = new UserAccountResponseDTO(3L, "John", "Doe", "JohnDoe@gmail.com", "JohnDoe", UserAccountType.ROLE_CUSTOMER, "+31333333333", 12345333, 1000, 0, 250);
+        user1 = new UserAccountResponseDTO(1L, "Jason", "Xie", "Jasonxie@gmail.com", "JasonXie", UserAccountType.ROLE_CUSTOMER, UserAccountStatus.ACTIVE, "+31681111111", 784935753, 2500, 0, 250);
+        user2 = new UserAccountResponseDTO(3L, "John", "Doe", "JohnDoe@gmail.com", "JohnDoe", UserAccountType.ROLE_CUSTOMER, UserAccountStatus.ACTIVE, "+31333333333", 12345333, 1000, 0, 250);
     }
 
     @Test
@@ -59,5 +60,4 @@ public class UserAccountControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)));
     }
-
 }

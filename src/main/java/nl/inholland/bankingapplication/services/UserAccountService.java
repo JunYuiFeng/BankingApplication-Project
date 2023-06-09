@@ -6,10 +6,12 @@ import nl.inholland.bankingapplication.models.dto.*;
 import nl.inholland.bankingapplication.models.enums.UserAccountStatus;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.repositories.UserAccountRepository;
+import nl.inholland.bankingapplication.services.mappers.UserAccountDTOMapper;
+import nl.inholland.bankingapplication.services.mappers.UserAccountPredefinedDTOMapper;
 import nl.inholland.bankingapplication.services.mappers.UserAccountResponseDTOMapper;
+import nl.inholland.bankingapplication.services.mappers.UserAccountUpdateDTOMapper;
 import nl.inholland.bankingapplication.util.JWTTokeProvider;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,11 +27,20 @@ public class UserAccountService {
 
     private final UserAccountResponseDTOMapper userAccountResponseDTOMapper;
 
+    private final UserAccountDTOMapper userAccountDTOMapper;
+
+    private final UserAccountPredefinedDTOMapper userAccountPredefinedDTOMapper;
+
+    private final UserAccountUpdateDTOMapper userAccountUpdateDTOMapper;
+
     public UserAccountService(UserAccountRepository userAccountRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JWTTokeProvider jwtTokeProvider) {
         this.userAccountRepository = userAccountRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtTokeProvider = jwtTokeProvider;
         this.userAccountResponseDTOMapper = new UserAccountResponseDTOMapper();
+        this.userAccountDTOMapper = new UserAccountDTOMapper();
+        this.userAccountPredefinedDTOMapper = new UserAccountPredefinedDTOMapper();
+        this.userAccountUpdateDTOMapper = new UserAccountUpdateDTOMapper();
     }
 
     public List<UserAccountResponseDTO> getAllUserAccounts() {
@@ -76,7 +87,7 @@ public class UserAccountService {
             validateFields(userAccount);
             if (userAccountRepository.findUserAccountByUsername(userAccount.getUsername()).isEmpty()) {
                 userAccount.setPassword(bCryptPasswordEncoder.encode(userAccount.getPassword()));
-                UserAccount user = userAccountRepository.save(this.mapDtoToUserAccount(userAccount));
+                UserAccount user = userAccountRepository.save(userAccountDTOMapper.apply(userAccount));
                 return userAccountResponseDTOMapper.apply(user);
             } else {
                 throw new IllegalArgumentException("User already exists");
@@ -137,7 +148,7 @@ public class UserAccountService {
         try{
             if(userAccountRepository.findUserAccountByUsername(userAccount.getUsername()).isEmpty()){
                 userAccount.setPassword(bCryptPasswordEncoder.encode(userAccount.getPassword()));
-                UserAccount user = userAccountRepository.save(this.mapPredefinedDtoToUserAccount(userAccount));
+                UserAccount user = userAccountRepository.save(userAccountPredefinedDTOMapper.apply(userAccount));
                 return userAccountResponseDTOMapper.apply(user);
             }
             else {
@@ -165,12 +176,11 @@ public class UserAccountService {
 
     public UserAccountResponseDTO updateUserAccount(Long id, UserAccountUpdateDTO userAccountDTO) {
         try {
-            UserAccount userAccountToUpdate = userAccountRepository
-                    .findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("UserAccount not found"));
+            UserAccount userAccountToUpdate = this.getUserAccountById(id);
 
-            mapDtoToUserAccountUpdate(userAccountDTO, userAccountToUpdate);
-            UserAccount user = userAccountRepository.save(userAccountToUpdate);
+            UserAccount mappedUser = userAccountUpdateDTOMapper.apply(userAccountDTO, userAccountToUpdate);
+
+            UserAccount user = userAccountRepository.save(mappedUser);
             return userAccountResponseDTOMapper.apply(user);
         } catch (Exception e) {
             throw new DataIntegrityViolationException("Unable to update user account");
@@ -179,9 +189,7 @@ public class UserAccountService {
 
     public UserAccountResponseDTO patchUserAccount(Long id, UserAccountPatchDTO userAccountPatchDTO) {
         try{
-            UserAccount userAccountToUpdate = userAccountRepository
-                    .findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("UserAccount not found"));
+            UserAccount userAccountToUpdate = this.getUserAccountById(id);
 
             if (Objects.nonNull(userAccountPatchDTO.getStatus())) {
                 userAccountToUpdate.setStatus(userAccountPatchDTO.getStatus());
@@ -220,56 +228,6 @@ public class UserAccountService {
         return users.stream()
                 .map(userAccountResponseDTOMapper)
                 .toList();
-    }
-
-    private UserAccount mapDtoToUserAccount(UserAccountDTO dto) {
-        UserAccount newUserAccount = new UserAccount();
-        newUserAccount.setFirstName(dto.getFirstName());
-        newUserAccount.setLastName(dto.getLastName());
-        newUserAccount.setEmail(dto.getEmail());
-        newUserAccount.setUsername(dto.getUsername());
-        newUserAccount.setPassword(dto.getPassword());
-        newUserAccount.setType(UserAccountType.ROLE_USER);
-        newUserAccount.setStatus(UserAccountStatus.ACTIVE);
-        newUserAccount.setPhoneNumber(dto.getPhoneNumber());
-        newUserAccount.setBsn((dto.getBsn()));
-        newUserAccount.setDayLimit(2500);
-        newUserAccount.setCurrentDayLimit(0);
-        newUserAccount.setTransactionLimit(1000);
-        return newUserAccount;
-    }
-
-    private UserAccount mapPredefinedDtoToUserAccount(UserAccountPredefinedDTO dto){
-        UserAccount newUserAccount = new UserAccount();
-        newUserAccount.setFirstName(dto.getFirstName());
-        newUserAccount.setLastName(dto.getLastName());
-        newUserAccount.setEmail(dto.getEmail());
-        newUserAccount.setUsername(dto.getUsername());
-        newUserAccount.setPassword(dto.getPassword());
-        newUserAccount.setType(dto.getType());
-        newUserAccount.setStatus(dto.getStatus());
-        newUserAccount.setPhoneNumber(dto.getPhoneNumber());
-        newUserAccount.setBsn((dto.getBsn()));
-        newUserAccount.setDayLimit(dto.getDayLimit());
-        newUserAccount.setCurrentDayLimit(dto.getCurrentDayLimit());
-        newUserAccount.setTransactionLimit(dto.getTransactionLimit());
-        return newUserAccount;
-    }
-
-
-    private UserAccount mapDtoToUserAccountUpdate(UserAccountUpdateDTO userAccountDTO, UserAccount userAccountToUpdate) {
-        userAccountToUpdate.setFirstName(userAccountDTO.getFirstName());
-        userAccountToUpdate.setLastName(userAccountDTO.getLastName());
-        userAccountToUpdate.setEmail(userAccountDTO.getEmail());
-        userAccountToUpdate.setUsername(userAccountDTO.getUsername());
-        userAccountToUpdate.setType(userAccountDTO.getTypeIgnoreCase());
-        userAccountToUpdate.setPhoneNumber(userAccountDTO.getPhoneNumber());
-        userAccountToUpdate.setBsn(userAccountDTO.getBsn());
-        userAccountToUpdate.setDayLimit(userAccountDTO.getDayLimit());
-        userAccountToUpdate.setCurrentDayLimit(userAccountDTO.getCurrentDayLimit());
-        userAccountToUpdate.setTransactionLimit(userAccountDTO.getTransactionLimit());
-
-        return userAccountToUpdate;
     }
 
    /* public UserAccount login(String username, String password) {
