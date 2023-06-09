@@ -3,6 +3,7 @@ package nl.inholland.bankingapplication.configuration;
 import jakarta.transaction.Transactional;
 import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.*;
+import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import nl.inholland.bankingapplication.models.enums.UserAccountStatus;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
@@ -48,9 +49,9 @@ public class ApplicationDataInitializer implements ApplicationRunner {
         );
 
         List.of(
-                new BankAccountPredefinedDTO("NL01INHO0000000001", BankAccountType.CURRENT, 1000000000.00, 1L),
-                new BankAccountPredefinedDTO("NL71RABO3667086008", BankAccountType.CURRENT, 1000.00, 2L),
-                new BankAccountPredefinedDTO("NL43ABNA5253446745", BankAccountType.CURRENT, 1000.00, 3L)
+                new BankAccountPredefinedDTO("NL01INHO0000000001", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000000000.00, 0, 1L),
+                new BankAccountPredefinedDTO("NL71RABO3667086008", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, 2L),
+                new BankAccountPredefinedDTO("NL43ABNA5253446745", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, 3L)
         ).forEach(
                 dto -> bankAccountService.addPredefinedBankAccount(dto)
         );
