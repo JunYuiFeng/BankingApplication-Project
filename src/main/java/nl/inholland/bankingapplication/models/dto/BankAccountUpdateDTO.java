@@ -10,8 +10,7 @@ import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 @Data
 public class BankAccountUpdateDTO {
     String status;
-    double balance;
-    double absoluteLimit;
+    Double absoluteLimit;
 
     public BankAccountStatus getStatusIgnoreCase() {
         if (status != null) {

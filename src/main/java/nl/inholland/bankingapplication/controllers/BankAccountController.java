@@ -5,10 +5,8 @@ import nl.inholland.bankingapplication.models.dto.BankAccountResponseDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountUpdateDTO;
 import nl.inholland.bankingapplication.services.BankAccountService;
-import nl.inholland.bankingapplication.services.UserAccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,19 +18,10 @@ import java.util.List;
 @RequestMapping("BankAccounts")
 public class BankAccountController {
     private BankAccountService bankAccountService;
-    private UserAccountService userAccountService;
-    private String authenticatUsername;
 
-
-    public BankAccountController(BankAccountService bankAccountService, UserAccountService userAccountService) {
+    public BankAccountController(BankAccountService bankAccountService) {
         this.bankAccountService = bankAccountService;
-        this.userAccountService = userAccountService;
     }
-
-//    public void  authenticatedUsername() {
-//        UserAccount userAccount = userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
-//        this.authenticatUsername = userAccount.getUsername();
-//    }
 
     @GetMapping
     public ResponseEntity<List<BankAccountResponseDTO>> getAllBankAccounts() {
@@ -41,7 +30,7 @@ public class BankAccountController {
 
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @GetMapping("ExcludeUserAccount/{userId}")
-    public ResponseEntity<List<BankAccount>> getAllBankAccountsExceptBankOwnAccount(@PathVariable Long userId) {
+    public ResponseEntity<List<BankAccountResponseDTO>> getAllBankAccountsExceptBankOwnAccount(@PathVariable Long userId) {
         return ResponseEntity.ok(bankAccountService.getBankAccountsExceptOwnAccount(userId));
     }
 
@@ -58,13 +47,12 @@ public class BankAccountController {
 
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @GetMapping(params = "status")
-    public ResponseEntity<List<BankAccount>> getBankAccountByStatus(@RequestParam String status) {
+    public ResponseEntity<List<BankAccountResponseDTO>> getBankAccountByStatus(@RequestParam String status) {
         return ResponseEntity.ok(bankAccountService.getBankAccountsByStatus(status));
     }
 
-    //@PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @GetMapping(params = "name")
-    public ResponseEntity<List<BankAccount>> getBankAccountByName(@RequestParam String name) {
+    public ResponseEntity<List<BankAccountResponseDTO>> getBankAccountByName(@RequestParam String name) {
         return ResponseEntity.ok(bankAccountService.getBankAccountsByName(name));
     }
 
@@ -74,9 +62,10 @@ public class BankAccountController {
         return ResponseEntity.status(201).body(bankAccountService.addBankAccount(dto));
     }
 
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @PatchMapping("/{IBAN}")
-    public ResponseEntity<BankAccount> updateBankAccount(@RequestBody BankAccountUpdateDTO dto, @PathVariable String IBAN) {
-        return ResponseEntity.status(201).body(bankAccountService.updateBankAccount(dto, IBAN, userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName())));
+    public ResponseEntity<BankAccountResponseDTO> updateBankAccount(@RequestBody BankAccountUpdateDTO dto, @PathVariable String IBAN) {
+        return ResponseEntity.status(201).body(bankAccountService.updateBankAccount(dto, IBAN));
     }
 
 //    private ResponseEntity handleException(int status, Exception e) {
