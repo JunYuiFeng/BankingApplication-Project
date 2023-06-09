@@ -8,15 +8,14 @@ import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.repositories.UserAccountRepository;
 import nl.inholland.bankingapplication.services.mappers.UserAccountResponseDTOMapper;
 import nl.inholland.bankingapplication.util.JWTTokeProvider;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.naming.AuthenticationException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class UserAccountService {
@@ -34,17 +33,30 @@ public class UserAccountService {
     }
 
     public List<UserAccountResponseDTO> getAllUserAccounts() {
-        return getUserAccountResponseDTOS((List<UserAccount>) userAccountRepository.findAll());
+        try{
+            return getUserAccountResponseDTOS((List<UserAccount>) userAccountRepository.findAll());
+        } catch (EntityNotFoundException e) {
+            throw new EntityNotFoundException("No user accounts found");
+        }
     }
 
 
 
     public List<UserAccountResponseDTO> getAllUserAccountsExceptOne(Long id) {
-        return getUserAccountResponseDTOS(userAccountRepository.getAllUserAccountsExceptOne(id));
+        try{
+            return getUserAccountResponseDTOS(userAccountRepository.getAllUserAccountsExceptOne(id));
+        } catch (EntityNotFoundException e) {
+            throw new EntityNotFoundException("No user accounts found");
+        }
     }
 
     public List<UserAccountResponseDTO> getAllRegisteredUserAccounts() {
-        return getUserAccountResponseDTOS(userAccountRepository.findUserAccountsWithType(UserAccountType.ROLE_USER));
+        try{
+            return getUserAccountResponseDTOS(userAccountRepository.findUserAccountsWithType(UserAccountType.ROLE_USER));
+        } catch (EntityNotFoundException e) {
+            throw new EntityNotFoundException("No user accounts found");
+        }
+
     }
 
     public UserAccount getUserAccountById(Long id) {
@@ -60,43 +72,116 @@ public class UserAccountService {
     }
 
     public UserAccountResponseDTO addUserAccount(UserAccountDTO userAccount) {
-         if(userAccountRepository.findUserAccountByUsername(userAccount.getUsername()).isEmpty()){
-          userAccount.setPassword(bCryptPasswordEncoder.encode(userAccount.getPassword()));
-          UserAccount user = userAccountRepository.save(this.mapDtoToUserAccount(userAccount));
-          return userAccountResponseDTOMapper.apply(user);
+        try {
+            validateFields(userAccount);
+            if (userAccountRepository.findUserAccountByUsername(userAccount.getUsername()).isEmpty()) {
+                userAccount.setPassword(bCryptPasswordEncoder.encode(userAccount.getPassword()));
+                UserAccount user = userAccountRepository.save(this.mapDtoToUserAccount(userAccount));
+                return userAccountResponseDTOMapper.apply(user);
+            } else {
+                throw new IllegalArgumentException("User already exists");
+            }
         }
-         throw new IllegalArgumentException("User already exists");
+        catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
-public UserAccountResponseDTO addPredefinedUserAccount(UserAccountPredefinedDTO userAccount) {
-        if(userAccountRepository.findUserAccountByUsername(userAccount.getUsername()).isEmpty()){
-            userAccount.setPassword(bCryptPasswordEncoder.encode(userAccount.getPassword()));
-            UserAccount user = userAccountRepository.save(this.mapPredefinedDtoToUserAccount(userAccount));
-            return userAccountResponseDTOMapper.apply(user);
+    private void validateFields(UserAccountDTO user) {
+        if (user.getUsername() == null || user.getUsername().isEmpty()) {
+            throw new IllegalArgumentException("Please provide a username");
         }
-        throw new IllegalArgumentException("User already exists");
+
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("Please provide a password");
+        }
+
+        if (user.getFirstName() == null || user.getFirstName().isEmpty()) {
+            throw new IllegalArgumentException("Please provide a first name");
+        }
+
+        if (user.getLastName() == null || user.getLastName().isEmpty()) {
+            throw new IllegalArgumentException("Please provide a last name");
+        }
+
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
+            throw new IllegalArgumentException("Please provide an email");
+        } else {
+            String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+            if (!user.getEmail().matches(emailRegex)) {
+                throw new IllegalArgumentException("Invalid email");
+            }
+        }
+
+        if (user.getPhoneNumber() == null || user.getPhoneNumber().isEmpty()) {
+            throw new IllegalArgumentException("Please provide a phone number");
+        } else {
+            String phoneNumberRegex = "^\\+\\d{2}\\d{9}$";
+            if (!user.getPhoneNumber().matches(phoneNumberRegex)) {
+                throw new IllegalArgumentException("Invalid phone number");
+            }
+        }
+
+        if (Objects.isNull(user.getBsn())) {
+            throw new IllegalArgumentException("Please provide a BSN");
+        } else {
+            String bsnString = String.valueOf(user.getBsn());
+            String bsnRegex = "^\\d{9}$";
+            if (!bsnString.matches(bsnRegex)) {
+                throw new IllegalArgumentException("Invalid BSN");
+            }
+        }
+    }
+
+    public UserAccountResponseDTO addPredefinedUserAccount(UserAccountPredefinedDTO userAccount) {
+        try{
+            if(userAccountRepository.findUserAccountByUsername(userAccount.getUsername()).isEmpty()){
+                userAccount.setPassword(bCryptPasswordEncoder.encode(userAccount.getPassword()));
+                UserAccount user = userAccountRepository.save(this.mapPredefinedDtoToUserAccount(userAccount));
+                return userAccountResponseDTOMapper.apply(user);
+            }
+            else {
+                throw new IllegalArgumentException("User already exists");
+            }
+        } catch (IllegalArgumentException e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
 
 
     public void deleteUserAccount(Long id) {
-        userAccountRepository.deleteById(id);
+        try {
+            if (userAccountRepository.findById(id).get().getBankAccounts().size() > 0 || userAccountRepository.findById(id).get().getType() != UserAccountType.ROLE_USER) {
+                throw new IllegalArgumentException("User with accounts cannot be deleted.");
+            }
+            else {
+                userAccountRepository.deleteById(id);
+            }
+        } catch (EntityNotFoundException e) {
+            throw new EntityNotFoundException("UserAccount not found");
+        }
     }
 
     public UserAccountResponseDTO updateUserAccount(Long id, UserAccountUpdateDTO userAccountDTO) {
-        UserAccount userAccountToUpdate = userAccountRepository
-                .findById(id)
-                .orElseThrow(() -> new RuntimeException("UserAccount not found"));
+        try {
+            UserAccount userAccountToUpdate = userAccountRepository
+                    .findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("UserAccount not found"));
 
-        mapDtoToUserAccountUpdate(userAccountDTO, userAccountToUpdate);
-        UserAccount user = userAccountRepository.save(userAccountToUpdate);
-        return userAccountResponseDTOMapper.apply(user);
+            mapDtoToUserAccountUpdate(userAccountDTO, userAccountToUpdate);
+            UserAccount user = userAccountRepository.save(userAccountToUpdate);
+            return userAccountResponseDTOMapper.apply(user);
+        } catch (Exception e) {
+            throw new DataIntegrityViolationException("Unable to update user account");
+        }
     }
 
     public UserAccountResponseDTO patchUserAccount(Long id, UserAccountPatchDTO userAccountPatchDTO) {
+        try{
             UserAccount userAccountToUpdate = userAccountRepository
                     .findById(id)
-                    .orElseThrow(() -> new RuntimeException("UserAccount not found"));
+                    .orElseThrow(() -> new EntityNotFoundException("UserAccount not found"));
 
             if (Objects.nonNull(userAccountPatchDTO.getStatus())) {
                 userAccountToUpdate.setStatus(userAccountPatchDTO.getStatus());
@@ -108,16 +193,23 @@ public UserAccountResponseDTO addPredefinedUserAccount(UserAccountPredefinedDTO 
 
             UserAccount user = userAccountRepository.save(userAccountToUpdate);
             return userAccountResponseDTOMapper.apply(user);
+        } catch (Exception e) {
+            throw new DataIntegrityViolationException("Unable to patch user account");
+        }
     }
 
     @Scheduled(cron = "0 0 0 * * *") // Execute at midnight every day
     public void updateCurrentDayLimit() {
-        List<UserAccount> userAccounts = new ArrayList<>();
-        userAccountRepository.findAll().forEach(userAccounts::add);
+        try {
+            List<UserAccount> userAccounts = new ArrayList<>();
+            userAccountRepository.findAll().forEach(userAccounts::add);
 
-        userAccounts.stream()
-                .peek(userAccount -> userAccount.setCurrentDayLimit(0)) //peek change the daylimit of each userAccount without transforming the stream
-                .forEach(userAccountRepository::save);
+            userAccounts.stream()
+                    .peek(userAccount -> userAccount.setCurrentDayLimit(0)) //peek change the daylimit of each userAccount without transforming the stream
+                    .forEach(userAccountRepository::save);
+        } catch (Exception e) {
+            throw new DataIntegrityViolationException("Unable to update current day limit");
+        }
     }
 
     private List<UserAccountResponseDTO> getUserAccountResponseDTOS(List<UserAccount> users) {
