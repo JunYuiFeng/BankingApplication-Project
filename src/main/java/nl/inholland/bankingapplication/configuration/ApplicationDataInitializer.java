@@ -84,7 +84,7 @@ public class ApplicationDataInitializer implements ApplicationRunner {
                     new MakeTransactionDTO(accounts.get(4).getIBAN(), accounts.get(2).getIBAN(), 50,"la" ),
                     new MakeTransactionDTO(accounts.get(2).getIBAN(), accounts.get(3).getIBAN(),200,"ta" ),
 
-                    new MakeTransactionDTO(accounts.get(5).getIBAN(), accounts.get(4).getIBAN(),500,"ta" ),
+                    new MakeTransactionDTO(accounts.get(3).getIBAN(), accounts.get(4).getIBAN(),500,"ta" ),
 
                     new MakeTransactionDTO(accounts.get(1).getIBAN(), accounts.get(2).getIBAN(), 10, null)
 
