@@ -217,6 +217,11 @@ public class TransactionService {
 
     private List<Transaction> filterTransactionsResponseForAmount(List<Transaction> transactions, String amount){
         if (amount != null){
+            if (amount.startsWith("<") && amount.startsWith(">")){
+                Double actualAmount = Double.valueOf(amount.replace("<","").replace(">",""));
+                transactions = transactions.stream().filter(t -> t.getAmount() < actualAmount).filter(t -> t.getAmount() > actualAmount).toList();
+            }
+            else
             if(amount.startsWith("<")){
                 Double actualAmount = Double.valueOf(amount.replace("<",""));
                 transactions = transactions.stream().filter(t -> t.getAmount() < actualAmount).toList();
