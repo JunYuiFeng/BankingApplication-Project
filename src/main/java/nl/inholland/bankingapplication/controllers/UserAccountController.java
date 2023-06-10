@@ -76,10 +76,4 @@ public class UserAccountController {
     public ResponseEntity<UserAccountResponseDTO> patchUserAccount(@PathVariable Long id, @RequestBody UserAccountPatchDTO userAccountPatchDTO) {
             return ResponseEntity.status(200).body(userAccountService.patchUserAccount(id, userAccountPatchDTO));
     }
-
-    private ResponseEntity handleException(int status, EntityNotFoundException e) {
-        ExceptionDTO dto = new ExceptionDTO(status, e.getClass().getName(), e.getMessage());
-        return ResponseEntity.status(status).body(dto);
-    }
-
 }

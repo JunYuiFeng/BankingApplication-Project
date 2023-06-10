@@ -224,17 +224,6 @@ public class UserAccountService {
                 .toList();
     }
 
-   /* public UserAccount login(String username, String password) {
-        Optional<UserAccount> userAccount = userAccountRepository.findUserAccountByUsername(username);
-        if (userAccount.isPresent()) {
-            UserAccount user = userAccount.get();
-            if (password.equals(user.getPassword())) {
-                return user;
-            }
-        }
-        return null; // or throw an exception indicating invalid username or password
-    }*/
-
     public String login(String username, String password) throws Exception {
 // See if a user with the provided username exists or throw exception
         UserAccount user = this.userAccountRepository
@@ -253,16 +242,5 @@ public class UserAccountService {
             throw new AuthenticationException("Invalid username/password");
         }
     }
-
-//    public UserAccount login(String username, String password){
-//        //TODO change user account to USER please
-//        UserAccount user = userAccountRepository.findUserAccountByUsername(username);
-//        //once it is hashed, this will be changed
-//        if(password.equals(user.getPassword())){
-//            return user;
-//        }else {
-//            return null;
-//        }
-//    }
 
 }
