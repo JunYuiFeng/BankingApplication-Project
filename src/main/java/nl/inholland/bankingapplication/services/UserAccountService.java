@@ -51,8 +51,6 @@ public class UserAccountService {
         }
     }
 
-
-
     public List<UserAccountResponseDTO> getAllUserAccountsExceptOne(Long id) {
         try{
             return getUserAccountResponseDTOS(userAccountRepository.getAllUserAccountsExceptOne(id));
@@ -83,7 +81,7 @@ public class UserAccountService {
     }
 
     public UserAccountResponseDTO addUserAccount(UserAccountDTO userAccount) {
-        try {
+
             validateFields(userAccount);
             if (userAccountRepository.findUserAccountByUsername(userAccount.getUsername()).isEmpty()) {
                 userAccount.setPassword(bCryptPasswordEncoder.encode(userAccount.getPassword()));
@@ -92,10 +90,6 @@ public class UserAccountService {
             } else {
                 throw new IllegalArgumentException("User already exists");
             }
-        }
-        catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(e.getMessage());
-        }
     }
 
     private void validateFields(UserAccountDTO user) {

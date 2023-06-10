@@ -47,24 +47,6 @@ public class UserAccount {
     @OneToMany(mappedBy = "userAccount", fetch = FetchType.EAGER)
     private List<BankAccount> bankAccounts = new ArrayList<>();
 
-
-
-//    public UserAccount(String firstName, String lastName, String email, String username, String password, String phoneNumber, int bsn) {
-//            this.firstName = firstName;
-//            this.lastName = lastName;
-//            this.email = email;
-//            this.username = username;
-//            this.password = password;
-//            this.type = UserAccountType.ROLE_USER;
-//            this.status = UserAccountStatus.ACTIVE;
-//            this.phoneNumber = phoneNumber;
-//            this.bsn = bsn;
-//            this.dayLimit = 1000;
-//            this.transactionLimit = 250;
-//            this.currentDayLimit = 0;
-//            this.bankAccounts = null;
-//    }
-
     public UserAccount(String firstName, String lastName, String email, String username, String password,  UserAccountType type, UserAccountStatus status, String phoneNumber, int bsn, double dayLimit, double currentDayLimit, double transactionLimit, List<BankAccount> bankAccounts) {
         this.firstName = firstName;
         this.lastName = lastName;
