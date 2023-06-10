@@ -148,22 +148,9 @@ public class BankAccountService {
 
     public BankAccountResponseDTO updateBankAccount(BankAccountUpdateDTO dto, String IBAN) {
         try {
-            BankAccount mappedBankAccount = bankAccountUpdateDTOMapper.apply(dto);
-
             BankAccount bankAccount = this.getBankAccountByIBAN(IBAN);
 
-            if (dto.getStatus() != null) {
-                bankAccount.setStatus(mappedBankAccount.getStatus());
-            }
-
-            if (dto.getAbsoluteLimit() != null) {
-                if (mappedBankAccount.getAbsoluteLimit() < 0) {
-                    throw new DataIntegrityViolationException("Absolute limit can't go below 0");
-                }
-                bankAccount.setAbsoluteLimit(mappedBankAccount.getAbsoluteLimit());
-            }
-
-            return bankAccountResponseDTOMapper.apply(bankAccountRepository.save(bankAccount));
+            return bankAccountResponseDTOMapper.apply(bankAccountRepository.save(bankAccountUpdateDTOMapper.apply(dto, bankAccount)));
         } catch(Exception e) {
             throw new DataIntegrityViolationException("Failed to update bank account: " + e);
         }
