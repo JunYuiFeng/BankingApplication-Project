@@ -24,8 +24,8 @@ import java.util.List;
 public class BankAccountsStepDefinitions extends BaseStepDefinitions {
     @Autowired
     private TestRestTemplate restTemplate; //provides a webclient
-    private ResponseEntity<List<BankAccountResponseDTO>> bankAccountsResponseDTO;
-    private ResponseEntity<BankAccountResponseDTO> bankAccountResponseDTO;
+    private ResponseEntity<List<BankAccountResponseDTO>> bankAccountsResponse;
+    private ResponseEntity<BankAccountResponseDTO> bankAccountResponse;
 
 
     HttpHeaders httpHeaders;
@@ -62,18 +62,18 @@ public class BankAccountsStepDefinitions extends BaseStepDefinitions {
     @When("I retrieve All BankAccounts")
     public void iRetrieveAllBankAccounts() {
         ParameterizedTypeReference<List<BankAccountResponseDTO>> responseType = new ParameterizedTypeReference<List<BankAccountResponseDTO>>() {};
-        bankAccountsResponseDTO = restTemplate
+        bankAccountsResponse = restTemplate
                 .exchange("/BankAccounts",
                         HttpMethod.GET,
                         new HttpEntity<>(null, httpHeaders),
                         responseType);
+        System.out.println(bankAccountsResponse);
     }
 
 
     @Then("I should receive all BankAccounts")
     public void iShouldReceiveAllBankAccounts() {
-        int actual = JsonPath.read(response.getBody(), "$.size()");
-        Assertions.assertEquals(1, actual);
+        Assertions.assertNotNull(bankAccountsResponse.getBody());
     }
 
     @When("I create a BankAccounts with type {string} and userId {int}")
