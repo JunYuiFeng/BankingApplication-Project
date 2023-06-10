@@ -10,8 +10,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
-
 @EnableMethodSecurity
 @EnableWebSecurity
 @Configuration
@@ -46,17 +44,18 @@ public class WebSecurityConf {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.csrf().disable().cors();
+        httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        httpSecurity
-                .cors().and() // Enable CORS configuration
-                .csrf((csrf -> csrf.ignoringRequestMatchers("/*")))
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/login", "/Transactions/**").permitAll()
-                        .requestMatchers(toH2Console()).permitAll()
-                        .anyRequest().authenticated())
-                // We ensure our own filter is executed before the framework runs its own authentication filter code
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.authorizeHttpRequests()
+                .requestMatchers("/login").permitAll()
+                .requestMatchers("/UserAccounts/register").permitAll()
+                //.requestMatchers("/BankAccounts").permitAll()
+                //.requestMatchers("/UserAccounts/{id}").permitAll()
+                .anyRequest().authenticated();
+
+// We ensure our own filter is executed before the framework runs its own authentication filter code
+        httpSecurity.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
     }

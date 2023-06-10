@@ -3,13 +3,12 @@ package nl.inholland.bankingapplication.services;
 import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.Transaction;
 import nl.inholland.bankingapplication.models.UserAccount;
-import nl.inholland.bankingapplication.models.dto.MakeTransactionDTO;
-import nl.inholland.bankingapplication.models.dto.TransactionResponseDTO;
-import nl.inholland.bankingapplication.models.dto.UserAccountUpdateDTO;
+import nl.inholland.bankingapplication.models.dto.*;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.repositories.TransactionRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Example;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -33,7 +32,7 @@ public class TransactionService {
         this.bankAccountService = bankAccountService;
     }
 
-    public List<Transaction> getAllTransactions(UserAccount user, Integer userId,String IBANFrom, String IBANTo, Timestamp dateFrom, Timestamp dateTo, String amount) {
+    public List<Transaction> getAllTransactions(UserAccount user, Integer userId,String IBANFrom, String IBANTo, Timestamp dateFrom, Timestamp dateTo, List<String> amount) {
 
         //This is such a dumb hack but hey I have to know if it is empty or not
 
@@ -81,70 +80,84 @@ public class TransactionService {
         //this method is such a mess, good luck reading this ♡♡ Cody.
         //I added comments to see if it helped with readability, but it really didn't f.
 
-        List<BankAccount> bankAccountsOfUser = bankAccountService.getBankAccountByUserAccountId(user.getId());
+        List<BankAccount> bankAccountsOfUser = bankAccountService.getBankAccountsByUserAccountId(user.getId());
         Transaction transaction = mapMakeTransactionDtoToTransaction(makeTransactionDTO);
 
         if (transaction.getAccountFrom().getStatus() == BankAccountStatus.INACTIVE || transaction.getAccountTo().getStatus() == BankAccountStatus.INACTIVE){
-            throw new ResponseStatusException(401,"one of the bankaccounts are de-activated",null);
+            throw new ResponseStatusException(403,"one of the bankaccounts are de-activated",null);
         }
 
         //this if checks if the employee is logged in and if yes the transaction goes through no matter what
         if (Objects.equals(user.getType(), UserAccountType.ROLE_EMPLOYEE)){
             return finalizeTransaction(transaction, user);
         }
-        for (BankAccount b: bankAccountsOfUser
-             ) {
-            System.out.println(b.getIBAN());
-        }
-
-        System.out.println(transaction.getAccountFrom().getIBAN());
-
         //this if checks if a transaction is made between savings accounts.
-        if (checkBankAccountType(transaction.getAccountFrom(), BankAccountType.SAVINGS) && checkBankAccountType(transaction.getAccountFrom(), BankAccountType.SAVINGS)){
-            throw new ResponseStatusException(401,"cant make a transaction between savings accounts",null);
+        if (checkBankAccountType(transaction.getAccountFrom(), BankAccountType.SAVINGS) && checkBankAccountType(transaction.getAccountTo(), BankAccountType.SAVINGS)){
+            throw new ResponseStatusException(403,"cant make a transaction between savings accounts",null);
         }
 
         //the first if checks if the owner of the account is indeed making the transaction.
         if (bankAccountsOfUser.stream().anyMatch(b -> b.getIBAN().equals(transaction.getAccountFrom().getIBAN()))){
 
             //this if checks if the account to is a savings account
-            if (checkBankAccountType(transaction.accountFrom, BankAccountType.SAVINGS)) {
+            if (checkBankAccountType(transaction.getAccountFrom(), BankAccountType.SAVINGS)) {
 
                 // this if checks if the savings account is owned by the user
-                if (checkIfBankAccountIsOwnedByUser(transaction.getAccountTo(), user)){
-                    return finalizeTransaction(transaction, user);
-                }
-                else {
-                    throw new ResponseStatusException(401,"Can't make a transaction to a savings account you don't own",null);
 
-                }
-            }
-            // this if checks if the account is from a savings account.
-            if (checkBankAccountType(transaction.accountTo, BankAccountType.SAVINGS)){
-
-                //this if checks if the account to is owned by the user.
                 if (checkIfBankAccountIsOwnedByUser(transaction.getAccountFrom(), user)){
                     return finalizeTransaction(transaction, user);
                 }
                 else {
-                    throw new ResponseStatusException(401,"Can't make a transaction to a savings account you don't own",null);
+                    throw new ResponseStatusException(403,"Can't make a transaction to a savings account you don't own",null);
+                }
+            }
+            // this if checks if the account is from a savings account.
+            if (checkBankAccountType(transaction.getAccountTo(), BankAccountType.SAVINGS)){
+
+                //this if checks if the account to is owned by the user.
+                if (checkIfBankAccountIsOwnedByUser(transaction.getAccountTo(), user)){
+                    return finalizeTransaction(transaction, user);
+                }
+                else {
+                    throw new ResponseStatusException(403,"Can't make a transaction to a savings account you don't own",null);
 
                 }
             }
             return finalizeTransaction(transaction, user);
         }
         else {
-            throw new ResponseStatusException(401,"you don't own the bankaccount you are making the transaction with",null);
+            throw new ResponseStatusException(403,"you don't own the bankaccount you are making the transaction with",null);
 
         }
+    }
+
+    public TransactionResponseDTO makeDeposit(WithdrawalAndDepositRequestDTO dto, UserAccount user){
+        if (checkIfBankAccountIsOwnedByUser(bankAccountService.getBankAccountByIBAN(dto.getIBAN()),user)){
+            return mapTransactionTOTransactionResponseDTO(saveTransaction(mapDepositRequestDtoToTransaction(dto)));
+        }
+        else {
+            throw new ResponseStatusException(403, "You are not allowed to make deposits with bank-accounts you don't own",null);
+        }
+
+    }
+
+    public TransactionResponseDTO makeWithdrawal(WithdrawalAndDepositRequestDTO dto, UserAccount user){
+        checkDayLimit(mapWithdrawalRequestDtoToTransaction(dto), user);
+        if (checkIfBankAccountIsOwnedByUser(bankAccountService.getBankAccountByIBAN(dto.getIBAN()),user)){
+            return mapTransactionTOTransactionResponseDTO(saveTransaction(mapWithdrawalRequestDtoToTransaction(dto)));
+        }
+        else {
+            throw new ResponseStatusException(403, "You are not allowed to make withdrawals with bank-accounts you don't own",null);
+        }
+
     }
 
     private TransactionResponseDTO finalizeTransaction(Transaction transaction, UserAccount user) throws ResponseStatusException {
         if (!Objects.equals(user.getType(), UserAccountType.ROLE_EMPLOYEE)) {
             checkDayLimit(transaction, user);
-            checkTransactionLimit(user);
-            checkAbsoluteLimit(transaction);
+            checkTransactionLimit(transaction, user);
         }
+        checkAbsoluteLimit(transaction);
         Transaction transaction1 = saveTransaction(transaction);
         return mapTransactionTOTransactionResponseDTO(transaction1);
     }
@@ -158,33 +171,29 @@ public class TransactionService {
 
     private void checkAbsoluteLimit(Transaction transaction) throws ResponseStatusException {
         if (transaction.getAccountFrom().getBalance() - transaction.getAmount() < transaction.getAccountFrom().getAbsoluteLimit()) {
-            throw new ResponseStatusException(401,"with this transaction you will pass the absolute limit of your account",null);
+            throw new DataIntegrityViolationException("with this transaction you will pass the absolute limit of your account");
         }
     }
 
-    private void checkTransactionLimit(UserAccount user) throws ResponseStatusException {
-        if (user.getCurrentTransactionLimit() >= user.getTransactionLimit()){
-            throw new ResponseStatusException(401,"you have passed your transaction limit",null);
-        }
-        else {
-            user.setCurrentTransactionLimit(user.getCurrentTransactionLimit() + 1);
-            userAccountService.updateUserAccount(user.getId().longValue(), new UserAccountUpdateDTO(user.getFirstName(),user.getLastName(),user.getEmail(),user.getUsername(),user.getType(),user.getPhoneNumber(),user.getBsn(),user.getDayLimit(),user.getCurrentDayLimit(),user.getTransactionLimit(),user.getCurrentTransactionLimit()));
+    private void checkTransactionLimit(Transaction transaction, UserAccount user) throws ResponseStatusException {
+        if (transaction.getAmount() > user.getTransactionLimit()){
+            throw new DataIntegrityViolationException("this transactions passes you transaction limit");
         }
     }
 
-    private void checkDayLimit(Transaction transaction, UserAccount user) throws ResponseStatusException {
+    private void checkDayLimit(Transaction transaction, UserAccount user) {
         if (user.getCurrentDayLimit() >= user.getDayLimit()){
-            throw new ResponseStatusException(401,"passed your day limit",null);
+            throw new DataIntegrityViolationException("passed your day limit");
 
         }
         else {
             if (user.getCurrentDayLimit() + transaction.getAmount() >= user.getDayLimit()){
-                throw new ResponseStatusException(401,"you are passing your day limit lower the amount of the transaction to proceed",null);
+                throw new DataIntegrityViolationException("you are passing your day limit lower the amount of the transaction to proceed");
 
             }
             else {
                 user.setCurrentDayLimit(user.getCurrentDayLimit() + transaction.getAmount());
-                userAccountService.updateUserAccount(user.getId().longValue(), new UserAccountUpdateDTO(user.getFirstName(),user.getLastName(),user.getEmail(),user.getUsername(),user.getType(),user.getPhoneNumber(),user.getBsn(),user.getDayLimit(),user.getCurrentDayLimit(),user.getTransactionLimit(),user.getCurrentTransactionLimit()));
+                userAccountService.patchUserAccount(user.getId().longValue(), new UserAccountPatchDTO(user.getStatus(),user.getCurrentDayLimit()));
             }
         }
     }
@@ -194,12 +203,21 @@ public class TransactionService {
     }
 
     private Boolean checkIfBankAccountIsOwnedByUser(BankAccount bankAccount, UserAccount userAccount){
-        return bankAccount.getUserAccount().equals(userAccount);
+        return bankAccount.getUserAccount().getId().equals(userAccount.getId());
     }
 
     private Transaction mapMakeTransactionDtoToTransaction(MakeTransactionDTO dto){
         Date date = new Date();
         return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountByIBAN(dto.getAccountFrom()), bankAccountService.getBankAccountByIBAN(dto.getAccountTo()), dto.getDescription(), new Timestamp(date.getTime()));
+    }
+
+    private Transaction mapWithdrawalRequestDtoToTransaction(WithdrawalAndDepositRequestDTO dto){
+        Date date = new Date();
+        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountByIBAN(dto.getIBAN()),bankAccountService.getBankAccountsByUserAccountId(1L).get(0),"Withdrawal", new Timestamp(date.getTime()));
+    }
+    private Transaction mapDepositRequestDtoToTransaction(WithdrawalAndDepositRequestDTO dto){
+        Date date = new Date();
+        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountsByUserAccountId(1L).get(0),bankAccountService.getBankAccountByIBAN(dto.getIBAN()),"Withdrawal", new Timestamp(date.getTime()));
     }
 
     private List<Transaction> filterTransactionResponseForDates(List<Transaction> transactions, Timestamp dateFrom, Timestamp dateTo){
@@ -215,23 +233,24 @@ public class TransactionService {
         return transactions;
     }
 
-    private List<Transaction> filterTransactionsResponseForAmount(List<Transaction> transactions, String amount){
+    private List<Transaction> filterTransactionsResponseForAmount(List<Transaction> transactions, List<String> amount){
         if (amount != null){
-            if (amount.startsWith("<") && amount.startsWith(">")){
-                Double actualAmount = Double.valueOf(amount.replace("<","").replace(">",""));
-                transactions = transactions.stream().filter(t -> t.getAmount() < actualAmount).filter(t -> t.getAmount() > actualAmount).toList();
+            if(amount.get(0).startsWith("<") && amount.get(0).startsWith(">",1)){
+                Double actualAmount = Double.valueOf(amount.get(0).replace("<","").replace(">",""));
+                Double actualAmount2 = Double.valueOf(amount.get(1));
+                transactions = transactions.stream().filter(t -> t.getAmount() > actualAmount).filter(t -> t.getAmount() < actualAmount2).toList();
             }
             else
-            if(amount.startsWith("<")){
-                Double actualAmount = Double.valueOf(amount.replace("<",""));
+            if(amount.get(0).startsWith("<")){
+                Double actualAmount = Double.valueOf(amount.get(0).replace("<",""));
                 transactions = transactions.stream().filter(t -> t.getAmount() < actualAmount).toList();
             }
-            else if (amount.startsWith(">")){
-                Double actualAmount = Double.valueOf(amount.replace(">",""));
+            else if (amount.get(0).startsWith(">")){
+                Double actualAmount = Double.valueOf(amount.get(0).replace(">",""));
                 transactions = transactions.stream().filter(t -> t.getAmount() > actualAmount).toList();
             }
             else{
-                Double actualAmount = Double.valueOf(amount);
+                Double actualAmount = Double.valueOf(amount.get(0));
                 transactions = transactions.stream().filter(t -> t.getAmount().equals(actualAmount)).toList();
             }
 

@@ -12,6 +12,8 @@ import nl.inholland.bankingapplication.models.enums.BankAccountType;
 public class BankAccountPredefinedDTO {
     private String IBAN;
     private BankAccountType type;
+    private BankAccountStatus status;
     private double balance;
+    private double absoluteLimit;
     private Long userId;
 }

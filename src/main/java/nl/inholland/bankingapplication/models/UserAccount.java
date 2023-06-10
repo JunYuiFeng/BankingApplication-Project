@@ -1,10 +1,10 @@
 package nl.inholland.bankingapplication.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import nl.inholland.bankingapplication.models.enums.UserAccountStatus;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 
 import java.util.ArrayList;
@@ -31,6 +31,8 @@ public class UserAccount {
     //@ElementCollection(fetch = FetchType.EAGER)
     private UserAccountType type;
 
+    private UserAccountStatus status;
+
     private String phoneNumber;
 
     private int bsn;
@@ -41,26 +43,23 @@ public class UserAccount {
 
     private double transactionLimit;
 
-    private double currentTransactionLimit;
 
     @OneToMany(mappedBy = "userAccount", fetch = FetchType.EAGER)
     private List<BankAccount> bankAccounts = new ArrayList<>();
 
-
-
-    public UserAccount(String firstName, String lastName, String email, String username, String password, UserAccountType type, String phoneNumber, int bsn, double dayLimit, double transactionLimit, List<BankAccount> bankAccounts) {
-            this.firstName = firstName;
-            this.lastName = lastName;
-            this.email = email;
-            this.username = username;
-            this.password = password;
-            this.type = type;
-            this.phoneNumber = phoneNumber;
-            this.bsn = bsn;
-            this.dayLimit = dayLimit;
-            this.transactionLimit = transactionLimit;
-            this.bankAccounts = bankAccounts;
-            this.currentDayLimit=0;
-            this.currentTransactionLimit=0;
+    public UserAccount(String firstName, String lastName, String email, String username, String password,  UserAccountType type, UserAccountStatus status, String phoneNumber, int bsn, double dayLimit, double currentDayLimit, double transactionLimit, List<BankAccount> bankAccounts) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.username = username;
+        this.password = password;
+        this.type = type;
+        this.status = status;
+        this.phoneNumber = phoneNumber;
+        this.bsn = bsn;
+        this.dayLimit = dayLimit;
+        this.currentDayLimit = currentDayLimit;
+        this.transactionLimit = transactionLimit;
+        this.bankAccounts = bankAccounts;
     }
 }

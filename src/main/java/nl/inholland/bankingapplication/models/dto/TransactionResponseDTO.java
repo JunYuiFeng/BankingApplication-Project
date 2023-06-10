@@ -1,9 +1,11 @@
 package nl.inholland.bankingapplication.models.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import java.sql.Timestamp;
 @AllArgsConstructor
+@Data
 public class TransactionResponseDTO {
     public Long id;
     public Double amount;

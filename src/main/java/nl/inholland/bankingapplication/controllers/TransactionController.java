@@ -1,20 +1,18 @@
 package nl.inholland.bankingapplication.controllers;
 
-import nl.inholland.bankingapplication.models.Transaction;
-import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.ExceptionDTO;
 import nl.inholland.bankingapplication.models.dto.MakeTransactionDTO;
 import nl.inholland.bankingapplication.models.dto.TransactionResponseDTO;
+import nl.inholland.bankingapplication.models.dto.WithdrawalAndDepositRequestDTO;
 import nl.inholland.bankingapplication.services.TransactionService;
 import nl.inholland.bankingapplication.services.UserAccountService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -30,7 +28,7 @@ public class TransactionController {
 
     @GetMapping()
 
-    public ResponseEntity GetAllTransactions(@RequestParam(required = false) Integer userId, @RequestParam(required = false) String IBANFrom ,@RequestParam(required = false) String IBANTo,@RequestParam(required = false) Timestamp dateFrom,@RequestParam(required = false) Timestamp dateTo ,@RequestParam(required = false) String amount){
+    public ResponseEntity GetAllTransactions(@RequestParam(required = false) Integer userId, @RequestParam(required = false) String IBANFrom ,@RequestParam(required = false) String IBANTo,@RequestParam(required = false) Timestamp dateFrom,@RequestParam(required = false) Timestamp dateTo ,@RequestParam(required = false) List<String> amount){
         try{
             return ResponseEntity.ok(transactionService.getAllTransactions(userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()),userId, IBANFrom, IBANTo, dateFrom, dateTo, amount));
         }
@@ -47,9 +45,21 @@ public class TransactionController {
             return handleException(e.getStatusCode().value(), e);
         }
     }
+    @PostMapping("Deposit")
+    public ResponseEntity<TransactionResponseDTO> Deposit(@RequestBody WithdrawalAndDepositRequestDTO withdrawalAndDepositRequestDTO){
+        try{
+            return ResponseEntity.status(201).body(transactionService.makeDeposit(withdrawalAndDepositRequestDTO, userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName())));
+        } catch (ResponseStatusException e) {return handleException(e.getStatusCode().value(),e);}
+    }
+    @PostMapping("Withdrawal")
+    public ResponseEntity<TransactionResponseDTO> Withdrawal(@RequestBody WithdrawalAndDepositRequestDTO withdrawalAndDepositRequestDTO){
+        try{
+            return ResponseEntity.status(201).body(transactionService.makeWithdrawal(withdrawalAndDepositRequestDTO, userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName())));
+        } catch (ResponseStatusException e) {return handleException(e.getStatusCode().value(),e);}
+    }
 
     private ResponseEntity handleException(int status, Exception e) {
-        ExceptionDTO dto = new ExceptionDTO(e.getClass().getName(), e.getMessage());
+        ExceptionDTO dto = new ExceptionDTO(status, e.getClass().getName(), e.getMessage());
         return ResponseEntity.status(status).body(dto);
     }
 }

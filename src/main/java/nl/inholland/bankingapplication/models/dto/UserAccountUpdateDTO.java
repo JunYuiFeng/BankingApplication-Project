@@ -3,10 +3,8 @@ package nl.inholland.bankingapplication.models.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import nl.inholland.bankingapplication.models.enums.UserAccountStatus;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,9 +18,7 @@ public class UserAccountUpdateDTO {
     private String phoneNumber;
     private int bsn;
     private double dayLimit;
-    private double currentDayLimit;
     private double transactionLimit;
-    private double currentTransactionLimit;
 
     public UserAccountType getTypeIgnoreCase() {
         return UserAccountType.valueOf(type.toString().toUpperCase());

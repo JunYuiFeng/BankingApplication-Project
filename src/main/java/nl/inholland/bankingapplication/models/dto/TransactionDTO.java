@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.UserAccount;
 
-
 import java.sql.Timestamp;
 
 @AllArgsConstructor
