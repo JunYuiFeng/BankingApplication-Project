@@ -5,5 +5,3 @@ Usrc/main/java/nl/inholland/bankingapplication/repositories/TransactionRepositor
 Psrc/main/java/nl/inholland/bankingapplication/models/dto/MakeTransactionDTO.java,6/c/6c4adf1c91403395e2259abfb6b06f940774fb63
 €
 Psrc/main/java/nl/inholland/bankingapplication/BankingapplicationApplication.java,0/7/0718d10a68c86df3eda21aaa2328c545f2e45cc9
-7
-pom.xml,4/4/442292b8a7efeabbe4cc176709b833b1792140ec

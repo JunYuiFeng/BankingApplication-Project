@@ -67,9 +67,4 @@ public class BankAccountController {
     public ResponseEntity<BankAccountResponseDTO> updateBankAccount(@RequestBody BankAccountUpdateDTO dto, @PathVariable String IBAN) {
         return ResponseEntity.status(201).body(bankAccountService.updateBankAccount(dto, IBAN));
     }
-
-//    private ResponseEntity handleException(int status, Exception e) {
-//        ExceptionDTO dto = new ExceptionDTO(status, e.getClass().getName(), e.getMessage());
-//        return ResponseEntity.status(status).body(dto);
-//    }
 }
