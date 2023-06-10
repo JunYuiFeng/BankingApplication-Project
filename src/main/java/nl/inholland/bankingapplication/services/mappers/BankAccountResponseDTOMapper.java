@@ -3,7 +3,6 @@ package nl.inholland.bankingapplication.services.mappers;
 import nl.inholland.bankingapplication.models.BankAccount;
 import nl.inholland.bankingapplication.models.dto.BankAccountResponseDTO;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.function.Function;
 

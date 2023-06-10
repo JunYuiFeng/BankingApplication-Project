@@ -42,13 +42,13 @@ public class BankAccountService {
     }
 
     public List<BankAccountResponseDTO> getAllBankAccounts() {
+        List<BankAccount> bankAccounts = (List<BankAccount>) bankAccountRepository.findAll();
+
+        if (bankAccounts.isEmpty()) {
+            throw new EntityNotFoundException("No bank accounts found.");
+        }
+
         try {
-            List<BankAccount> bankAccounts = (List<BankAccount>) bankAccountRepository.findAll();
-
-            if (bankAccounts.isEmpty()) {
-                throw new EntityNotFoundException("No bank accounts found.");
-            }
-
             return bankAccounts.stream()
                     .map(bankAccountResponseDTOMapper)
                     .collect(Collectors.toList());
@@ -57,15 +57,14 @@ public class BankAccountService {
         }
     }
 
-
     public List<BankAccountResponseDTO> getBankAccountsExceptOwnAccount(Long userId) {
+        List<BankAccount> bankAccounts = bankAccountRepository.findAllExceptOwnAccount(userAccountService.getUserAccountById(userId)); //already returns a list so no need to cast
+
+        if (bankAccounts.isEmpty()) {
+            throw new EntityNotFoundException("No bank accounts found.");
+        }
+
         try {
-            List<BankAccount> bankAccounts = bankAccountRepository.findAllExceptOwnAccount(userAccountService.getUserAccountById(userId)); //already returns a list so no need to cast
-
-            if (bankAccounts.isEmpty()) {
-                throw new EntityNotFoundException("No bank accounts found.");
-            }
-
             return bankAccounts.stream()
                     .map(bankAccountResponseDTOMapper)
                     .collect(Collectors.toList());
@@ -82,17 +81,17 @@ public class BankAccountService {
     public List<BankAccount> getBankAccountsByUserAccountId(Long id) {
         List<BankAccount> bankAccounts = bankAccountRepository.findBankAccountByUserAccountId(id);
         if (bankAccounts.isEmpty()) {
-            throw new EntityNotFoundException("Bank accounts not found");
+            throw new EntityNotFoundException("Bank accounts not found with UserAccountId " + id);
         }
         return bankAccounts;
     }
 
     public List<BankAccountResponseDTO> getBankAccountsByStatus(String status) {
+        List<BankAccount> bankAccounts = bankAccountRepository.findBankAccountByStatus(BankAccountStatus.valueOf(status.toUpperCase()));
+        if (bankAccounts.isEmpty()) {
+            throw new EntityNotFoundException("No bank accounts found with status " + status);
+        }
         try {
-            List<BankAccount> bankAccounts = bankAccountRepository.findBankAccountByStatus(BankAccountStatus.valueOf(status.toUpperCase()));
-            if (bankAccounts.isEmpty()) {
-                throw new EntityNotFoundException("No bank accounts found with status " + status);
-            }
             return bankAccounts.stream()
                     .map(bankAccountResponseDTOMapper)
                     .collect(Collectors.toList());
@@ -102,11 +101,11 @@ public class BankAccountService {
     }
 
     public List<BankAccountResponseDTO> getBankAccountsByName(String name) {
+        List<BankAccount> bankAccounts = bankAccountRepository.findBankAccountByUserAccountFirstNameIgnoreCaseOrUserAccountLastNameIgnoreCase(name, name);
+        if (bankAccounts.isEmpty()) {
+            throw new EntityNotFoundException("No bank accounts found with name '" + name + "'");
+        }
         try {
-            List<BankAccount> bankAccounts = bankAccountRepository.findBankAccountByUserAccountFirstNameIgnoreCaseOrUserAccountLastNameIgnoreCase(name, name);
-            if (bankAccounts.isEmpty()) {
-                throw new EntityNotFoundException("No bank accounts found with name '" + name + "'");
-            }
             return bankAccounts.stream()
                     .map(bankAccountResponseDTOMapper)
                     .collect(Collectors.toList());
@@ -119,11 +118,11 @@ public class BankAccountService {
         return bankAccountRepository.existsByUserAccountIdAndType(userId, BankAccountType.SAVINGS);
     }
     public BankAccountResponseDTO addBankAccount(BankAccountRegisterDTO dto) {
-        try {
-            if (this.hasSavingsAccount(dto.getUserId()) && dto.getType().equals(BankAccountType.SAVINGS)) {
-                throw new DataIntegrityViolationException("User already has a savings account, only 1 savings account can be created");
-            }
+        if (this.hasSavingsAccount(dto.getUserId()) && dto.getType().equals(BankAccountType.SAVINGS)) {
+            throw new DataIntegrityViolationException("User already has a savings account, only 1 savings account can be created");
+        }
 
+        try {
             BankAccount bankAccount = bankAccountRegisterDTOMapper.apply(dto);
             bankAccount.setStatus(BankAccountStatus.ACTIVE);
             bankAccount.setBalance(0);
@@ -145,12 +144,11 @@ public class BankAccountService {
         }
     }
 
-
     public BankAccountResponseDTO updateBankAccount(BankAccountUpdateDTO dto, String IBAN) {
+        BankAccount bankAccount = this.getBankAccountByIBAN(IBAN);
+        BankAccount mappedBankAccount = bankAccountUpdateDTOMapper.apply(dto, bankAccount);
         try {
-            BankAccount bankAccount = this.getBankAccountByIBAN(IBAN);
-
-            return bankAccountResponseDTOMapper.apply(bankAccountRepository.save(bankAccountUpdateDTOMapper.apply(dto, bankAccount)));
+            return bankAccountResponseDTOMapper.apply(bankAccountRepository.save(mappedBankAccount));
         } catch(Exception e) {
             throw new DataIntegrityViolationException("Failed to update bank account: " + e);
         }
