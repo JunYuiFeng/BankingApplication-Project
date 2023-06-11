@@ -13,6 +13,6 @@ Feature: BankAccounts CRUD operations
 
   Scenario: Update bank account
     Given The endpoint for "BankAccounts/{IBAN}" is available for method "PATCH"
-    When I update a BankAccounts with status "ACTIVE"
+    When I update a BankAccount with IBAN "NL71RABO3667086008" to status "ACTIVE"
     Then The response status is 201
     And The status is "ACTIVE"

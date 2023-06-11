@@ -48,7 +48,7 @@ public class BankAccountController {
     public ResponseEntity<List<BankAccountResponseDTO>> getBankAccountByStatus(@RequestParam String status) {
         return ResponseEntity.ok(bankAccountService.getBankAccountsByStatus(status));
     }
-
+    @PreAuthorize("hasAnyRole('ROLE_EMPLOYEE', 'ROLE_USER', 'ROLE_CUSTOMER')")
     @GetMapping(params = "name")
     public ResponseEntity<List<BankAccountResponseDTO>> getBankAccountByName(@RequestParam String name) {
         return ResponseEntity.ok(bankAccountService.getBankAccountsByName(name));
@@ -61,7 +61,7 @@ public class BankAccountController {
     }
 
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
-    @PatchMapping("/{IBAN}")
+    @PatchMapping("{IBAN}")
     public ResponseEntity<BankAccountResponseDTO> updateBankAccount(@RequestBody BankAccountUpdateDTO dto, @PathVariable String IBAN) {
         return ResponseEntity.status(201).body(bankAccountService.updateBankAccount(dto, IBAN));
     }
