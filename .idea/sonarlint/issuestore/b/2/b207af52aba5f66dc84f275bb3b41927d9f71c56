@@ -1,0 +1,25 @@
+
+r	java:S117#"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(”ñöÿÿÿÿÿ8£­€Š1
+r	java:S117#"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(”ñöÿÿÿÿÿ8£­€Š1
+L
+java:S5411g"*Use the primitive boolean expression here.(º€¤Îÿÿÿÿÿ8©­€Š1
+G
+java:S5411k"*Use the primitive boolean expression here.(ê“†8©­€Š1
+L
+java:S5411s"*Use the primitive boolean expression here.(Û“©“ùÿÿÿÿ8ª­€Š1
+L
+java:S5411v"*Use the primitive boolean expression here.(‡Æ¨şÿÿÿÿ8ª­€Š1
+M
+java:S5411‡"*Use the primitive boolean expression here.(Ş–ôÌÿÿÿÿÿ8ª­€Š1
+M
+java:S5411’"*Use the primitive boolean expression here.(Ş–ôÌÿÿÿÿÿ8ª­€Š1
+‡
+java:S41655"jRemove this useless assignment; "transactions" already holds the assigned value along all execution paths.(ûî‚…8Î­€Š1
+Œ
+java:S41659"jRemove this useless assignment; "transactions" already holds the assigned value along all execution paths.(şŠ‰Ôüÿÿÿÿ8Î­€Š1
+E
+java:S2114I"(Remove or correct this "removeAll" call.(ÊÉ¯‚8ÿ­€Š1
+o
+java:S3776O"RRefactor this method to reduce its Cognitive Complexity from 19 to the 15 allowed.(ÇĞ™8­€Š1
+C
+java:S2153Ä" Remove the unboxing from "Long".(¨ëüÉùÿÿÿÿ8—­€Š1

@@ -7,18 +7,14 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import nl.inholland.bankingapplication.models.BankAccount;
-import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.models.dto.*;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import com.jayway.jsonpath.JsonPath;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -105,18 +101,24 @@ public class BankAccountsStepDefinitions extends BaseStepDefinitions {
     }
 
     @When("I update a BankAccount with IBAN {string} to status {string}")
-    public void iUpdateABankAccountWithIBANToStatus(String IBAN, String status) throws JsonProcessingException{
+    public void iUpdateABankAccountWithIBANToStatus(String IBAN, String status) throws JsonProcessingException {
         BankAccountUpdateDTO bankAccountUpdateDTO = new BankAccountUpdateDTO();
         bankAccountUpdateDTO.setStatus(status);
 
-        httpHeaders.add("Content-Type", "application/json");
-        response = restTemplate.exchange("/BankAccounts/{IBAN}" + IBAN,
-                HttpMethod.PATCH,
-                new HttpEntity<>(
-                        mapper.writeValueAsString(bankAccountUpdateDTO),
-                        httpHeaders
-                ), String.class);
+        LoginDTO loginDTO = new LoginDTO("KarenWinter", "secret123");
+        ResponseEntity<LoginResponseDTO> loginResponse = restTemplate.postForEntity("/login", loginDTO, LoginResponseDTO.class);
+        String token = loginResponse.getBody().token();
+
+        httpHeaders.setBearerAuth(token);
+
+        String endpointUrl = "/BankAccounts/" + IBAN;
+
+        HttpEntity<BankAccountUpdateDTO> requestEntity = new HttpEntity<>(bankAccountUpdateDTO, httpHeaders);
+
+        response = restTemplate.exchange(endpointUrl, HttpMethod.PATCH, requestEntity, String.class);
     }
+
+
 
     @And("The status is {string}")
     public void theStatusIs(String status) throws JsonProcessingException {
