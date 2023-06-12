@@ -1,20 +1,18 @@
 FROM ubuntu:latest AS build
 RUN apt-get update
-RUN apt-get install openjdk-17-jdk -y
-# Set the working directory inside the container
+# Stage 1: Build the Maven project
+FROM maven:3.8.4-openjdk-17-slim AS build
 WORKDIR /app
 
-# Copy the entire project to the container's working directory
-COPY . .
+COPY . /app
+RUN mvn clean install -U
 
-# Give executable permission to the mvnw script
-RUN chmod +x mvnw
+# Stage 2: Create the final Docker image
+FROM openjdk:17-jdk
+WORKDIR /app
 
-# Run the Maven build command
-RUN ./mvnw install -U
+COPY --from=build /app/target/*.jar /app/app.jar
 
-# Expose the desired port
 EXPOSE 8080
 
-# Set the entry point command
-ENTRYPOINT ["./mvnw", "spring-boot:run"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

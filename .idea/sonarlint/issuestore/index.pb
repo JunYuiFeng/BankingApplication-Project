@@ -27,8 +27,6 @@ Tsrc/main/java/nl/inholland/bankingapplication/models/dto/BankAccountRegisterDTO
 Tsrc/main/java/nl/inholland/bankingapplication/controllers/UserAccountController.java,9/6/96862d0cf5fdd893e02e90a663637f206d1d7123
 ’
 bsrc/main/java/nl/inholland/bankingapplication/services/mappers/BankAccountPredefinedDTOMapper.java,4/a/4a045a215cff8f322f92c626ce796d504058b5d7
-7
-pom.xml,4/4/442292b8a7efeabbe4cc176709b833b1792140ec
 …
 Usrc/test/java/nl/inholland/bankingapplication/BankingapplicationApplicationTests.java,a/3/a320e1a97a1aaa656bf32c67e92779e6b91b4d8f
 …
