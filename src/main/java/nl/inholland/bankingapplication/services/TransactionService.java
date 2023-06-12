@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.xml.crypto.Data;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -84,7 +85,7 @@ public class TransactionService {
         Transaction transaction = mapMakeTransactionDtoToTransaction(makeTransactionDTO);
 
         if (transaction.getAccountFrom().getStatus() == BankAccountStatus.INACTIVE || transaction.getAccountTo().getStatus() == BankAccountStatus.INACTIVE){
-            throw new ResponseStatusException(403,"one of the bankaccounts are de-activated",null);
+            throw new DataIntegrityViolationException("one of the bankaccounts are de-activated");
         }
 
         //this if checks if the employee is logged in and if yes the transaction goes through no matter what
@@ -93,10 +94,14 @@ public class TransactionService {
         }
         //this if checks if a transaction is made between savings accounts.
         if (checkBankAccountType(transaction.getAccountFrom(), BankAccountType.SAVINGS) && checkBankAccountType(transaction.getAccountTo(), BankAccountType.SAVINGS)){
-            throw new ResponseStatusException(403,"cant make a transaction between savings accounts",null);
+            throw new DataIntegrityViolationException("cant make a transaction between savings accounts");
         }
 
         //the first if checks if the owner of the account is indeed making the transaction.
+        return makeTransactionChecks(user, bankAccountsOfUser, transaction);
+    }
+
+    private TransactionResponseDTO makeTransactionChecks(UserAccount user, List<BankAccount> bankAccountsOfUser, Transaction transaction) {
         if (bankAccountsOfUser.stream().anyMatch(b -> b.getIBAN().equals(transaction.getAccountFrom().getIBAN()))){
 
             //this if checks if the account to is a savings account
@@ -108,7 +113,7 @@ public class TransactionService {
                     return finalizeTransaction(transaction, user);
                 }
                 else {
-                    throw new ResponseStatusException(403,"Can't make a transaction to a savings account you don't own",null);
+                    throw new DataIntegrityViolationException("Can't make a transaction to a savings account you don't own");
                 }
             }
             // this if checks if the account is from a savings account.
@@ -119,38 +124,52 @@ public class TransactionService {
                     return finalizeTransaction(transaction, user);
                 }
                 else {
-                    throw new ResponseStatusException(403,"Can't make a transaction to a savings account you don't own",null);
+                    throw new DataIntegrityViolationException("Can't make a transaction to a savings account you don't own");
 
                 }
             }
             return finalizeTransaction(transaction, user);
         }
         else {
-            throw new ResponseStatusException(403,"you don't own the bankaccount you are making the transaction with",null);
+            throw new DataIntegrityViolationException("you don't own the bankaccount you are making the transaction with");
 
         }
     }
 
     public TransactionResponseDTO makeDeposit(WithdrawalAndDepositRequestDTO dto, UserAccount user){
-        if (checkIfBankAccountIsOwnedByUser(bankAccountService.getBankAccountByIBAN(dto.getIBAN()),user)){
-            return mapTransactionTOTransactionResponseDTO(saveTransaction(mapDepositRequestDtoToTransaction(dto)));
-        }
-        else {
-            throw new ResponseStatusException(403, "You are not allowed to make deposits with bank-accounts you don't own",null);
-        }
-
+        return checkForViolationsWithdrawalAndDeposit(dto, user, false);
     }
-
     public TransactionResponseDTO makeWithdrawal(WithdrawalAndDepositRequestDTO dto, UserAccount user){
-        checkDayLimit(mapWithdrawalRequestDtoToTransaction(dto), user);
-        if (checkIfBankAccountIsOwnedByUser(bankAccountService.getBankAccountByIBAN(dto.getIBAN()),user)){
-            return mapTransactionTOTransactionResponseDTO(saveTransaction(mapWithdrawalRequestDtoToTransaction(dto)));
+        return checkForViolationsWithdrawalAndDeposit(dto, user, true);
+    }
+
+    private TransactionResponseDTO checkForViolationsWithdrawalAndDeposit(WithdrawalAndDepositRequestDTO dto, UserAccount user, boolean isWithdrawal) {
+        BankAccount account = bankAccountService.getBankAccountByIBAN(dto.getIBAN());
+        if (dto.getAmount() <= 1)
+            throw new DataIntegrityViolationException("amount needs to be higher than 0");
+        if (account.getStatus() == BankAccountStatus.INACTIVE){
+            throw new DataIntegrityViolationException("bankaccount is de-activated");
+        }
+        if (account.getType() == BankAccountType.SAVINGS){
+            throw new DataIntegrityViolationException("cant make a deposit to a savings account");
+        }
+        if (isWithdrawal){
+            checkDayLimit(mapWithdrawalRequestDtoToTransaction(dto), user);
+            checkAbsoluteLimit(mapWithdrawalRequestDtoToTransaction(dto));
+        }
+        if (checkIfBankAccountIsOwnedByUser(account, user)){
+            if (isWithdrawal){
+                return mapTransactionTOTransactionResponseDTO(saveTransaction(mapWithdrawalRequestDtoToTransaction(dto)));
+            }
+            else
+                return mapTransactionTOTransactionResponseDTO(saveTransaction(mapDepositRequestDtoToTransaction(dto)));
         }
         else {
-            throw new ResponseStatusException(403, "You are not allowed to make withdrawals with bank-accounts you don't own",null);
+            throw new DataIntegrityViolationException("You are not allowed to make deposits with bank-accounts you don't own");
         }
-
     }
+
+
 
     private TransactionResponseDTO finalizeTransaction(Transaction transaction, UserAccount user) throws ResponseStatusException {
         if (!Objects.equals(user.getType(), UserAccountType.ROLE_EMPLOYEE)) {
@@ -217,7 +236,7 @@ public class TransactionService {
     }
     private Transaction mapDepositRequestDtoToTransaction(WithdrawalAndDepositRequestDTO dto){
         Date date = new Date();
-        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountsByUserAccountId(1L).get(0),bankAccountService.getBankAccountByIBAN(dto.getIBAN()),"Withdrawal", new Timestamp(date.getTime()));
+        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountsByUserAccountId(1L).get(0),bankAccountService.getBankAccountByIBAN(dto.getIBAN()),"Deposit", new Timestamp(date.getTime()));
     }
 
     private List<Transaction> filterTransactionResponseForDates(List<Transaction> transactions, Timestamp dateFrom, Timestamp dateTo){
