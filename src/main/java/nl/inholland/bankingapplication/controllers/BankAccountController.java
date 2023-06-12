@@ -21,6 +21,7 @@ public class BankAccountController {
         this.bankAccountService = bankAccountService;
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_EMPLOYEE', 'ROLE_CUSTOMER')")
     @GetMapping
     public ResponseEntity<List<BankAccountResponseDTO>> getAllBankAccounts() {
         return ResponseEntity.ok(bankAccountService.getAllBankAccounts());
