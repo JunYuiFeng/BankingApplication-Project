@@ -1,0 +1,25 @@
+
+`	java:S1128"FDefine and throw a dedicated exception instead of using a generic one.(ã©†âşÿÿÿÿ
+`	java:S112H"FDefine and throw a dedicated exception instead of using a generic one.(ã©†âşÿÿÿÿ
+g	java:S112c"FDefine and throw a dedicated exception instead of using a generic one.(ã©†âşÿÿÿÿ8ùÍ¦µŠ1
+g	java:S112q"FDefine and throw a dedicated exception instead of using a generic one.(ã©†âşÿÿÿÿ8³ë´µŠ1
+y
+java:S11928"WDefine a constant instead of duplicating this literal "Something went wrong: " 4 times.(ã©†âşÿÿÿÿ8Àë´µŠ1
+f	java:S117L"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Şû±û
+l	java:S117“"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Û…Àùÿÿÿÿ
+l	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¥Ã¬ˆùÿÿÿÿ
+E
+java:S5411y"*Use the primitive boolean expression here.(–ÔÍıÿÿÿÿ
+h
+java:S62046"RReplace this usage of 'Stream.collect(Collectors.toList())' with 'Stream.toList()'(ª™¨¹
+h
+java:S6204F"RReplace this usage of 'Stream.collect(Collectors.toList())' with 'Stream.toList()'(ª™¨¹
+o
+java:S6204a"RReplace this usage of 'Stream.collect(Collectors.toList())' with 'Stream.toList()'(ª™¨¹8Ö†§µŠ1
+o
+java:S6204o"RReplace this usage of 'Stream.collect(Collectors.toList())' with 'Stream.toList()'(ª™¨¹8æì´µŠ1
+i	java:S100¦"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ÿ±òÌşÿÿÿÿ
+O
+java:S1854¨"8Remove this useless assignment to local variable "iban".(¶¨Ù
+T
+java:S1854§"8Remove this useless assignment to local variable "iban".(ÕÍáÿÿÿÿÿ

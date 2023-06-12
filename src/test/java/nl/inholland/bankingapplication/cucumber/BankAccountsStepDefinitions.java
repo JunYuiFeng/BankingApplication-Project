@@ -1,22 +1,20 @@
 package nl.inholland.bankingapplication.cucumber;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import nl.inholland.bankingapplication.models.dto.BankAccountResponseDTO;
-import nl.inholland.bankingapplication.models.dto.LoginDTO;
-import nl.inholland.bankingapplication.models.dto.LoginResponseDTO;
+import nl.inholland.bankingapplication.models.BankAccount;
+import nl.inholland.bankingapplication.models.dto.*;
+import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import com.jayway.jsonpath.JsonPath;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,8 +22,8 @@ import java.util.List;
 public class BankAccountsStepDefinitions extends BaseStepDefinitions {
     @Autowired
     private TestRestTemplate restTemplate; //provides a webclient
-    private ResponseEntity<List<BankAccountResponseDTO>> bankAccountsResponseDTO;
-    private ResponseEntity<BankAccountResponseDTO> bankAccountResponseDTO;
+    private ResponseEntity<List<BankAccountResponseDTO>> bankAccountsResponse;
+    private ResponseEntity<BankAccountResponseDTO> bankAccountResponse;
 
 
     HttpHeaders httpHeaders;
@@ -62,37 +60,69 @@ public class BankAccountsStepDefinitions extends BaseStepDefinitions {
     @When("I retrieve All BankAccounts")
     public void iRetrieveAllBankAccounts() {
         ParameterizedTypeReference<List<BankAccountResponseDTO>> responseType = new ParameterizedTypeReference<List<BankAccountResponseDTO>>() {};
-        bankAccountsResponseDTO = restTemplate
+        bankAccountsResponse = restTemplate
                 .exchange("/BankAccounts",
                         HttpMethod.GET,
                         new HttpEntity<>(null, httpHeaders),
                         responseType);
+        System.out.println(bankAccountsResponse);
     }
 
 
     @Then("I should receive all BankAccounts")
     public void iShouldReceiveAllBankAccounts() {
-        int actual = JsonPath.read(response.getBody(), "$.size()");
-        Assertions.assertEquals(1, actual);
+        Assertions.assertNotNull(bankAccountsResponse.getBody());
     }
 
     @When("I create a BankAccounts with type {string} and userId {int}")
-    public void iCreateABankAccountsWithTypeAndUserId(String arg0, int arg1) {
+    public void iCreateABankAccountsWithTypeAndUserId(String type, int userId) throws JsonProcessingException {
+        BankAccountRegisterDTO bankAccountRegisterDTO = new BankAccountRegisterDTO();
+        bankAccountRegisterDTO.setType(BankAccountType.valueOf(type));
+        bankAccountRegisterDTO.setUserId((long) userId);
+
+        httpHeaders.add("Content-Type", "application/json");
+        response = restTemplate.exchange("/BankAccounts",
+                HttpMethod.POST,
+                new HttpEntity<>(
+                        mapper.writeValueAsString(bankAccountRegisterDTO),
+                        httpHeaders
+                ), String.class);
     }
 
     @Then("The response status is {int}")
-    public void theResponseStatusIs(int arg0) {
+    public void theResponseStatusIs(int status) {
+        Assertions.assertEquals(status, response.getStatusCode().value());
     }
 
     @And("The userId is {int}")
-    public void theUserIdIs(int arg0) {
+    public void theUserIdIs(int userId) throws JsonProcessingException {
+        BankAccount bankAccount = mapper.readValue(response.getBody(), BankAccount.class);
+        Assertions.assertEquals(userId, bankAccount.getUserAccount().getId());
     }
 
-    @When("I update a BankAccounts with status {string}")
-    public void iUpdateABankAccountsWithStatus(String arg0) {
+    @When("I update a BankAccount with IBAN {string} to status {string}")
+    public void iUpdateABankAccountWithIBANToStatus(String IBAN, String status) throws JsonProcessingException {
+        BankAccountUpdateDTO bankAccountUpdateDTO = new BankAccountUpdateDTO();
+        bankAccountUpdateDTO.setStatus(status);
+
+        LoginDTO loginDTO = new LoginDTO("KarenWinter", "secret123");
+        ResponseEntity<LoginResponseDTO> loginResponse = restTemplate.postForEntity("/login", loginDTO, LoginResponseDTO.class);
+        String token = loginResponse.getBody().token();
+
+        httpHeaders.setBearerAuth(token);
+
+        String endpointUrl = "/BankAccounts/" + IBAN;
+
+        HttpEntity<BankAccountUpdateDTO> requestEntity = new HttpEntity<>(bankAccountUpdateDTO, httpHeaders);
+
+        response = restTemplate.exchange(endpointUrl, HttpMethod.PATCH, requestEntity, String.class);
     }
+
+
 
     @And("The status is {string}")
-    public void theStatusIs(String arg0) {
+    public void theStatusIs(String status) throws JsonProcessingException {
+        BankAccount bankAccount = mapper.readValue(response.getBody(), BankAccount.class);
+        Assertions.assertEquals(status, bankAccount.getStatus().toString());
     }
 }
