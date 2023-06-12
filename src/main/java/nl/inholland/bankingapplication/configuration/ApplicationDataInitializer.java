@@ -51,7 +51,9 @@ public class ApplicationDataInitializer implements ApplicationRunner {
         List.of(
                 new BankAccountPredefinedDTO("NL01INHO0000000001", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000000000.00, 0, 1L),
                 new BankAccountPredefinedDTO("NL71RABO3667086008", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, 2L),
-                new BankAccountPredefinedDTO("NL43ABNA5253446745", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, 3L)
+                new BankAccountPredefinedDTO("NL43ABNA5253446745", BankAccountType.CURRENT, BankAccountStatus.ACTIVE, 1000.00, 0, 3L),
+                new BankAccountPredefinedDTO("NL43ABNA5253446746", BankAccountType.SAVINGS, BankAccountStatus.ACTIVE, 1000.00, 0, 3L),
+                new BankAccountPredefinedDTO("NL43RABO5553446746", BankAccountType.SAVINGS, BankAccountStatus.ACTIVE, 1000.00, 0, 2L)
         ).forEach(
                 dto -> bankAccountService.addPredefinedBankAccount(dto)
         );
@@ -85,7 +87,7 @@ public class ApplicationDataInitializer implements ApplicationRunner {
                     new MakeTransactionDTO(accounts.get(2).getIBAN(), accounts.get(3).getIBAN(),200,"ta" ),
                     new MakeTransactionDTO(accounts.get(1).getIBAN(), accounts.get(2).getIBAN(), 10, null)
             );
-            UserAccount bankUserAccount = userAccountService.getUserAccountById(1L);
+
             transactions.forEach(
                     dto -> {
                         try {

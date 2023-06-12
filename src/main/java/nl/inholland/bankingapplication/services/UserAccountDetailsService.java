@@ -2,6 +2,7 @@ package nl.inholland.bankingapplication.services;
 
 import nl.inholland.bankingapplication.models.UserAccount;
 import nl.inholland.bankingapplication.repositories.UserAccountRepository;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,6 +28,8 @@ public class UserAccountDetailsService implements UserDetailsService {
                 .authorities(member.getType().toString())
                 .build();
     }
+
+
 
 }
 
