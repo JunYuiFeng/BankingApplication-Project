@@ -7,8 +7,6 @@ import nl.inholland.bankingapplication.models.dto.BankAccountRegisterDTO;
 import nl.inholland.bankingapplication.models.dto.BankAccountUpdateDTO;
 import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
-import nl.inholland.bankingapplication.models.enums.UserAccountStatus;
-import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.services.BankAccountService;
 import nl.inholland.bankingapplication.services.UserAccountService;
 import nl.inholland.bankingapplication.util.JWTTokeProvider;
