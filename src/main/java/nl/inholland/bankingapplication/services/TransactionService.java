@@ -156,7 +156,11 @@ public class TransactionService {
             throw new DataIntegrityViolationException("bankaccount is de-activated");
         }
         if (account.getType() == BankAccountType.SAVINGS){
-            throw new DataIntegrityViolationException("cant make a deposit to a savings account");
+            if (isWithdrawal){
+                throw new DataIntegrityViolationException("cant make a withdrawal from a savings account");
+            }
+            else
+                throw new DataIntegrityViolationException("cant make a deposit to a savings account");
         }
         if (isWithdrawal){
             checkDayLimit(mapWithdrawalRequestDtoToTransaction(dto), user);
