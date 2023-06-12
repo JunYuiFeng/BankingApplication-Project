@@ -11,7 +11,7 @@ COPY . .
 RUN chmod +x mvnw
 
 # Run the Maven build command
-RUN ./mvnw clean install -U
+RUN ./mvnw install -U
 
 # Expose the desired port
 EXPOSE 8080
