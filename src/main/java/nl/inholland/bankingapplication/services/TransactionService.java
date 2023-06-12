@@ -91,15 +91,16 @@ public class TransactionService {
         if (transaction.getAccountFrom().getIBAN().equals("NL01INHO0000000001") || transaction.getAccountTo().getIBAN().equals("NL01INHO0000000001")){
             throw new DataIntegrityViolationException("can't use that account");
         }
+        if (checkBankAccountType(transaction.getAccountFrom(), BankAccountType.SAVINGS) && checkBankAccountType(transaction.getAccountTo(), BankAccountType.SAVINGS)){
+            throw new DataIntegrityViolationException("cant make a transaction between savings accounts");
+        }
 
         //this if checks if the employee is logged in and if yes the transaction goes through no matter what
         if (Objects.equals(user.getType(), UserAccountType.ROLE_EMPLOYEE)){
             return finalizeTransaction(transaction, user);
         }
         //this if checks if a transaction is made between savings accounts.
-        if (checkBankAccountType(transaction.getAccountFrom(), BankAccountType.SAVINGS) && checkBankAccountType(transaction.getAccountTo(), BankAccountType.SAVINGS)){
-            throw new DataIntegrityViolationException("cant make a transaction between savings accounts");
-        }
+
 
         //the first if checks if the owner of the account is indeed making the transaction.
         return makeTransactionChecks(user, bankAccountsOfUser, transaction);
