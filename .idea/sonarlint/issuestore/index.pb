@@ -61,5 +61,3 @@ Tsrc/main/java/nl/inholland/bankingapplication/controllers/BankAccountController
 [src/main/java/nl/inholland/bankingapplication/configuration/ApplicationDataInitializer.java,6/2/6280ad5ff1e8d435473e79417d9afac3c2defe92
 {
 Ksrc/main/java/nl/inholland/bankingapplication/configuration/CorsConfig.java,3/1/312863b450bf09cbd347cf9f9312a0e38d1d7ea6
-‡
-Wsrc/test/java/nl/inholland/bankingapplication/cucumber/BankAccountsStepDefinitions.java,8/f/8f8f76de2f0104038558646b77b46220e59bafb9

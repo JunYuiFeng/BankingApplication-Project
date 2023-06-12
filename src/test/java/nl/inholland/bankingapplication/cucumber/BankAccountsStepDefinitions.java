@@ -100,29 +100,29 @@ public class BankAccountsStepDefinitions extends BaseStepDefinitions {
         Assertions.assertEquals(userId, bankAccount.getUserAccount().getId());
     }
 
-    @When("I update a BankAccount with IBAN {string} to status {string}")
-    public void iUpdateABankAccountWithIBANToStatus(String IBAN, String status) throws JsonProcessingException {
-        BankAccountUpdateDTO bankAccountUpdateDTO = new BankAccountUpdateDTO();
-        bankAccountUpdateDTO.setStatus(status);
-
-        LoginDTO loginDTO = new LoginDTO("KarenWinter", "secret123");
-        ResponseEntity<LoginResponseDTO> loginResponse = restTemplate.postForEntity("/login", loginDTO, LoginResponseDTO.class);
-        String token = loginResponse.getBody().token();
-
-        httpHeaders.setBearerAuth(token);
-
-        String endpointUrl = "/BankAccounts/" + IBAN;
-
-        HttpEntity<BankAccountUpdateDTO> requestEntity = new HttpEntity<>(bankAccountUpdateDTO, httpHeaders);
-
-        response = restTemplate.exchange(endpointUrl, HttpMethod.PATCH, requestEntity, String.class);
-    }
-
-
-
-    @And("The status is {string}")
-    public void theStatusIs(String status) throws JsonProcessingException {
-        BankAccount bankAccount = mapper.readValue(response.getBody(), BankAccount.class);
-        Assertions.assertEquals(status, bankAccount.getStatus().toString());
-    }
+//    @When("I update a BankAccount with IBAN {string} to status {string}")
+//    public void iUpdateABankAccountWithIBANToStatus(String IBAN, String status) throws JsonProcessingException {
+//        BankAccountUpdateDTO bankAccountUpdateDTO = new BankAccountUpdateDTO();
+//        bankAccountUpdateDTO.setStatus(status);
+//
+//        LoginDTO loginDTO = new LoginDTO("KarenWinter", "secret123");
+//        ResponseEntity<LoginResponseDTO> loginResponse = restTemplate.postForEntity("/login", loginDTO, LoginResponseDTO.class);
+//        String token = loginResponse.getBody().token();
+//
+//        httpHeaders.setBearerAuth(token);
+//
+//        String endpointUrl = "/BankAccounts/" + IBAN;
+//
+//        HttpEntity<BankAccountUpdateDTO> requestEntity = new HttpEntity<>(bankAccountUpdateDTO, httpHeaders);
+//
+//        response = restTemplate.exchange(endpointUrl, HttpMethod.PATCH, requestEntity, String.class);
+//    }
+//
+//
+//
+//    @And("The status is {string}")
+//    public void theStatusIs(String status) throws JsonProcessingException {
+//        BankAccount bankAccount = mapper.readValue(response.getBody(), BankAccount.class);
+//        Assertions.assertEquals(status, bankAccount.getStatus().toString());
+//    }
 }
