@@ -25,6 +25,16 @@ Feature: Transaction CRUD
     When the customer makes a transaction with amount 10 accountFrom "NL71RABO3667086008" accountTo "NL43RABO5553446746" description "test"
     Then the transaction response should have status code 201
 
+  Scenario: make a transaction as customer with savings you own to current you don't
+    Given the endpoint "Transactions" is available for method "POST" as "customer"
+    When the customer makes a transaction with amount 10 accountFrom "NL43RABO5553446746" accountTo "NL43ABNA5253446745" description "test"
+    Then the transaction response should have status code 400
+
+  Scenario: make a transaction as customer with savings you don't own to current you do
+    Given the endpoint "Transactions" is available for method "POST" as "customer"
+    When the customer makes a transaction with amount 10 accountFrom "NL43ABNA5253446746" accountTo "NL71RABO3667086008" description "test"
+    Then the transaction response should have status code 400
+
   Scenario: make a transaction as employee for a customer
     Given the endpoint "Transactions" is available for method "POST" as "employee"
     When the employee makes a transaction with amount 10 accountFrom "NL71RABO3667086008" accountTo "NL43ABNA5253446745" description "test"
