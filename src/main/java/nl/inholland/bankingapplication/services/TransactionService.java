@@ -88,6 +88,10 @@ public class TransactionService {
             throw new DataIntegrityViolationException("one of the bankaccounts are de-activated");
         }
 
+        if (transaction.getAmount() <= 0){
+            throw new DataIntegrityViolationException("amount can't be 0 or lower");
+        }
+
         if (transaction.getAccountFrom().getIBAN().equals("NL01INHO0000000001") || transaction.getAccountTo().getIBAN().equals("NL01INHO0000000001")){
             throw new DataIntegrityViolationException("can't use that account");
         }
