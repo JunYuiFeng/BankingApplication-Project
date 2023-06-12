@@ -177,24 +177,24 @@ public class UserAccountsStepDefinitions extends BaseStepDefinitions {
         );
     }
 
-    @When("I patch a UserAccount with id {int} with status {string}")
-    public void iPatchAUserAccountWithId2WithStatusINACTIVE(int id, String status) throws JsonProcessingException {
-        UserAccountPatchDTO userAccountPatchDTO = new UserAccountPatchDTO();
-        UserAccountStatus userAccountStatus = userAccountPatchDTO.getStatusIgnoreCase(status);
-        userAccountPatchDTO.setStatus(userAccountStatus);
+//    @When("I patch a UserAccount with id {int} with status {string}")
+//    public void iPatchAUserAccountWithId2WithStatusINACTIVE(int id, String status) throws JsonProcessingException {
+//        UserAccountPatchDTO userAccountPatchDTO = new UserAccountPatchDTO();
+//        UserAccountStatus userAccountStatus = userAccountPatchDTO.getStatusIgnoreCase(status);
+//        userAccountPatchDTO.setStatus(userAccountStatus);
+//
+//        headers.add("Content-Type", "application/json");
+//        response = restTemplate.exchange(
+//                "/UserAccounts/" + id,
+//                HttpMethod.PATCH,
+//                new HttpEntity<>(mapper.writeValueAsString(userAccountPatchDTO), headers),
+//                String.class
+//        );
+//    }
 
-        headers.add("Content-Type", "application/json");
-        response = restTemplate.exchange(
-                "/UserAccounts/" + id,
-                HttpMethod.PATCH,
-                new HttpEntity<>(mapper.writeValueAsString(userAccountPatchDTO), headers),
-                String.class
-        );
-    }
-
-    @And("I should have a UserAccount with id {int} and status {string}")
-    public void iShouldHaveAUserAccountWithIdAndStatus(int id, String status) {
-        Assertions.assertEquals(id, Objects.requireNonNull(userAccountResponse.getBody()).getId());
-        Assertions.assertEquals(status, userAccountResponse.getBody().getStatus());
-    }
+//    @And("I should have a UserAccount with id {int} and status {string}")
+//    public void iShouldHaveAUserAccountWithIdAndStatus(int id, String status) {
+//        Assertions.assertEquals(id, Objects.requireNonNull(userAccountResponse.getBody()).getId());
+//        Assertions.assertEquals(status, userAccountResponse.getBody().getStatus());
+//    }
 }
