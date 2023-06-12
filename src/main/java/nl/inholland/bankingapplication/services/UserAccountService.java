@@ -190,7 +190,7 @@ public class UserAccountService {
             }
 
             if (Objects.nonNull(userAccountPatchDTO.getCurrentDayLimit())) {
-                userAccountToUpdate.setDayLimit(userAccountPatchDTO.getCurrentDayLimit());
+                userAccountToUpdate.setCurrentDayLimit(userAccountPatchDTO.getCurrentDayLimit());
             }
 
             UserAccount user = userAccountRepository.save(userAccountToUpdate);
