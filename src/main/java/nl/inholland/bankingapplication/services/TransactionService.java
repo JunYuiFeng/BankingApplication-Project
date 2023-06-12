@@ -88,6 +88,10 @@ public class TransactionService {
             throw new DataIntegrityViolationException("one of the bankaccounts are de-activated");
         }
 
+        if (transaction.getAccountFrom().getIBAN().equals("NL01INHO0000000001") || transaction.getAccountTo().getIBAN().equals("NL01INHO0000000001")){
+            throw new DataIntegrityViolationException("can't use that account");
+        }
+
         //this if checks if the employee is logged in and if yes the transaction goes through no matter what
         if (Objects.equals(user.getType(), UserAccountType.ROLE_EMPLOYEE)){
             return finalizeTransaction(transaction, user);
