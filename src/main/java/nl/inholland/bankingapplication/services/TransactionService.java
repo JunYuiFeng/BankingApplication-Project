@@ -88,8 +88,15 @@ public class TransactionService {
             throw new DataIntegrityViolationException("one of the bankaccounts are de-activated");
         }
 
+        if (transaction.getAmount() <= 0){
+            throw new DataIntegrityViolationException("amount can't be 0 or lower");
+        }
+
         if (transaction.getAccountFrom().getIBAN().equals("NL01INHO0000000001") || transaction.getAccountTo().getIBAN().equals("NL01INHO0000000001")){
             throw new DataIntegrityViolationException("can't use that account");
+        }
+        if (checkBankAccountType(transaction.getAccountFrom(), BankAccountType.SAVINGS) && checkBankAccountType(transaction.getAccountTo(), BankAccountType.SAVINGS)){
+            throw new DataIntegrityViolationException("cant make a transaction between savings accounts");
         }
 
         //this if checks if the employee is logged in and if yes the transaction goes through no matter what
@@ -97,9 +104,7 @@ public class TransactionService {
             return finalizeTransaction(transaction, user);
         }
         //this if checks if a transaction is made between savings accounts.
-        if (checkBankAccountType(transaction.getAccountFrom(), BankAccountType.SAVINGS) && checkBankAccountType(transaction.getAccountTo(), BankAccountType.SAVINGS)){
-            throw new DataIntegrityViolationException("cant make a transaction between savings accounts");
-        }
+
 
         //the first if checks if the owner of the account is indeed making the transaction.
         return makeTransactionChecks(user, bankAccountsOfUser, transaction);
