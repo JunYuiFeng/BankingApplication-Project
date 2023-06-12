@@ -125,7 +125,7 @@ public class TransactionService {
                         return finalizeTransaction(transaction, user);
                     }
                     else {
-                        throw new DataIntegrityViolationException("Can't make a transaction from a savings account you don't own");
+                        throw new DataIntegrityViolationException("Can't make a transaction to a current account you don't own");
                     }
                 }
                 else {
