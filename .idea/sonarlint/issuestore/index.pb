@@ -53,8 +53,6 @@ Nsrc/main/java/nl/inholland/bankingapplication/services/BankAccountService.java
 Rsrc/main/java/nl/inholland/bankingapplication/models/dto/BankAccountUpdateDTO.java,2/0/20049bfaf7961bc43e282e0e617590d802511570
 ˆ
 Xsrc/test/java/nl/inholland/bankingapplication/controllers/UserAccountControllerTest.java,1/1/111bb96cdd051d909f26300298362660cc10c22a
-ˆ
-Xsrc/test/java/nl/inholland/bankingapplication/controllers/BankAccountControllerTest.java,7/8/78b6c38070d8749f62f2614f9b0ad1f293e8711e
 €
 Psrc/main/java/nl/inholland/bankingapplication/configuration/WebSecurityConf.java,1/c/1c46eb0cd1309f9ef5709fb393e2cd98ff4bc87f
 „
