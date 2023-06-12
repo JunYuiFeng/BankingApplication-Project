@@ -11,4 +11,8 @@ import nl.inholland.bankingapplication.models.enums.UserAccountStatus;
 public class UserAccountPatchDTO {
     private UserAccountStatus status;
     private double currentDayLimit;
+
+    public UserAccountStatus getStatusIgnoreCase(String status) {
+        return UserAccountStatus.valueOf(status.toUpperCase());
+    }
 }
