@@ -146,8 +146,8 @@ public class BankAccountService {
 
     public BankAccountResponseDTO updateBankAccount(BankAccountUpdateDTO dto, String IBAN) {
         BankAccount bankAccount = this.getBankAccountByIBAN(IBAN);
-        BankAccount mappedBankAccount = bankAccountUpdateDTOMapper.apply(dto, bankAccount);
         try {
+            BankAccount mappedBankAccount = bankAccountUpdateDTOMapper.apply(dto, bankAccount);
             return bankAccountResponseDTOMapper.apply(bankAccountRepository.save(mappedBankAccount));
         } catch(Exception e) {
             throw new DataIntegrityViolationException("Failed to update bank account: " + e);

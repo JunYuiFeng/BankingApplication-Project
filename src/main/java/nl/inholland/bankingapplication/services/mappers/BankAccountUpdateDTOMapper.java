@@ -16,9 +16,6 @@ public class BankAccountUpdateDTOMapper implements BiFunction<BankAccountUpdateD
         }
 
         if (bankAccountUpdateDTO.getAbsoluteLimit() != null) {
-            if (bankAccountUpdateDTO.getAbsoluteLimit() < 0) {
-                throw new DataIntegrityViolationException("Absolute limit can't go below 0");
-            }
             bankAccount.setAbsoluteLimit(bankAccountUpdateDTO.getAbsoluteLimit());
         }
 
