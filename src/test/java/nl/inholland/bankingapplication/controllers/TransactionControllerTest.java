@@ -84,8 +84,18 @@ public class TransactionControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/Transactions").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content("{\"accountFrom\": \"NL71RABO3667086008\", \"accountTo\": \"NL77ABNA5602795901\", \"amount\": \"1000.00\", \"description\": \"null\",\"occuredAt\": \"null\"}"))
+                        .content("{\"accountFrom\": \"NL71RABO3667086008\", \"accountTo\": \"NL77ABNA5602795901\", \"amount\": \"1000.00\", \"description\": \"null\"}"))
                 .andExpect(status().isCreated());
+    }
+    @Test
+    @WithMockUser
+    void MakeTransactionReturnsBadRequestStatus() throws Exception {
+        when(transactionService.makeTransaction(any(MakeTransactionDTO.class),any(UserAccount.class))).thenReturn(transactionResponseDTO);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/Transactions").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content("{\"accountFrom\": \"NL71RABO3667086008\", \"accountTo\": \"NL77ABNA5602795901\", \"amount\": \"-1\", \"description\": \"null\"}"))
+                .andExpect(status().isBadRequest());
     }
     
 }

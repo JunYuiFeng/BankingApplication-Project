@@ -31,7 +31,7 @@ public class Transaction {
     public String description;
     public Timestamp occuredAt;
 
-    public Transaction(Double amount, UserAccount madeBy, BankAccount accountFrom, BankAccount accountTo, String description, Timestamp occuredAt) {
+    public Transaction(Double amount, UserAccount madeBy, BankAccount accountFrom, BankAccount accountTo, @Nullable String description, Timestamp occuredAt) {
         this.amount = amount;
         this.madeBy = madeBy;
         this.accountFrom = accountFrom;
