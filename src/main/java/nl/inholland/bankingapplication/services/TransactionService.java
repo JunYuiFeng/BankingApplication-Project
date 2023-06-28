@@ -97,7 +97,7 @@ public class TransactionService {
                 // this if checks if the savings account is owned by the user
 
                 if (checkIfBankAccountIsOwnedByUser(transaction.getAccountTo(), user)){
-                    return finalizeSavingsTransactions(transaction, user);
+                    return finalizeSavingsTransactions(transaction);
                 }
                 else {
                     throw new DataIntegrityViolationException("Can't from savings to a current account you don't own");
@@ -109,7 +109,7 @@ public class TransactionService {
                 //this if checks if the account to is owned by the user.
                 if (checkIfBankAccountIsOwnedByUser(transaction.getAccountTo(), user)){
                     if (checkIfBankAccountIsOwnedByUser(transaction.getAccountFrom(), user)){
-                        return finalizeSavingsTransactions(transaction, user);
+                        return finalizeSavingsTransactions(transaction);
                     }
                     else {
                         throw new DataIntegrityViolationException("Can't make a transaction to a current account you don't own");
@@ -172,11 +172,8 @@ public class TransactionService {
         Transaction transaction1 = saveTransaction(transaction);
         return mapTransactionTOTransactionResponseDTO(transaction1);
     }
-    private TransactionResponseDTO finalizeSavingsTransactions(Transaction transaction, UserAccount user) throws ResponseStatusException {
+    private TransactionResponseDTO finalizeSavingsTransactions(Transaction transaction) throws ResponseStatusException {
         checkAbsoluteLimit(transaction);
-        if (!Objects.equals(user.getType(), UserAccountType.ROLE_EMPLOYEE)) {
-            checkTransactionLimit(transaction, user);
-        }
         Transaction transaction1 = saveTransaction(transaction);
         return mapTransactionTOTransactionResponseDTO(transaction1);
     }
