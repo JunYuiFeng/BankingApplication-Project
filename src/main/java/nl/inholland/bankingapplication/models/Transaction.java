@@ -26,16 +26,23 @@ public class Transaction {
     @ManyToOne
     public BankAccount accountFrom;
     @ManyToOne
+    public UserAccount madeFrom;
+    @ManyToOne
     public BankAccount accountTo;
+    @ManyToOne
+    public UserAccount madeTo;
     @Nullable
     public String description;
     public Timestamp occuredAt;
 
-    public Transaction(Double amount, UserAccount madeBy, BankAccount accountFrom, BankAccount accountTo, @Nullable String description, Timestamp occuredAt) {
+
+    public Transaction(Double amount, UserAccount madeBy, BankAccount accountFrom, UserAccount madeFrom, BankAccount accountTo, UserAccount madeTo, @Nullable String description, Timestamp occuredAt) {
         this.amount = amount;
         this.madeBy = madeBy;
         this.accountFrom = accountFrom;
+        this.madeFrom = madeFrom;
         this.accountTo = accountTo;
+        this.madeTo = madeTo;
         this.description = description;
         this.occuredAt = occuredAt;
     }

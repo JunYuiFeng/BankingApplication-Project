@@ -47,27 +47,15 @@ public class TransactionService {
             specification = specification.and(transactionSpecifications.beforeDate(dateTo));
         }
         if (user.getType().equals(UserAccountType.ROLE_CUSTOMER)) {
-            return filterTransactionsByUser(user,transactionRepository.findAll(specification));
+            specification = specification.and(transactionSpecifications.hasUserAccountFrom(user)
+                    .or(transactionSpecifications.hasUserAccountTo(user)));
         }
-        else if (user.getType().equals(UserAccountType.ROLE_EMPLOYEE) || userId != null) {
-            return filterTransactionsByUser(userAccountService.getUserAccountById(userId.longValue()),transactionRepository.findAll(specification));
+        else if (user.getType().equals(UserAccountType.ROLE_EMPLOYEE) && userId != null) {
+            specification = specification.and(transactionSpecifications.hasUserAccountFrom(userAccountService.getUserAccountById(userId.longValue()))
+                    .or(transactionSpecifications.hasUserAccountTo(userAccountService.getUserAccountById(userId.longValue()))));
         }
 
-        return filterTransactionsByUser(user,transactionRepository.findAll(specification));
-    }
-
-    private List<Transaction> filterTransactionsByUser(UserAccount user, List<Transaction> transactions) {
-        List <Transaction> transactionFrom = new ArrayList<>();
-        List<Transaction> transactionsTo = new ArrayList<>();
-        for (BankAccount bankAccount: user.getBankAccounts()
-             ) {
-            transactionFrom.addAll(transactions.stream().filter(t -> t.getAccountFrom().getIBAN().equals(bankAccount.getIBAN())).toList());
-            transactionsTo.addAll(transactions.stream().filter(t -> t.getAccountTo().getIBAN().equals(bankAccount.getIBAN())).toList());
-        }
-        transactions.removeAll(transactions);
-        transactions.addAll(transactionFrom);
-        transactions.addAll(transactionsTo);
-        return transactions;
+        return transactionRepository.findAll(specification);
     }
 
     public TransactionResponseDTO makeTransaction(MakeTransactionDTO makeTransactionDTO, UserAccount user) throws ResponseStatusException {
@@ -239,41 +227,47 @@ public class TransactionService {
 
     private Transaction mapMakeTransactionDtoToTransaction(MakeTransactionDTO dto){
         Date date = new Date();
-        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountByIBAN(dto.getAccountFrom()), bankAccountService.getBankAccountByIBAN(dto.getAccountTo()), dto.getDescription(), new Timestamp(date.getTime()));
+        BankAccount bFrom = bankAccountService.getBankAccountByIBAN(dto.getAccountFrom());
+        BankAccount bTo = bankAccountService.getBankAccountByIBAN(dto.getAccountTo());
+        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bFrom,bFrom.getUserAccount(), bTo,bTo.getUserAccount(), dto.getDescription(), new Timestamp(date.getTime()));
     }
 
     private Transaction mapWithdrawalRequestDtoToTransaction(WithdrawalAndDepositRequestDTO dto){
         Date date = new Date();
-        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountByIBAN(dto.getIBAN()),bankAccountService.getBankAccountsByUserAccountId(1L).get(0),"Withdrawal", new Timestamp(date.getTime()));
+        BankAccount bFrom = bankAccountService.getBankAccountByIBAN(dto.getIBAN());
+        BankAccount bTo = bankAccountService.getBankAccountsByUserAccountId(1L).get(0);
+        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bFrom,bFrom.getUserAccount(),bTo,bTo.getUserAccount(),"Withdrawal", new Timestamp(date.getTime()));
     }
     private Transaction mapDepositRequestDtoToTransaction(WithdrawalAndDepositRequestDTO dto){
         Date date = new Date();
-        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountsByUserAccountId(1L).get(0),bankAccountService.getBankAccountByIBAN(dto.getIBAN()),"Deposit", new Timestamp(date.getTime()));
+        BankAccount bFrom = bankAccountService.getBankAccountsByUserAccountId(1L).get(0);
+        BankAccount bTo = bankAccountService.getBankAccountByIBAN(dto.getIBAN());
+        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bFrom,bFrom.getUserAccount(),bTo,bTo.getUserAccount(),"Deposit", new Timestamp(date.getTime()));
     }
 
 
     private Specification<Transaction> getSpecificationForAmount(Specification<Transaction> specification, List<String> amount){
         if (amount != null){
             if(amount.get(0).startsWith("<") && amount.get(0).startsWith(">",1)){
-                Double actualAmount = Double.valueOf(amount.get(0).replace("<","").replace(">",""));
-                Double actualAmount2 = Double.valueOf(amount.get(1));
+                double actualAmount = Double.parseDouble(amount.get(0).replace("<","").replace(">",""));
+                double actualAmount2 = Double.parseDouble(amount.get(1));
                 actualAmount += 0.01;
                 actualAmount2 -= 0.01;
                 specification = specification.and(transactionSpecifications.betweenAmounts(actualAmount, actualAmount2));
             }
             else
             if(amount.get(0).startsWith("<")){
-                Double actualAmount = Double.valueOf(amount.get(0).replace("<",""));
+                double actualAmount = Double.parseDouble(amount.get(0).replace("<",""));
                 actualAmount += 0.01;
                 specification = specification.and(transactionSpecifications.lessThanAmount(actualAmount));
             }
             else if (amount.get(0).startsWith(">")){
-                Double actualAmount = Double.valueOf(amount.get(0).replace(">",""));
+                double actualAmount = Double.parseDouble(amount.get(0).replace(">",""));
                 actualAmount -= 0.01;
                 specification = specification.and(transactionSpecifications.greaterThanAmount(actualAmount));
             }
             else{
-                Double actualAmount = Double.valueOf(amount.get(0));
+                double actualAmount = Double.parseDouble(amount.get(0));
                 specification = specification.and(transactionSpecifications.equalsAmount(actualAmount));
             }
 
@@ -286,7 +280,9 @@ public class TransactionService {
     }
     private Transaction mapMockTransactionDto(MakeTransactionDTO dto){
         Date date = new Date();
-        return new Transaction(dto.getAmount(), null, bankAccountService.getBankAccountByIBAN(dto.getAccountFrom()), bankAccountService.getBankAccountByIBAN(dto.getAccountTo()), dto.getDescription(), new Timestamp(date.getTime()));
+        BankAccount bFrom = bankAccountService.getBankAccountByIBAN(dto.getAccountFrom());
+        BankAccount bTo = bankAccountService.getBankAccountByIBAN(dto.getAccountTo());
+        return new Transaction(dto.getAmount(), null, bFrom,bFrom.getUserAccount(), bTo, bTo.getUserAccount(),dto.getDescription(), new Timestamp(date.getTime()));
 
     }
 

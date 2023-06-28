@@ -1,10 +1,12 @@
 package nl.inholland.bankingapplication.cucumber;
 
+import com.jayway.jsonpath.TypeRef;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.With;
+import nl.inholland.bankingapplication.models.Transaction;
 import nl.inholland.bankingapplication.models.dto.*;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -32,6 +35,8 @@ public class TransactionStepDefinitions extends BaseStepDefinitions{
     private int port;
 
     private ResponseEntity<TransactionResponseDTO> response;
+
+    private ResponseEntity getResponse;
 
     private HttpHeaders headers = new HttpHeaders();
     @Given("the endpoint {string} is available for method {string}")
@@ -59,7 +64,11 @@ public class TransactionStepDefinitions extends BaseStepDefinitions{
 
     @Then("the transaction response should have status code {int}")
     public void theTransactionResponseShouldHaveStatusCode(int arg0) {
-        Assertions.assertEquals(arg0, response.getStatusCode().value());
+        if (response != null)
+            Assertions.assertEquals(arg0, response.getStatusCode().value());
+        else if (getResponse != null) {
+            Assertions.assertEquals(arg0, getResponse.getStatusCode().value());
+        }
     }
 
     @When("the employee makes a transaction with amount {int} accountFrom {string} accountTo {string} description {string}")
@@ -96,5 +105,21 @@ public class TransactionStepDefinitions extends BaseStepDefinitions{
     @When("the customer makes an atm request {string} with IBAN {string} and amount {int}")
     public void theCustomerMakesAnAtmRequestWithIBANAndAmount(String arg0, String arg1, double arg2) {
         response = restTemplate.exchange("/Transactions/" + arg0, HttpMethod.POST, new HttpEntity<>(new WithdrawalAndDepositRequestDTO(arg1,arg2), headers), TransactionResponseDTO.class);
+    }
+
+    @When("the customer makes a GET request to {string} with query parameters IBANFrom={string} and IBANTo={string} and amount={string}")
+    public void theCustomerMakesAGETRequestToWithQueryParametersIBANFromAndIBANToAndAmount(String arg0, String arg1, String arg2, String arg3) {
+        ParameterizedTypeReference<List<Transaction>> responseType = new ParameterizedTypeReference<List<Transaction>>() {};
+        getResponse = restTemplate.exchange("/Transactions" + "?IBANFrom=" + arg1 + "&IBANTo=" + arg2 + "&amount=" + arg3,
+                HttpMethod.GET,
+                new HttpEntity<>(null, headers), responseType);
+    }
+
+    @When("the customer makes a GET request to {string} with query parameters IBANFrom={string} and IBANTo={string} and amount={string} and dateFrom={string} and dateTo={string}")
+    public void theCustomerMakesAGETRequestToWithQueryParametersIBANFromAndIBANToAndAmountAndDateFromAndDateTo(String arg0, String arg1, String arg2, String arg3, String arg4, String arg5) {
+        ParameterizedTypeReference<List<Transaction>> responseType = new ParameterizedTypeReference<List<Transaction>>() {};
+        getResponse = restTemplate.exchange("/Transactions" + "?IBANFrom=" + arg1 + "&IBANTo=" + arg2 + "&amount=" + arg3 + "&dateFrom=" + arg4 + "&dateTo=" + arg5,
+                HttpMethod.GET,
+                new HttpEntity<>(null, headers), responseType);
     }
 }

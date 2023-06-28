@@ -62,4 +62,14 @@ public class TransactionSpecifications {
             return null;
         return (transaction, cq, cb) -> cb.equal(transaction.get("amount"), amount);
     }
+    public Specification<Transaction> hasUserAccountTo(UserAccount userAccount) {
+        if (userAccount == null)
+            return null;
+        return (transaction, cq, cb) -> cb.equal(transaction.get("madeTo"), userAccount);
+    }
+    public Specification<Transaction> hasUserAccountFrom(UserAccount userAccount) {
+        if (userAccount == null)
+            return null;
+        return (transaction, cq, cb) -> cb.equal(transaction.get("madeFrom"), userAccount);
+    }
 }
