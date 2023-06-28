@@ -148,8 +148,8 @@ public class TransactionService {
                 throw new DataIntegrityViolationException("cant make a deposit to a savings account");
         }
         if (isWithdrawal){
-            checkDayLimit(mapWithdrawalRequestDtoToTransaction(dto), user);
             checkAbsoluteLimit(mapWithdrawalRequestDtoToTransaction(dto));
+            checkDayLimit(mapWithdrawalRequestDtoToTransaction(dto), user);
         }
         if (checkIfBankAccountIsOwnedByUser(account, user)){
             if (isWithdrawal){
