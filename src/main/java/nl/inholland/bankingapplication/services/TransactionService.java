@@ -8,13 +8,13 @@ import nl.inholland.bankingapplication.models.enums.BankAccountStatus;
 import nl.inholland.bankingapplication.models.enums.BankAccountType;
 import nl.inholland.bankingapplication.models.enums.UserAccountType;
 import nl.inholland.bankingapplication.repositories.TransactionRepository;
+import nl.inholland.bankingapplication.services.specifications.TransactionSpecifications;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Example;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.xml.crypto.Data;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,55 +26,36 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final UserAccountService userAccountService;
     private final BankAccountService bankAccountService;
+    private final TransactionSpecifications transactionSpecifications;
 
-    public TransactionService(TransactionRepository transactionRepository, UserAccountService userAccountService, BankAccountService bankAccountService) {
+    public TransactionService(TransactionRepository transactionRepository, UserAccountService userAccountService, BankAccountService bankAccountService, TransactionSpecifications transactionSpecifications) {
         this.transactionRepository = transactionRepository;
         this.userAccountService = userAccountService;
         this.bankAccountService = bankAccountService;
+        this.transactionSpecifications = transactionSpecifications;
     }
 
     public List<Transaction> getAllTransactions(UserAccount user, Integer userId,String IBANFrom, String IBANTo, Timestamp dateFrom, Timestamp dateTo, List<String> amount) {
-
-        //This is such a dumb hack but hey I have to know if it is empty or not
-
-        BankAccount bankAccountFrom = null;
-        if(IBANFrom != null){
-            bankAccountFrom = bankAccountService.getBankAccountByIBAN(IBANFrom);
+        Specification<Transaction> specification = Specification.where(transactionSpecifications.hasIBANFrom(IBANFrom))
+                .and(transactionSpecifications.hasIBANTo(IBANTo));
+        specification = specification.and(getSpecificationForAmount(specification,amount));
+        if (dateFrom != null && dateTo != null) {
+            specification = specification.and(transactionSpecifications.betweenDates(dateFrom, dateTo));
+        } else if (dateFrom != null) {
+            specification = specification.and(transactionSpecifications.afterDate(dateFrom));
+        } else if (dateTo != null) {
+            specification = specification.and(transactionSpecifications.beforeDate(dateTo));
+        }
+        if (user.getType().equals(UserAccountType.ROLE_CUSTOMER)) {
+            specification = specification.and(transactionSpecifications.hasUserAccountFrom(user)
+                    .or(transactionSpecifications.hasUserAccountTo(user)));
+        }
+        else if (user.getType().equals(UserAccountType.ROLE_EMPLOYEE) && userId != null) {
+            specification = specification.and(transactionSpecifications.hasUserAccountFrom(userAccountService.getUserAccountById(userId.longValue()))
+                    .or(transactionSpecifications.hasUserAccountTo(userAccountService.getUserAccountById(userId.longValue()))));
         }
 
-        BankAccount bankAccountTo = null;
-        if (IBANTo != null){
-            bankAccountTo = bankAccountService.getBankAccountByIBAN(IBANTo);
-        }
-
-        Transaction transaction = Transaction.builder().accountFrom(bankAccountFrom).accountTo(bankAccountTo).build();
-        List<Transaction> transactions = transactionRepository.findAll(Example.of(transaction));
-
-        if (!Objects.equals(user.getType(), UserAccountType.ROLE_EMPLOYEE)){
-           transactions = filterTransactionsByUser(user, transactions);
-        }
-        else {
-            if(userId !=null){
-                transactions = filterTransactionsByUser(userAccountService.getUserAccountById(userId.longValue()),transactions);
-            }
-        }
-        transactions = filterTransactionResponseForDates(transactions, dateFrom, dateTo);
-        transactions = filterTransactionsResponseForAmount(transactions, amount);
-        return transactions;
-    }
-
-    private List<Transaction> filterTransactionsByUser(UserAccount user, List<Transaction> transactions) {
-        List <Transaction> transactionFrom = new ArrayList<>();
-        List<Transaction> transactionsTo = new ArrayList<>();
-        for (BankAccount bankAccount: user.getBankAccounts()
-             ) {
-            transactionFrom.addAll(transactions.stream().filter(t -> t.getAccountFrom().getIBAN().equals(bankAccount.getIBAN())).toList());
-            transactionsTo.addAll(transactions.stream().filter(t -> t.getAccountTo().getIBAN().equals(bankAccount.getIBAN())).toList());
-        }
-        transactions.removeAll(transactions);
-        transactions.addAll(transactionFrom);
-        transactions.addAll(transactionsTo);
-        return transactions;
+        return transactionRepository.findAll(specification);
     }
 
     public TransactionResponseDTO makeTransaction(MakeTransactionDTO makeTransactionDTO, UserAccount user) throws ResponseStatusException {
@@ -100,18 +81,15 @@ public class TransactionService {
         }
 
         //this if checks if the employee is logged in and if yes the transaction goes through no matter what
-        if (Objects.equals(user.getType(), UserAccountType.ROLE_EMPLOYEE)){
-            return finalizeTransaction(transaction, user);
-        }
+
         //this if checks if a transaction is made between savings accounts.
 
 
         //the first if checks if the owner of the account is indeed making the transaction.
         return makeTransactionChecks(user, bankAccountsOfUser, transaction);
     }
-
     private TransactionResponseDTO makeTransactionChecks(UserAccount user, List<BankAccount> bankAccountsOfUser, Transaction transaction) {
-        if (bankAccountsOfUser.stream().anyMatch(b -> b.getIBAN().equals(transaction.getAccountFrom().getIBAN()))){
+        if (bankAccountsOfUser.stream().anyMatch(b -> b.getIBAN().equals(transaction.getAccountFrom().getIBAN()) || user.getType().equals(UserAccountType.ROLE_EMPLOYEE))) {
 
             //this if checks if the account to is a savings account
             if (checkBankAccountType(transaction.getAccountFrom(), BankAccountType.SAVINGS)) {
@@ -119,7 +97,7 @@ public class TransactionService {
                 // this if checks if the savings account is owned by the user
 
                 if (checkIfBankAccountIsOwnedByUser(transaction.getAccountTo(), user)){
-                    return finalizeTransaction(transaction, user);
+                    return finalizeSavingsTransactions(transaction);
                 }
                 else {
                     throw new DataIntegrityViolationException("Can't from savings to a current account you don't own");
@@ -131,7 +109,7 @@ public class TransactionService {
                 //this if checks if the account to is owned by the user.
                 if (checkIfBankAccountIsOwnedByUser(transaction.getAccountTo(), user)){
                     if (checkIfBankAccountIsOwnedByUser(transaction.getAccountFrom(), user)){
-                        return finalizeTransaction(transaction, user);
+                        return finalizeSavingsTransactions(transaction);
                     }
                     else {
                         throw new DataIntegrityViolationException("Can't make a transaction to a current account you don't own");
@@ -149,14 +127,12 @@ public class TransactionService {
 
         }
     }
-
     public TransactionResponseDTO makeDeposit(WithdrawalAndDepositRequestDTO dto, UserAccount user){
         return checkForViolationsWithdrawalAndDeposit(dto, user, false);
     }
     public TransactionResponseDTO makeWithdrawal(WithdrawalAndDepositRequestDTO dto, UserAccount user){
         return checkForViolationsWithdrawalAndDeposit(dto, user, true);
     }
-
     private TransactionResponseDTO checkForViolationsWithdrawalAndDeposit(WithdrawalAndDepositRequestDTO dto, UserAccount user, boolean isWithdrawal) {
         BankAccount account = bankAccountService.getBankAccountByIBAN(dto.getIBAN());
         if (dto.getAmount() <= 1)
@@ -172,8 +148,8 @@ public class TransactionService {
                 throw new DataIntegrityViolationException("cant make a deposit to a savings account");
         }
         if (isWithdrawal){
-            checkDayLimit(mapWithdrawalRequestDtoToTransaction(dto), user);
             checkAbsoluteLimit(mapWithdrawalRequestDtoToTransaction(dto));
+            checkDayLimit(mapWithdrawalRequestDtoToTransaction(dto), user);
         }
         if (checkIfBankAccountIsOwnedByUser(account, user)){
             if (isWithdrawal){
@@ -187,14 +163,17 @@ public class TransactionService {
         }
     }
 
-
-
     private TransactionResponseDTO finalizeTransaction(Transaction transaction, UserAccount user) throws ResponseStatusException {
         checkAbsoluteLimit(transaction);
         if (!Objects.equals(user.getType(), UserAccountType.ROLE_EMPLOYEE)) {
             checkTransactionLimit(transaction, user);
             checkDayLimit(transaction, user);
         }
+        Transaction transaction1 = saveTransaction(transaction);
+        return mapTransactionTOTransactionResponseDTO(transaction1);
+    }
+    private TransactionResponseDTO finalizeSavingsTransactions(Transaction transaction) throws ResponseStatusException {
+        checkAbsoluteLimit(transaction);
         Transaction transaction1 = saveTransaction(transaction);
         return mapTransactionTOTransactionResponseDTO(transaction1);
     }
@@ -245,54 +224,52 @@ public class TransactionService {
 
     private Transaction mapMakeTransactionDtoToTransaction(MakeTransactionDTO dto){
         Date date = new Date();
-        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountByIBAN(dto.getAccountFrom()), bankAccountService.getBankAccountByIBAN(dto.getAccountTo()), dto.getDescription(), new Timestamp(date.getTime()));
+        BankAccount bFrom = bankAccountService.getBankAccountByIBAN(dto.getAccountFrom());
+        BankAccount bTo = bankAccountService.getBankAccountByIBAN(dto.getAccountTo());
+        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bFrom,bFrom.getUserAccount(), bTo,bTo.getUserAccount(), dto.getDescription(), new Timestamp(date.getTime()));
     }
 
     private Transaction mapWithdrawalRequestDtoToTransaction(WithdrawalAndDepositRequestDTO dto){
         Date date = new Date();
-        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountByIBAN(dto.getIBAN()),bankAccountService.getBankAccountsByUserAccountId(1L).get(0),"Withdrawal", new Timestamp(date.getTime()));
+        BankAccount bFrom = bankAccountService.getBankAccountByIBAN(dto.getIBAN());
+        BankAccount bTo = bankAccountService.getBankAccountsByUserAccountId(1L).get(0);
+        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bFrom,bFrom.getUserAccount(),bTo,bTo.getUserAccount(),"Withdrawal", new Timestamp(date.getTime()));
     }
     private Transaction mapDepositRequestDtoToTransaction(WithdrawalAndDepositRequestDTO dto){
         Date date = new Date();
-        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bankAccountService.getBankAccountsByUserAccountId(1L).get(0),bankAccountService.getBankAccountByIBAN(dto.getIBAN()),"Deposit", new Timestamp(date.getTime()));
+        BankAccount bFrom = bankAccountService.getBankAccountsByUserAccountId(1L).get(0);
+        BankAccount bTo = bankAccountService.getBankAccountByIBAN(dto.getIBAN());
+        return new Transaction(dto.getAmount(), userAccountService.getUserAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), bFrom,bFrom.getUserAccount(),bTo,bTo.getUserAccount(),"Deposit", new Timestamp(date.getTime()));
     }
 
-    private List<Transaction> filterTransactionResponseForDates(List<Transaction> transactions, Timestamp dateFrom, Timestamp dateTo){
-        if (dateFrom != null && dateTo != null){
-           transactions = transactions.stream().filter(t -> t.occuredAt.after(dateFrom)).filter(t -> t.occuredAt.before(dateTo)).toList();
-        }
-        else if (dateFrom !=null){
-            transactions = transactions.stream().filter(t -> t.occuredAt.after(dateFrom)).toList();
-        }
-        else if (dateTo != null){
-            transactions = transactions.stream().filter(t -> t.occuredAt.before(dateTo)).toList();
-        }
-        return transactions;
-    }
 
-    private List<Transaction> filterTransactionsResponseForAmount(List<Transaction> transactions, List<String> amount){
+    private Specification<Transaction> getSpecificationForAmount(Specification<Transaction> specification, List<String> amount){
         if (amount != null){
             if(amount.get(0).startsWith("<") && amount.get(0).startsWith(">",1)){
-                Double actualAmount = Double.valueOf(amount.get(0).replace("<","").replace(">",""));
-                Double actualAmount2 = Double.valueOf(amount.get(1));
-                transactions = transactions.stream().filter(t -> t.getAmount() > actualAmount).filter(t -> t.getAmount() < actualAmount2).toList();
+                double actualAmount = Double.parseDouble(amount.get(0).replace("<","").replace(">",""));
+                double actualAmount2 = Double.parseDouble(amount.get(1));
+                actualAmount += 0.01;
+                actualAmount2 -= 0.01;
+                specification = specification.and(transactionSpecifications.betweenAmounts(actualAmount, actualAmount2));
             }
             else
             if(amount.get(0).startsWith("<")){
-                Double actualAmount = Double.valueOf(amount.get(0).replace("<",""));
-                transactions = transactions.stream().filter(t -> t.getAmount() < actualAmount).toList();
+                double actualAmount = Double.parseDouble(amount.get(0).replace("<",""));
+                actualAmount += 0.01;
+                specification = specification.and(transactionSpecifications.lessThanAmount(actualAmount));
             }
             else if (amount.get(0).startsWith(">")){
-                Double actualAmount = Double.valueOf(amount.get(0).replace(">",""));
-                transactions = transactions.stream().filter(t -> t.getAmount() > actualAmount).toList();
+                double actualAmount = Double.parseDouble(amount.get(0).replace(">",""));
+                actualAmount -= 0.01;
+                specification = specification.and(transactionSpecifications.greaterThanAmount(actualAmount));
             }
             else{
-                Double actualAmount = Double.valueOf(amount.get(0));
-                transactions = transactions.stream().filter(t -> t.getAmount().equals(actualAmount)).toList();
+                double actualAmount = Double.parseDouble(amount.get(0));
+                specification = specification.and(transactionSpecifications.equalsAmount(actualAmount));
             }
 
         }
-        return transactions;
+        return specification;
     }
 
     public Transaction makeMockTransaction(MakeTransactionDTO dto){
@@ -300,7 +277,9 @@ public class TransactionService {
     }
     private Transaction mapMockTransactionDto(MakeTransactionDTO dto){
         Date date = new Date();
-        return new Transaction(dto.getAmount(), null, bankAccountService.getBankAccountByIBAN(dto.getAccountFrom()), bankAccountService.getBankAccountByIBAN(dto.getAccountTo()), dto.getDescription(), new Timestamp(date.getTime()));
+        BankAccount bFrom = bankAccountService.getBankAccountByIBAN(dto.getAccountFrom());
+        BankAccount bTo = bankAccountService.getBankAccountByIBAN(dto.getAccountTo());
+        return new Transaction(dto.getAmount(), null, bFrom,bFrom.getUserAccount(), bTo, bTo.getUserAccount(),dto.getDescription(), new Timestamp(date.getTime()));
 
     }
 

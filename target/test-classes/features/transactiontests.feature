@@ -74,3 +74,13 @@ Feature: Transaction CRUD
     Given the endpoint "Transactions/Withdrawal" is available for method "POST" as "customer"
     When the customer makes an atm request "Withdrawal" with IBAN "NL71RABO3667086008" and amount 100000
     Then the transaction response should have status code 400
+
+  Scenario: customer makes GET request to get all transactions with query parameters IBANFrom and IBANTo and amount and dateFrom and dateTo
+    Given the endpoint "Transactions" is available for method "GET" as "customer"
+    When the customer makes a GET request to "Transactions" with query parameters IBANFrom="NL71RABO3667086008" and IBANTo="NL43ABNA5253446745" and amount=">10" and dateFrom="2023-06-28 17:18:16.000" and dateTo="2080-6-30 21:18:16.000"
+    Then the transaction response should have status code 200
+
+  Scenario: customer makes GET request to get all transactions with query parameters IBANFrom and IBANTo and amount
+    Given the endpoint "Transactions" is available for method "GET" as "customer"
+    When the customer makes a GET request to "Transactions" with query parameters IBANFrom="NL71RABO3667086008" and IBANTo="NL43ABNA5253446745" and amount=">10"
+    Then the transaction response should have status code 200
